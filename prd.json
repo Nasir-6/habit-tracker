@@ -228,7 +228,7 @@
       "Navigate to previous or next month",
       "Verify calendar updates accordingly"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Calendar View",

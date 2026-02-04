@@ -37,7 +37,7 @@ type HabitCalendarCardProps = {
 }
 
 export function HabitCalendarCard({ habits }: HabitCalendarCardProps) {
-  const [monthAnchor] = useState(() => new Date())
+  const [monthAnchor, setMonthAnchor] = useState(() => new Date())
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(
     habits[0]?.id ?? null,
   )
@@ -83,6 +83,13 @@ export function HabitCalendarCard({ habits }: HabitCalendarCardProps) {
       },
     )
   }, [calendar.monthIndex, calendar.year])
+
+  const shiftMonth = (offset: number) => {
+    setMonthAnchor(
+      (current) =>
+        new Date(current.getFullYear(), current.getMonth() + offset, 1),
+    )
+  }
 
   useEffect(() => {
     if (!selectedHabit) {
@@ -143,26 +150,45 @@ export function HabitCalendarCard({ habits }: HabitCalendarCardProps) {
 
   return (
     <div className="rounded-3xl border border-slate-200 bg-white/70 p-8 shadow-sm">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h2 className="text-lg font-semibold text-slate-900">Calendar</h2>
           <p className="text-xs text-slate-500">{monthLabel}</p>
         </div>
-        {habits.length > 0 ? (
-          <select
-            className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs text-slate-600"
-            value={selectedHabitId ?? ''}
-            onChange={(event) => {
-              setSelectedHabitId(event.target.value)
-            }}
-          >
-            {habits.map((habit) => (
-              <option key={habit.id} value={habit.id}>
-                {habit.name}
-              </option>
-            ))}
-          </select>
-        ) : null}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center rounded-full border border-slate-200 bg-white">
+            <button
+              className="rounded-full px-3 py-1 text-xs text-slate-500 transition hover:text-slate-800"
+              type="button"
+              onClick={() => shiftMonth(-1)}
+            >
+              Prev
+            </button>
+            <span className="h-5 w-px bg-slate-200" />
+            <button
+              className="rounded-full px-3 py-1 text-xs text-slate-500 transition hover:text-slate-800"
+              type="button"
+              onClick={() => shiftMonth(1)}
+            >
+              Next
+            </button>
+          </div>
+          {habits.length > 0 ? (
+            <select
+              className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs text-slate-600"
+              value={selectedHabitId ?? ''}
+              onChange={(event) => {
+                setSelectedHabitId(event.target.value)
+              }}
+            >
+              {habits.map((habit) => (
+                <option key={habit.id} value={habit.id}>
+                  {habit.name}
+                </option>
+              ))}
+            </select>
+          ) : null}
+        </div>
       </div>
 
       {habits.length === 0 || !selectedHabit ? (
