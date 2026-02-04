@@ -255,7 +255,7 @@
       "Request calendar data",
       "Verify out-of-bounds dates are excluded"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Backend / Calendar View",

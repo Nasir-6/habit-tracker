@@ -38,6 +38,10 @@ const formatLocalDate = (date: Date) => {
   return `${year}-${month}-${day}`
 }
 
+const maxDate = (left: string, right: string) => (left >= right ? left : right)
+
+const minDate = (left: string, right: string) => (left <= right ? left : right)
+
 const parseMonth = (value: string) => {
   const match = /^(\d{4})-(\d{2})$/.exec(value)
 
@@ -115,13 +119,31 @@ export const Route = createFileRoute('/api/calendar')({
         const { habitId, month, parsedMonth } = params
 
         const habit = await db
-          .select({ id: habits.id })
+          .select({ id: habits.id, createdAt: habits.createdAt })
           .from(habits)
           .where(and(eq(habits.id, habitId), eq(habits.userId, user.id)))
           .then((rows) => rows.at(0))
 
         if (!habit) {
           return badRequest('Habit not found')
+        }
+
+        const habitCreatedAt =
+          habit.createdAt instanceof Date
+            ? habit.createdAt
+            : new Date(habit.createdAt)
+
+        if (Number.isNaN(habitCreatedAt.getTime())) {
+          return badRequest('Habit creation date unavailable')
+        }
+
+        const habitCreatedOn = formatLocalDate(habitCreatedAt)
+        const today = formatLocalDate(new Date())
+        const startBound = maxDate(parsedMonth.startDate, habitCreatedOn)
+        const endBound = minDate(parsedMonth.endDate, today)
+
+        if (endBound < startBound) {
+          return ok({ habitId, month, dates: [] })
         }
 
         const completions = await db
@@ -131,8 +153,8 @@ export const Route = createFileRoute('/api/calendar')({
             and(
               eq(habitCompletions.userId, user.id),
               eq(habitCompletions.habitId, habitId),
-              gte(habitCompletions.completedOn, parsedMonth.startDate),
-              lte(habitCompletions.completedOn, parsedMonth.endDate),
+              gte(habitCompletions.completedOn, startBound),
+              lte(habitCompletions.completedOn, endBound),
             ),
           )
           .orderBy(habitCompletions.completedOn)

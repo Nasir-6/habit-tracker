@@ -73,3 +73,8 @@
 - Decisions: compute bestStreak from descending completion list while currentStreak continues to anchor on requested localDate; return bestStreak from /api/streaks response.
 - Files changed: src/routes/api/streaks.ts, prd.json.
 - Blockers/notes: vitest hanging process message persists after run.
+
+- Task completed: Backend / Calendar View - Exclude dates before habit creation and after today.
+- Decisions: clamp calendar query bounds between habit created date (UTC) and today (UTC) to avoid pre-creation/future dates; return empty list when range is invalid.
+- Files changed: src/routes/api/calendar.ts, prd.json, progress.txt.
+- Blockers/notes: none.
