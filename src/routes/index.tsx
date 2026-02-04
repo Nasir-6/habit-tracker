@@ -16,8 +16,43 @@ export function App() {
   const [habits, setHabits] = useState<Habit[]>([])
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [draggingHabitId, setDraggingHabitId] = useState<string | null>(null)
   const trimmedHabitName = habitName.trim()
   const isSaveDisabled = trimmedHabitName.length === 0 || isSubmitting
+
+  const moveHabit = (items: Habit[], fromId: string, toId: string) => {
+    if (fromId === toId) {
+      return items
+    }
+
+    const fromIndex = items.findIndex((item) => item.id === fromId)
+    const toIndex = items.findIndex((item) => item.id === toId)
+
+    if (fromIndex === -1 || toIndex === -1) {
+      return items
+    }
+
+    const updated = [...items]
+    const [moved] = updated.splice(fromIndex, 1)
+
+    updated.splice(toIndex, 0, moved)
+    return updated
+  }
+
+  const persistHabitOrder = async (orderedIds: string[]) => {
+    const response = await fetch('/api/habits', {
+      method: 'PATCH',
+      headers: {
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({ orderedIds }),
+    })
+
+    if (!response.ok) {
+      const payload = (await response.json()) as { error?: string }
+      throw new Error(payload.error || 'Unable to update habit order')
+    }
+  }
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#f8fafc,_#eef2f7_40%,_#e2e8f0_100%)] px-6 pb-20">
@@ -80,13 +115,15 @@ export function App() {
                     }
 
                     const payload = (await response.json()) as {
-                      habit?: { name?: string }
+                      habit?: { id?: string; name?: string }
                     }
-                    const createdName = payload.habit?.name || trimmedHabitName
+                    const createdHabit = payload.habit
+                    const createdName = createdHabit?.name || trimmedHabitName
+                    const createdId = createdHabit?.id || crypto.randomUUID()
 
                     setHabits((current) => [
                       {
-                        id: crypto.randomUUID(),
+                        id: createdId,
                         name: createdName,
                         isCompleted: false,
                       },
@@ -159,7 +196,57 @@ export function App() {
                     habits.map((habit) => (
                       <div
                         key={habit.id}
-                        className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white/90 px-5 py-4 shadow-sm"
+                        className={cn(
+                          'flex items-center justify-between rounded-2xl border bg-white/90 px-5 py-4 shadow-sm transition',
+                          draggingHabitId === habit.id
+                            ? 'border-slate-400 bg-slate-50 shadow-md'
+                            : 'border-slate-200',
+                        )}
+                        draggable
+                        onDragStart={(event) => {
+                          event.dataTransfer.effectAllowed = 'move'
+                          event.dataTransfer.setData('text/plain', habit.id)
+                          setDraggingHabitId(habit.id)
+                        }}
+                        onDragEnd={() => {
+                          setDraggingHabitId(null)
+                        }}
+                        onDragOver={(event) => {
+                          event.preventDefault()
+                        }}
+                        onDrop={async () => {
+                          if (!draggingHabitId) {
+                            return
+                          }
+
+                          const updated = moveHabit(
+                            habits,
+                            draggingHabitId,
+                            habit.id,
+                          )
+
+                          if (updated === habits) {
+                            setDraggingHabitId(null)
+                            return
+                          }
+
+                          const previous = habits
+                          const orderedIds = updated.map((item) => item.id)
+
+                          setHabits(updated)
+                          setDraggingHabitId(null)
+
+                          try {
+                            await persistHabitOrder(orderedIds)
+                          } catch (error) {
+                            const message =
+                              error instanceof Error
+                                ? error.message
+                                : 'Unable to update habit order'
+                            setErrorMessage(message)
+                            setHabits(previous)
+                          }
+                        }}
                       >
                         <div>
                           <p className="text-sm font-semibold text-slate-900">
