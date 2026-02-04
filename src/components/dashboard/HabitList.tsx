@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils'
 
 type HabitListProps = {
   habits: Habit[]
+  habitStreaks: Partial<Record<string, { current: number; best: number }>>
   draggingHabitId: string | null
   onHabitDragStart: (event: DragEvent<HTMLDivElement>, habitId: string) => void
   onHabitDragEnd: () => void
@@ -14,12 +15,16 @@ type HabitListProps = {
 
 export function HabitList({
   habits,
+  habitStreaks,
   draggingHabitId,
   onHabitDragStart,
   onHabitDragEnd,
   onHabitDrop,
   onToggleHabit,
 }: HabitListProps) {
+  const formatStreak = (value: number) =>
+    `${value} day${value === 1 ? '' : 's'}`
+
   return (
     <div className="rounded-3xl border border-slate-200 bg-white/70 p-8 shadow-sm">
       <div className="flex items-center justify-between">
@@ -63,6 +68,10 @@ export function HabitList({
                   {habit.isCompleted
                     ? 'Completed today.'
                     : 'Ready for today’s check-in.'}
+                </p>
+                <p className="text-xs text-slate-400">
+                  Current {formatStreak(habitStreaks[habit.id]?.current ?? 0)} ·
+                  Best {formatStreak(habitStreaks[habit.id]?.best ?? 0)}
                 </p>
               </div>
               <div className="flex items-center gap-3">

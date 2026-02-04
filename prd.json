@@ -118,7 +118,7 @@
       "Verify streak values are visible",
       "Complete habit and verify update"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / History",

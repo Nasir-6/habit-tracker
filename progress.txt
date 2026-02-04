@@ -9,6 +9,11 @@
 - Files changed: src/routes/api/habits.ts, src/routeTree.gen.ts.
 - Blockers/notes: vitest hanging process message persists after run.
 
+- Task completed: Frontend / Streaks - Display current and best streak per habit.
+- Decisions: fetch streaks per habit from /api/streaks using local YYYY-MM-DD; store streaks in separate map to avoid mutating habit list; default to 0 on fetch error.
+- Files changed: src/routes/index.tsx, src/components/dashboard/Dashboard.tsx, src/components/dashboard/HabitList.tsx, prd.json, progress.txt.
+- Blockers/notes: vitest hanging process message persists after run.
+
 - Task completed: Backend / History - Return historical completion data for a habit.
 - Decisions: add GET /api/history with habitId + localDate query; validate localDate and exclude future by lte on completedOn; return ordered date list.
 - Files changed: src/routes/api/history.ts, src/routeTree.gen.ts, prd.json, progress.txt.

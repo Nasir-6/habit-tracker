@@ -13,6 +13,7 @@ type DashboardProps = {
   isSubmitting: boolean
   errorMessage: string | null
   habits: Habit[]
+  habitStreaks: Partial<Record<string, { current: number; best: number }>>
   draggingHabitId: string | null
   onHabitNameChange: (value: string) => void
   onCreateHabit: (event: FormEvent<HTMLFormElement>) => void
@@ -28,6 +29,7 @@ export function Dashboard({
   isSubmitting,
   errorMessage,
   habits,
+  habitStreaks,
   draggingHabitId,
   onHabitNameChange,
   onCreateHabit,
@@ -55,6 +57,7 @@ export function Dashboard({
             <HabitList
               draggingHabitId={draggingHabitId}
               habits={habits}
+              habitStreaks={habitStreaks}
               onHabitDragEnd={onHabitDragEnd}
               onHabitDragStart={onHabitDragStart}
               onHabitDrop={onHabitDrop}
