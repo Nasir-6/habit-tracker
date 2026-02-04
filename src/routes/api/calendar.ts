@@ -31,10 +31,14 @@ const ok = (payload: Record<string, unknown>) => {
   })
 }
 
-const formatLocalDate = (date: Date) => {
-  const year = date.getUTCFullYear()
-  const month = String(date.getUTCMonth() + 1).padStart(2, '0')
-  const day = String(date.getUTCDate()).padStart(2, '0')
+const formatLocalDate = (date: Date, offsetMinutes = 0) => {
+  const shiftedDate =
+    offsetMinutes === 0
+      ? date
+      : new Date(date.getTime() - offsetMinutes * 60 * 1000)
+  const year = shiftedDate.getUTCFullYear()
+  const month = String(shiftedDate.getUTCMonth() + 1).padStart(2, '0')
+  const day = String(shiftedDate.getUTCDate()).padStart(2, '0')
   return `${year}-${month}-${day}`
 }
 
@@ -86,6 +90,7 @@ const getCalendarParams = (request: Request) => {
   const url = new URL(request.url)
   const habitId = url.searchParams.get('habitId')
   const month = url.searchParams.get('month')
+  const tzOffsetParam = url.searchParams.get('tzOffsetMinutes')
 
   if (!habitId || !month) {
     return null
@@ -97,7 +102,25 @@ const getCalendarParams = (request: Request) => {
     return null
   }
 
-  return { habitId, month, parsedMonth }
+  if (tzOffsetParam === null) {
+    return { habitId, month, parsedMonth, tzOffsetMinutes: 0 }
+  }
+
+  if (!/^[-+]?\d+$/.test(tzOffsetParam)) {
+    return null
+  }
+
+  const tzOffsetMinutes = Number(tzOffsetParam)
+
+  if (!Number.isFinite(tzOffsetMinutes) || !Number.isInteger(tzOffsetMinutes)) {
+    return null
+  }
+
+  if (Math.abs(tzOffsetMinutes) > 14 * 60) {
+    return null
+  }
+
+  return { habitId, month, parsedMonth, tzOffsetMinutes }
 }
 
 export const Route = createFileRoute('/api/calendar')({
@@ -116,7 +139,7 @@ export const Route = createFileRoute('/api/calendar')({
           return badRequest('Habit id and month are required')
         }
 
-        const { habitId, month, parsedMonth } = params
+        const { habitId, month, parsedMonth, tzOffsetMinutes } = params
 
         const habit = await db
           .select({ id: habits.id, createdAt: habits.createdAt })
@@ -137,8 +160,8 @@ export const Route = createFileRoute('/api/calendar')({
           return badRequest('Habit creation date unavailable')
         }
 
-        const habitCreatedOn = formatLocalDate(habitCreatedAt)
-        const today = formatLocalDate(new Date())
+        const habitCreatedOn = formatLocalDate(habitCreatedAt, tzOffsetMinutes)
+        const today = formatLocalDate(new Date(), tzOffsetMinutes)
         const startBound = maxDate(parsedMonth.startDate, habitCreatedOn)
         const endBound = minDate(parsedMonth.endDate, today)
 

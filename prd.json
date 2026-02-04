@@ -265,7 +265,7 @@
       "Request calendar data",
       "Verify correct local day mapping"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Platform",
