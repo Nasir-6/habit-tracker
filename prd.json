@@ -17,7 +17,7 @@
       "Verify request fails with validation error",
       "Verify no habit is persisted"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Habit Management",

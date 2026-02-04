@@ -113,3 +113,8 @@
 - Decisions: clamp calendar query bounds between habit created date (UTC) and today (UTC) to avoid pre-creation/future dates; return empty list when range is invalid.
 - Files changed: src/routes/api/calendar.ts, prd.json, progress.txt.
 - Blockers/notes: none.
+
+- Task completed: Backend / Habit Management - Reject habit creation requests without a name. (PRD Backend / Habit Management)
+- Decisions: confirmed existing POST /api/habits validation already rejects missing/blank names before insert; marked PRD as passing.
+- Files changed: prd.json, progress.txt.
+- Blockers/notes: none.
