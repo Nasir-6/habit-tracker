@@ -118,3 +118,8 @@
 - Decisions: confirmed existing POST /api/habits validation already rejects missing/blank names before insert; marked PRD as passing.
 - Files changed: prd.json, progress.txt.
 - Blockers/notes: none.
+
+- Task completed: Frontend / Calendar View - Render a monthly calendar for a single habit. (PRD Frontend / Calendar View)
+- Decisions: replace week preview card with calendar card; default to current month and first habit selection; show empty state when no habits.
+- Files changed: src/components/dashboard/HabitCalendarCard.tsx, src/components/dashboard/Dashboard.tsx, prd.json, progress.txt.
+- Blockers/notes: none.

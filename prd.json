@@ -207,7 +207,7 @@
       "Verify 7-column monthly grid",
       "Verify current month is default"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Calendar View",

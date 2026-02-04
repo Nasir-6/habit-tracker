@@ -3,10 +3,10 @@ import type { Habit } from '@/components/dashboard/types'
 
 import { CreateHabitCard } from '@/components/dashboard/CreateHabitCard'
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader'
+import { HabitCalendarCard } from '@/components/dashboard/HabitCalendarCard'
 import { HabitList } from '@/components/dashboard/HabitList'
 import { PageShell } from '@/components/dashboard/PageShell'
 import { PartnerStatusCard } from '@/components/dashboard/PartnerStatusCard'
-import { WeekPreviewCard } from '@/components/dashboard/WeekPreviewCard'
 
 type DashboardProps = {
   habitName: string
@@ -90,7 +90,7 @@ export function Dashboard({
               onToggleHistory={onToggleHistory}
             />
             <div className="grid gap-6">
-              <WeekPreviewCard />
+              <HabitCalendarCard habits={habits} />
               <PartnerStatusCard
                 errorMessage={partnerError}
                 habits={partnerHabits}
