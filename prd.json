@@ -108,7 +108,7 @@
       "Complete habit again",
       "Verify current streak resets and best streak remains"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Streaks",

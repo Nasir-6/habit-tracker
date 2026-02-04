@@ -123,6 +123,30 @@ const getCurrentStreak = (
   return count
 }
 
+const getBestStreak = (completed: { completedOn: string }[]) => {
+  let best = 0
+  let count = 0
+  let expectedDate: string | null = null
+
+  for (const completion of completed) {
+    if (!expectedDate) {
+      count = 1
+    } else if (completion.completedOn === expectedDate) {
+      count += 1
+    } else {
+      count = 1
+    }
+
+    if (count > best) {
+      best = count
+    }
+
+    expectedDate = previousLocalDate(completion.completedOn)
+  }
+
+  return best
+}
+
 export const Route = createFileRoute('/api/streaks')({
   server: {
     handlers: {
@@ -164,8 +188,9 @@ export const Route = createFileRoute('/api/streaks')({
           .orderBy(desc(habitCompletions.completedOn))
 
         const currentStreak = getCurrentStreak(completions, localDate)
+        const bestStreak = getBestStreak(completions)
 
-        return ok({ currentStreak })
+        return ok({ currentStreak, bestStreak })
       },
     },
   },
