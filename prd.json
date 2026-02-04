@@ -7,7 +7,7 @@
       "Verify a name input is present and marked as required",
       "Verify save action is disabled when name is empty"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Backend / Habit Management",
@@ -27,7 +27,7 @@
       "Navigate to Today screen",
       "Verify habit appears immediately"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Habit Management",
@@ -57,7 +57,7 @@
       "Tap completion control",
       "Verify completed state is shown"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Daily Check-in",
@@ -67,7 +67,7 @@
       "Tap completion control again",
       "Verify habit is marked incomplete"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Backend / Daily Check-in",

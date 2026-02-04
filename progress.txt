@@ -33,3 +33,8 @@
 - Decisions: add habits table with sort order + user id; require auth session for habit CRUD; add GET/PATCH on /api/habits for ordered fetch and updates.
 - Files changed: src/db/schema.ts, src/routes/api/habits.ts.
 - Blockers/notes: vitest hanging process message persists after run.
+
+- Task completed: Auth + DB plumbing - Enable email/password auth flow and apply habits table migration for local testing.
+- Decisions: use absolute auth base URL on SSR and window origin on client; add habits migration and update journal for db:migrate.
+- Files changed: src/lib/auth-client.ts, src/routes/index.tsx, drizzle/0001_create_habits.sql, drizzle/meta/_journal.json.
+- Blockers/notes: none.
