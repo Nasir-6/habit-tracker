@@ -3,15 +3,24 @@
 
 set -e
 
-if [ -z "$1" ]; then
-  echo "Usage: $0 <iterations>"
+  echo "STARTING OPENCODE SH"
+
+# Usage: ./opencode.sh <iterations> "<title>"
+
+if [[ -z "${1:-}" ]]; then
+  echo "Usage: $0 <iterations> \"<title>\""
   exit 1
 fi
+
+iterations="$1"
+base_title="${2:-OpenCode Iteration}"
+
+
 
 # For each iteration, run OpenCode with the following prompt.
 # This prompt is basic, we'll expand it later.
 for ((i=1; i<=$1; i++)); do
-  result=$(opencode run -p \
+  result=$(opencode run \
 "@prd.json @progress.txt \
 1. Decide which task to work on next. \
 This should be the one YOU decide has the highest priority, \
@@ -22,7 +31,7 @@ This should be the one YOU decide has the highest priority, \
 ONLY WORK ON A SINGLE FEATURE. \
 If, while implementing the feature, you notice that all work \
 is complete, output <promise>COMPLETE</promise>. \
-After completing each task, append to progress.txt:
+After completing each task, update the prd.json and append to progress.txt these details:
 - Task completed and PRD item reference
 - Key decisions made and reasoning
 - Files changed
@@ -45,8 +54,8 @@ When choosing the next task, prioritize in this order:
 3. Unknown unknowns and spike work
 4. Standard features and implementation
 5. Polish, cleanup, and quick wins
-Fail fast on risky work. Save easy wins for later.
-")
+Fail fast on risky work. Save easy wins for later.\
+" --print-logs --title "${base_title} #${i}")
 
   echo "$result"
 

@@ -55,6 +55,22 @@ Keep guidance short, concrete, and consistent with repo conventions.
 Formatting is enforced by Prettier and ESLint (TanStack config).
 Follow existing patterns in nearby files when editing.
 
+## File size & structure
+
+- Prefer small, focused files with a single responsibility.
+- If a file grows beyond ~200–300 lines, consider:
+  - extracting helpers or hooks
+  - splitting server vs client logic
+  - moving reusable logic into `src/lib`
+- Large React components should be decomposed into:
+  - smaller presentational components
+  - custom hooks for stateful logic
+- Avoid “utility dumping grounds”; name extracted files by intent.
+- Route files should stay thin:
+  - routing + data loading only
+  - move complex UI into colocated components
+- Hooks should not mix data fetching, state, and formatting concerns.
+
 ### Formatting rules (from `prettier.config.js`)
 
 - No semicolons.
