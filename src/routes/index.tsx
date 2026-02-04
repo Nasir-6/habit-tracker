@@ -8,6 +8,7 @@ export const Route = createFileRoute('/')({ component: App })
 type Habit = {
   id: string
   name: string
+  isCompleted: boolean
 }
 
 export function App() {
@@ -84,7 +85,11 @@ export function App() {
                     const createdName = payload.habit?.name || trimmedHabitName
 
                     setHabits((current) => [
-                      { id: crypto.randomUUID(), name: createdName },
+                      {
+                        id: crypto.randomUUID(),
+                        name: createdName,
+                        isCompleted: false,
+                      },
                       ...current,
                     ])
                     setHabitName('')
@@ -161,12 +166,44 @@ export function App() {
                             {habit.name}
                           </p>
                           <p className="text-xs text-slate-500">
-                            Ready for today’s check-in.
+                            {habit.isCompleted
+                              ? 'Completed today.'
+                              : 'Ready for today’s check-in.'}
                           </p>
                         </div>
-                        <span className="rounded-full border border-slate-200 px-3 py-1 text-xs text-slate-500">
-                          Pending
-                        </span>
+                        <div className="flex items-center gap-3">
+                          <span
+                            className={cn(
+                              'rounded-full border px-3 py-1 text-xs',
+                              habit.isCompleted
+                                ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                                : 'border-slate-200 text-slate-500',
+                            )}
+                          >
+                            {habit.isCompleted ? 'Completed' : 'Pending'}
+                          </span>
+                          <button
+                            className={cn(
+                              'rounded-full border px-4 py-2 text-xs font-semibold transition',
+                              habit.isCompleted
+                                ? 'cursor-not-allowed border-emerald-200 bg-emerald-100 text-emerald-600'
+                                : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50',
+                            )}
+                            disabled={habit.isCompleted}
+                            type="button"
+                            onClick={() => {
+                              setHabits((current) =>
+                                current.map((item) =>
+                                  item.id === habit.id
+                                    ? { ...item, isCompleted: true }
+                                    : item,
+                                ),
+                              )
+                            }}
+                          >
+                            {habit.isCompleted ? 'Completed' : 'Mark complete'}
+                          </button>
+                        </div>
                       </div>
                     ))
                   )}
