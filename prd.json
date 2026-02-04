@@ -1,0 +1,289 @@
+[
+  {
+    "category": "Frontend / Habit Management",
+    "description": "Render habit creation UI with a required name field.",
+    "steps_to_verify": [
+      "Open the habit creation screen",
+      "Verify a name input is present and marked as required",
+      "Verify save action is disabled when name is empty"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Backend / Habit Management",
+    "description": "Reject habit creation requests without a name.",
+    "steps_to_verify": [
+      "Send habit creation request without name",
+      "Verify request fails with validation error",
+      "Verify no habit is persisted"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Habit Management",
+    "description": "Display newly created habits in the Today list.",
+    "steps_to_verify": [
+      "Create a habit",
+      "Navigate to Today screen",
+      "Verify habit appears immediately"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Habit Management",
+    "description": "Allow reordering of habits via drag-and-drop.",
+    "steps_to_verify": [
+      "Create multiple habits",
+      "Reorder habits",
+      "Verify UI reflects new order"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Backend / Habit Management",
+    "description": "Persist habit order per user.",
+    "steps_to_verify": [
+      "Update habit order",
+      "Reload or refetch habits",
+      "Verify order persists"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Daily Check-in",
+    "description": "Allow user to complete a habit for the current day.",
+    "steps_to_verify": [
+      "Open Today screen",
+      "Tap completion control",
+      "Verify completed state is shown"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Daily Check-in",
+    "description": "Allow user to undo a habit completion for the current day.",
+    "steps_to_verify": [
+      "Complete a habit",
+      "Tap completion control again",
+      "Verify habit is marked incomplete"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Backend / Daily Check-in",
+    "description": "Store a single completion per habit per local day.",
+    "steps_to_verify": [
+      "Submit completion request",
+      "Verify completion is stored with local date",
+      "Verify duplicate completions are prevented"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Backend / Daily Check-in",
+    "description": "Remove or deactivate completion when undone.",
+    "steps_to_verify": [
+      "Undo a completion",
+      "Verify completion record is removed or inactive",
+      "Verify streaks recalculate"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Backend / Streaks",
+    "description": "Calculate current streak from consecutive daily completions.",
+    "steps_to_verify": [
+      "Create completions on consecutive days",
+      "Request streak data",
+      "Verify current streak count"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Backend / Streaks",
+    "description": "Reset current streak after a missed day while preserving best streak.",
+    "steps_to_verify": [
+      "Build multi-day streak",
+      "Miss one day",
+      "Complete habit again",
+      "Verify current streak resets and best streak remains"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Streaks",
+    "description": "Display current and best streak per habit.",
+    "steps_to_verify": [
+      "Open Today screen",
+      "Verify streak values are visible",
+      "Complete habit and verify update"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / History",
+    "description": "Render a read-only history view for a habit.",
+    "steps_to_verify": [
+      "Navigate to habit history",
+      "Verify completed days are visible",
+      "Verify no editing is possible"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Backend / History",
+    "description": "Return historical completion data for a habit.",
+    "steps_to_verify": [
+      "Request habit history",
+      "Verify all stored completion dates are returned",
+      "Verify future dates are excluded"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Backend / History",
+    "description": "Preserve historical data for archived habits.",
+    "steps_to_verify": [
+      "Archive a habit",
+      "Request history",
+      "Verify historical completions remain accessible"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Backend / Partnering",
+    "description": "Create a pending partnership invite.",
+    "steps_to_verify": [
+      "Generate partner invite",
+      "Verify invite is stored as pending",
+      "Verify no data is shared yet"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Backend / Partnering",
+    "description": "Activate partnership upon acceptance.",
+    "steps_to_verify": [
+      "Accept invite",
+      "Verify partnership is active",
+      "Verify start date is recorded"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Partnering",
+    "description": "Display partner habit names and today’s completion status.",
+    "steps_to_verify": [
+      "Establish partnership",
+      "Open partner view",
+      "Verify habit names and today status are visible"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Backend / Partnering",
+    "description": "Restrict partner visibility to post-partnership data only.",
+    "steps_to_verify": [
+      "Create completions before partnership",
+      "Activate partnership",
+      "Verify pre-partnership data is excluded"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Backend / Partnering",
+    "description": "Allow either user to revoke partnership immediately.",
+    "steps_to_verify": [
+      "Revoke partnership",
+      "Verify partner data is no longer accessible"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Calendar View",
+    "description": "Render a monthly calendar for a single habit.",
+    "steps_to_verify": [
+      "Open habit progress view",
+      "Verify 7-column monthly grid",
+      "Verify current month is default"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Calendar View",
+    "description": "Visually distinguish completed, missed, today, and future days.",
+    "steps_to_verify": [
+      "Open calendar",
+      "Verify completed days are highlighted",
+      "Verify missed days are muted",
+      "Verify today is outlined",
+      "Verify future days are disabled"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Calendar View",
+    "description": "Allow navigation between months.",
+    "steps_to_verify": [
+      "Navigate to previous or next month",
+      "Verify calendar updates accordingly"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Calendar View",
+    "description": "Display current and best streak above the calendar.",
+    "steps_to_verify": [
+      "Open calendar view",
+      "Verify streak values are visible and correct"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Backend / Calendar View",
+    "description": "Return completion dates scoped to habit and month.",
+    "steps_to_verify": [
+      "Request calendar data for habit and month",
+      "Verify only dates within month are returned"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Backend / Calendar View",
+    "description": "Exclude dates before habit creation and after today.",
+    "steps_to_verify": [
+      "Request calendar data",
+      "Verify out-of-bounds dates are excluded"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Backend / Calendar View",
+    "description": "Ensure calendar data respects user local timezone.",
+    "steps_to_verify": [
+      "Complete habit near day boundary",
+      "Request calendar data",
+      "Verify correct local day mapping"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Platform",
+    "description": "Ensure Today screen is usable on mobile viewports.",
+    "steps_to_verify": [
+      "Open app on mobile viewport",
+      "Verify all controls are touch-friendly"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Backend / Platform",
+    "description": "Support offline completions with eventual sync.",
+    "steps_to_verify": [
+      "Complete habits offline",
+      "Restore connectivity",
+      "Verify completions sync without duplication"
+    ],
+    "passes": false
+  }
+]
