@@ -1,22 +1,19 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
+import type { DragEvent, FormEvent } from 'react'
+import type { AuthMode, Habit } from '@/components/dashboard/types'
 
 import { authClient } from '@/lib/auth-client'
-import { cn } from '@/lib/utils'
-
-import type { FormEvent } from 'react'
+import { AuthScreen } from '@/components/dashboard/AuthScreen'
+import { Dashboard } from '@/components/dashboard/Dashboard'
+import { LoadingScreen } from '@/components/dashboard/LoadingScreen'
+import { moveHabit, persistHabitOrder } from '@/components/dashboard/utils'
 
 export const Route = createFileRoute('/')({ component: App })
 
-type Habit = {
-  id: string
-  name: string
-  isCompleted: boolean
-}
-
 export function App() {
   const { data: session, isPending } = authClient.useSession()
-  const [authMode, setAuthMode] = useState<'sign-in' | 'sign-up'>('sign-in')
+  const [authMode, setAuthMode] = useState<AuthMode>('sign-in')
   const [authName, setAuthName] = useState('')
   const [authEmail, setAuthEmail] = useState('')
   const [authPassword, setAuthPassword] = useState('')
@@ -29,40 +26,6 @@ export function App() {
   const [draggingHabitId, setDraggingHabitId] = useState<string | null>(null)
   const trimmedHabitName = habitName.trim()
   const isSaveDisabled = trimmedHabitName.length === 0 || isSubmitting
-
-  const moveHabit = (items: Habit[], fromId: string, toId: string) => {
-    if (fromId === toId) {
-      return items
-    }
-
-    const fromIndex = items.findIndex((item) => item.id === fromId)
-    const toIndex = items.findIndex((item) => item.id === toId)
-
-    if (fromIndex === -1 || toIndex === -1) {
-      return items
-    }
-
-    const updated = [...items]
-    const [moved] = updated.splice(fromIndex, 1)
-
-    updated.splice(toIndex, 0, moved)
-    return updated
-  }
-
-  const persistHabitOrder = async (orderedIds: string[]) => {
-    const response = await fetch('/api/habits', {
-      method: 'PATCH',
-      headers: {
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify({ orderedIds }),
-    })
-
-    if (!response.ok) {
-      const payload = (await response.json()) as { error?: string }
-      throw new Error(payload.error || 'Unable to update habit order')
-    }
-  }
 
   const handleAuthSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -113,403 +76,154 @@ export function App() {
     }
   }
 
-  if (isPending) {
-    return (
-      <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#f8fafc,_#eef2f7_40%,_#e2e8f0_100%)] px-6 pb-20">
-        <section className="max-w-3xl mx-auto pt-20">
-          <div className="rounded-3xl border border-slate-200 bg-white/80 p-10 text-slate-600 shadow-sm">
-            Checking your session…
-          </div>
-        </section>
-      </main>
+  const handleCreateHabitSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+
+    if (isSaveDisabled) {
+      return
+    }
+
+    setIsSubmitting(true)
+    setErrorMessage(null)
+
+    try {
+      const response = await fetch('/api/habits', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({ name: trimmedHabitName }),
+      })
+
+      if (!response.ok) {
+        const payload = (await response.json()) as {
+          error?: string
+        }
+
+        throw new Error(payload.error || 'Unable to save habit')
+      }
+
+      const payload = (await response.json()) as {
+        habit?: { id?: string; name?: string }
+      }
+      const createdHabit = payload.habit
+      const createdName = createdHabit?.name || trimmedHabitName
+      const createdId = createdHabit?.id || crypto.randomUUID()
+
+      setHabits((current) => [
+        {
+          id: createdId,
+          name: createdName,
+          isCompleted: false,
+        },
+        ...current,
+      ])
+      setHabitName('')
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Request failed'
+      setErrorMessage(message)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleHabitDragStart = (
+    event: DragEvent<HTMLDivElement>,
+    habitId: string,
+  ) => {
+    event.dataTransfer.effectAllowed = 'move'
+    event.dataTransfer.setData('text/plain', habitId)
+    setDraggingHabitId(habitId)
+  }
+
+  const handleHabitDrop = async (targetId: string) => {
+    if (!draggingHabitId) {
+      return
+    }
+
+    const updated = moveHabit(habits, draggingHabitId, targetId)
+
+    if (updated === habits) {
+      setDraggingHabitId(null)
+      return
+    }
+
+    const previous = habits
+    const orderedIds = updated.map((item) => item.id)
+
+    setHabits(updated)
+    setDraggingHabitId(null)
+
+    try {
+      await persistHabitOrder(orderedIds)
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Unable to update habit order'
+      setErrorMessage(message)
+      setHabits(previous)
+    }
+  }
+
+  const handleToggleHabit = (habitId: string) => {
+    setHabits((current) =>
+      current.map((item) =>
+        item.id === habitId
+          ? {
+              ...item,
+              isCompleted: !item.isCompleted,
+            }
+          : item,
+      ),
     )
+  }
+
+  if (isPending) {
+    return <LoadingScreen />
   }
 
   if (!session?.user) {
     return (
-      <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#f8fafc,_#eef2f7_40%,_#e2e8f0_100%)] px-6 pb-20">
-        <section className="max-w-3xl mx-auto pt-16">
-          <div className="flex flex-col gap-8">
-            <div>
-              <p className="text-xs uppercase tracking-[0.3em] text-slate-500">
-                Welcome
-              </p>
-              <h1 className="text-4xl md:text-5xl font-semibold text-slate-900">
-                Sign in to start tracking.
-              </h1>
-              <p className="mt-3 max-w-xl text-base md:text-lg text-slate-600">
-                Create an account to save your habits and keep them synced.
-              </p>
-            </div>
-            <div className="rounded-3xl border border-slate-200 bg-white/80 p-8 shadow-sm">
-              <h2 className="text-lg font-semibold text-slate-900">
-                {authMode === 'sign-in' ? 'Sign in' : 'Create account'}
-              </h2>
-              <p className="mt-2 text-sm text-slate-500">
-                Use your email and password to continue.
-              </p>
-              <form
-                className="mt-6 flex flex-col gap-4"
-                onSubmit={handleAuthSubmit}
-              >
-                {authMode === 'sign-up' ? (
-                  <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
-                    Name
-                    <input
-                      className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 shadow-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
-                      placeholder="Alex Johnson"
-                      type="text"
-                      value={authName}
-                      onChange={(event) => {
-                        setAuthName(event.target.value)
-                      }}
-                    />
-                  </label>
-                ) : null}
-                <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
-                  Email
-                  <input
-                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 shadow-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
-                    placeholder="you@company.com"
-                    required
-                    type="email"
-                    value={authEmail}
-                    onChange={(event) => {
-                      setAuthEmail(event.target.value)
-                    }}
-                  />
-                </label>
-                <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
-                  Password
-                  <input
-                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 shadow-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
-                    placeholder="Enter a password"
-                    required
-                    type="password"
-                    value={authPassword}
-                    onChange={(event) => {
-                      setAuthPassword(event.target.value)
-                    }}
-                  />
-                </label>
-                <div className="flex flex-wrap items-center gap-4">
-                  <button
-                    className={cn(
-                      'rounded-full px-6 py-3 text-sm font-semibold shadow-lg transition',
-                      isAuthSubmitting
-                        ? 'cursor-not-allowed bg-slate-200 text-slate-500 shadow-none'
-                        : 'bg-slate-900 text-white shadow-slate-900/15 hover:bg-slate-800',
-                    )}
-                    disabled={isAuthSubmitting}
-                    type="submit"
-                  >
-                    {isAuthSubmitting
-                      ? 'Working…'
-                      : authMode === 'sign-in'
-                        ? 'Sign in'
-                        : 'Create account'}
-                  </button>
-                  <button
-                    className="text-sm font-medium text-slate-500 hover:text-slate-700"
-                    type="button"
-                    onClick={() => {
-                      setAuthError(null)
-                      setAuthMode((mode) =>
-                        mode === 'sign-in' ? 'sign-up' : 'sign-in',
-                      )
-                    }}
-                  >
-                    {authMode === 'sign-in'
-                      ? 'Need an account?'
-                      : 'Already have an account?'}
-                  </button>
-                </div>
-                {authError ? (
-                  <p className="text-sm text-rose-500" role="status">
-                    {authError}
-                  </p>
-                ) : null}
-              </form>
-            </div>
-          </div>
-        </section>
-      </main>
+      <AuthScreen
+        authEmail={authEmail}
+        authError={authError}
+        authMode={authMode}
+        authName={authName}
+        authPassword={authPassword}
+        isAuthSubmitting={isAuthSubmitting}
+        onAuthEmailChange={(event) => {
+          setAuthEmail(event.target.value)
+        }}
+        onAuthNameChange={(event) => {
+          setAuthName(event.target.value)
+        }}
+        onAuthPasswordChange={(event) => {
+          setAuthPassword(event.target.value)
+        }}
+        onSubmit={handleAuthSubmit}
+        onToggleMode={() => {
+          setAuthError(null)
+          setAuthMode((mode) => (mode === 'sign-in' ? 'sign-up' : 'sign-in'))
+        }}
+      />
     )
   }
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#f8fafc,_#eef2f7_40%,_#e2e8f0_100%)] px-6 pb-20">
-      <section className="max-w-6xl mx-auto pt-16">
-        <div className="flex flex-col gap-8">
-          <div className="flex items-center justify-between flex-wrap gap-6">
-            <div>
-              <p className="text-xs uppercase tracking-[0.3em] text-slate-500">
-                Today
-              </p>
-              <h1 className="text-4xl md:text-5xl font-semibold text-slate-900">
-                Build habits that compound.
-              </h1>
-              <p className="mt-3 max-w-xl text-base md:text-lg text-slate-600">
-                This is the starting point for your habit tracker. Next up: add
-                the creation flow, today list, and streak logic from the PRD.
-              </p>
-            </div>
-            <button className="rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-slate-900/15">
-              New habit
-            </button>
-          </div>
-
-          <div className="grid gap-6">
-            <div className="rounded-3xl border border-slate-200 bg-white/80 p-8 shadow-sm">
-              <h2 className="text-lg font-semibold text-slate-900">
-                Create a habit
-              </h2>
-              <p className="mt-2 text-sm text-slate-500">
-                Give it a short, action-focused name. You can always edit it
-                later.
-              </p>
-              <form
-                className="mt-6 flex flex-col gap-4"
-                onSubmit={async (event) => {
-                  event.preventDefault()
-
-                  if (isSaveDisabled) {
-                    return
-                  }
-
-                  setIsSubmitting(true)
-                  setErrorMessage(null)
-
-                  try {
-                    const response = await fetch('/api/habits', {
-                      method: 'POST',
-                      headers: {
-                        'content-type': 'application/json',
-                      },
-                      body: JSON.stringify({ name: trimmedHabitName }),
-                    })
-
-                    if (!response.ok) {
-                      const payload = (await response.json()) as {
-                        error?: string
-                      }
-
-                      throw new Error(payload.error || 'Unable to save habit')
-                    }
-
-                    const payload = (await response.json()) as {
-                      habit?: { id?: string; name?: string }
-                    }
-                    const createdHabit = payload.habit
-                    const createdName = createdHabit?.name || trimmedHabitName
-                    const createdId = createdHabit?.id || crypto.randomUUID()
-
-                    setHabits((current) => [
-                      {
-                        id: createdId,
-                        name: createdName,
-                        isCompleted: false,
-                      },
-                      ...current,
-                    ])
-                    setHabitName('')
-                  } catch (error) {
-                    const message =
-                      error instanceof Error ? error.message : 'Request failed'
-                    setErrorMessage(message)
-                  } finally {
-                    setIsSubmitting(false)
-                  }
-                }}
-              >
-                <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
-                  Habit name
-                  <input
-                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 shadow-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
-                    placeholder="Drink 8 cups of water"
-                    required
-                    type="text"
-                    value={habitName}
-                    onChange={(event) => {
-                      setHabitName(event.target.value)
-                    }}
-                  />
-                </label>
-                <div className="flex flex-wrap items-center gap-4">
-                  <button
-                    className={cn(
-                      'rounded-full px-6 py-3 text-sm font-semibold shadow-lg transition',
-                      isSaveDisabled
-                        ? 'cursor-not-allowed bg-slate-200 text-slate-500 shadow-none'
-                        : 'bg-slate-900 text-white shadow-slate-900/15 hover:bg-slate-800',
-                    )}
-                    disabled={isSaveDisabled}
-                    type="submit"
-                  >
-                    {isSubmitting ? 'Saving…' : 'Save habit'}
-                  </button>
-                  <span className="text-xs text-slate-400">
-                    Required to keep your list focused.
-                  </span>
-                </div>
-                {errorMessage ? (
-                  <p className="text-sm text-rose-500" role="status">
-                    {errorMessage}
-                  </p>
-                ) : null}
-              </form>
-            </div>
-
-            <div className="grid gap-6 lg:grid-cols-[2fr,1fr]">
-              <div className="rounded-3xl border border-slate-200 bg-white/70 p-8 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold text-slate-900">
-                    Today
-                  </h2>
-                  <span className="text-xs uppercase tracking-[0.2em] text-slate-400">
-                    Empty
-                  </span>
-                </div>
-                <div className="mt-6 grid gap-4">
-                  {habits.length === 0 ? (
-                    <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/80 p-6 text-slate-500">
-                      Add your first habit to start tracking daily completions.
-                    </div>
-                  ) : (
-                    habits.map((habit) => (
-                      <div
-                        key={habit.id}
-                        className={cn(
-                          'flex items-center justify-between rounded-2xl border bg-white/90 px-5 py-4 shadow-sm transition',
-                          draggingHabitId === habit.id
-                            ? 'border-slate-400 bg-slate-50 shadow-md'
-                            : 'border-slate-200',
-                        )}
-                        draggable
-                        onDragStart={(event) => {
-                          event.dataTransfer.effectAllowed = 'move'
-                          event.dataTransfer.setData('text/plain', habit.id)
-                          setDraggingHabitId(habit.id)
-                        }}
-                        onDragEnd={() => {
-                          setDraggingHabitId(null)
-                        }}
-                        onDragOver={(event) => {
-                          event.preventDefault()
-                        }}
-                        onDrop={async () => {
-                          if (!draggingHabitId) {
-                            return
-                          }
-
-                          const updated = moveHabit(
-                            habits,
-                            draggingHabitId,
-                            habit.id,
-                          )
-
-                          if (updated === habits) {
-                            setDraggingHabitId(null)
-                            return
-                          }
-
-                          const previous = habits
-                          const orderedIds = updated.map((item) => item.id)
-
-                          setHabits(updated)
-                          setDraggingHabitId(null)
-
-                          try {
-                            await persistHabitOrder(orderedIds)
-                          } catch (error) {
-                            const message =
-                              error instanceof Error
-                                ? error.message
-                                : 'Unable to update habit order'
-                            setErrorMessage(message)
-                            setHabits(previous)
-                          }
-                        }}
-                      >
-                        <div>
-                          <p className="text-sm font-semibold text-slate-900">
-                            {habit.name}
-                          </p>
-                          <p className="text-xs text-slate-500">
-                            {habit.isCompleted
-                              ? 'Completed today.'
-                              : 'Ready for today’s check-in.'}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <span
-                            className={cn(
-                              'rounded-full border px-3 py-1 text-xs',
-                              habit.isCompleted
-                                ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-                                : 'border-slate-200 text-slate-500',
-                            )}
-                          >
-                            {habit.isCompleted ? 'Completed' : 'Pending'}
-                          </span>
-                          <button
-                            className={cn(
-                              'rounded-full border px-4 py-2 text-xs font-semibold transition',
-                              habit.isCompleted
-                                ? 'border-emerald-200 bg-emerald-100 text-emerald-700 hover:bg-emerald-50'
-                                : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50',
-                            )}
-                            type="button"
-                            onClick={() => {
-                              setHabits((current) =>
-                                current.map((item) =>
-                                  item.id === habit.id
-                                    ? {
-                                        ...item,
-                                        isCompleted: !item.isCompleted,
-                                      }
-                                    : item,
-                                ),
-                              )
-                            }}
-                          >
-                            {habit.isCompleted ? 'Undo' : 'Mark complete'}
-                          </button>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                  {habits.length > 1 ? (
-                    <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/80 p-6 text-slate-500">
-                      Drag to reorder once you have more than one habit.
-                    </div>
-                  ) : null}
-                </div>
-              </div>
-
-              <div className="rounded-3xl border border-slate-200 bg-white/70 p-8 shadow-sm">
-                <h2 className="text-lg font-semibold text-slate-900">
-                  This week
-                </h2>
-                <div className="mt-6 grid grid-cols-7 gap-2 text-center text-xs text-slate-500">
-                  {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, index) => (
-                    <div
-                      key={`${day}-${index}`}
-                      className="rounded-full border border-slate-200 bg-white/80 px-2 py-2"
-                    >
-                      {day}
-                    </div>
-                  ))}
-                </div>
-                <p className="mt-6 text-sm text-slate-500">
-                  Calendar and streak data will live here once habits are in
-                  place.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </main>
+    <Dashboard
+      draggingHabitId={draggingHabitId}
+      errorMessage={errorMessage}
+      habitName={habitName}
+      habits={habits}
+      isSaveDisabled={isSaveDisabled}
+      isSubmitting={isSubmitting}
+      onCreateHabit={handleCreateHabitSubmit}
+      onHabitDragEnd={() => {
+        setDraggingHabitId(null)
+      }}
+      onHabitDragStart={handleHabitDragStart}
+      onHabitDrop={handleHabitDrop}
+      onHabitNameChange={setHabitName}
+      onToggleHabit={handleToggleHabit}
+    />
   )
 }
