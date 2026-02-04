@@ -36,6 +36,13 @@
       "when": 1770527200000,
       "tag": "0004_create_partnerships",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1770613600000,
+      "tag": "0005_add_habit_archived_at",
+      "breakpoints": true
     }
   ]
 }

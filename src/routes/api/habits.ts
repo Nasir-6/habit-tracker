@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { getRequestHeaders } from '@tanstack/react-start/server'
-import { and, desc, eq, inArray } from 'drizzle-orm'
+import { and, desc, eq, inArray, isNull } from 'drizzle-orm'
 
 import { db } from '@/db/index.ts'
 import { habits } from '@/db/schema'
@@ -12,6 +12,7 @@ type HabitCreatePayload = {
 
 type HabitOrderPayload = {
   orderedIds?: unknown
+  archiveId?: unknown
 }
 
 const jsonHeaders = {
@@ -86,6 +87,20 @@ const getOrderedIds = (payload: unknown) => {
   return ids
 }
 
+const getArchiveId = (payload: unknown) => {
+  if (!payload || typeof payload !== 'object') {
+    return null
+  }
+
+  const { archiveId } = payload as HabitOrderPayload
+
+  if (typeof archiveId !== 'string' || archiveId.trim().length === 0) {
+    return null
+  }
+
+  return archiveId
+}
+
 const getSessionUser = async () => {
   const headers = getRequestHeaders()
   const session = await auth.api.getSession({ headers })
@@ -109,7 +124,7 @@ export const Route = createFileRoute('/api/habits')({
             sortOrder: habits.sortOrder,
           })
           .from(habits)
-          .where(eq(habits.userId, user.id))
+          .where(and(eq(habits.userId, user.id), isNull(habits.archivedAt)))
           .orderBy(habits.sortOrder)
 
         return ok({ habits: rows })
@@ -181,6 +196,38 @@ export const Route = createFileRoute('/api/habits')({
         }
 
         const orderedIds = getOrderedIds(payload)
+        const archiveId = getArchiveId(payload)
+
+        if (orderedIds && archiveId) {
+          return badRequest('Provide either ordered habit ids or archive id')
+        }
+
+        if (archiveId) {
+          const habit = await db
+            .select({ id: habits.id, archivedAt: habits.archivedAt })
+            .from(habits)
+            .where(and(eq(habits.userId, user.id), eq(habits.id, archiveId)))
+            .then((rows) => rows.at(0))
+
+          if (!habit) {
+            return badRequest('Habit not found')
+          }
+
+          if (!habit.archivedAt) {
+            await db
+              .update(habits)
+              .set({ archivedAt: new Date() })
+              .where(
+                and(
+                  eq(habits.userId, user.id),
+                  eq(habits.id, archiveId),
+                  isNull(habits.archivedAt),
+                ),
+              )
+          }
+
+          return ok({ archived: true })
+        }
 
         if (!orderedIds) {
           return badRequest('Ordered habit ids are required')

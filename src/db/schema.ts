@@ -13,6 +13,7 @@ export const habits = pgTable('habits', {
   userId: text('user_id').notNull(),
   name: text('name').notNull(),
   sortOrder: integer('sort_order').notNull(),
+  archivedAt: timestamp('archived_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true })
     .defaultNow()
     .notNull(),

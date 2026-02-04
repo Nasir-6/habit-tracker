@@ -9,6 +9,11 @@
 - Files changed: src/routes/api/habits.ts, src/routeTree.gen.ts.
 - Blockers/notes: vitest hanging process message persists after run.
 
+- Task completed: Backend / History - Preserve historical data for archived habits. (PRD Backend / History)
+- Decisions: added archived_at column for soft-archive; reuse PATCH /api/habits with archiveId to avoid new route; history continues to allow archived habits via existing lookup.
+- Files changed: src/db/schema.ts, src/routes/api/habits.ts, drizzle/0005_add_habit_archived_at.sql, drizzle/meta/_journal.json, prd.json, progress.txt.
+- Blockers/notes: vitest reports hanging process message after run.
+
 - Task completed: Backend / Calendar View - Return completion dates scoped to habit and month.
 - Decisions: add GET /api/calendar with habitId + YYYY-MM; validate month via UTC bounds; query completions within month only.
 - Files changed: src/routes/api/calendar.ts, src/routeTree.gen.ts, prd.json, progress.txt.

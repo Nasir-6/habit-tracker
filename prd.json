@@ -148,7 +148,7 @@
       "Request history",
       "Verify historical completions remain accessible"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Backend / Partnering",
