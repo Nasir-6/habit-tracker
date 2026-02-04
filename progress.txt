@@ -3,3 +3,8 @@
 - Decisions: inline creation card on Today page for now; save disabled when trimmed name empty; test script uses --passWithNoTests since no test files.
 - Files changed: src/routes/index.tsx, package.json.
 - Blockers/notes: vitest reports hanging process message after run.
+
+- Task completed: Backend / Habit Management - Reject habit creation requests without a name.
+- Decisions: add POST /api/habits handler with JSON parsing + trimmed name validation; return 201 with name only, no persistence yet.
+- Files changed: src/routes/api/habits.ts, src/routeTree.gen.ts.
+- Blockers/notes: vitest hanging process message persists after run.
