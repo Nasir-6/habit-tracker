@@ -9,6 +9,11 @@
 - Files changed: src/routes/api/habits.ts, src/routeTree.gen.ts.
 - Blockers/notes: vitest hanging process message persists after run.
 
+- Task completed: Backend / History - Return historical completion data for a habit.
+- Decisions: add GET /api/history with habitId + localDate query; validate localDate and exclude future by lte on completedOn; return ordered date list.
+- Files changed: src/routes/api/history.ts, src/routeTree.gen.ts, prd.json, progress.txt.
+- Blockers/notes: none.
+
 - Task completed: Frontend / Habit Management - Allow reordering of habits via drag-and-drop.
 - Decisions: HTML5 drag events with optimistic reorder; persist order via PATCH /api/habits; rollback on error; reuse error banner.
 - Files changed: src/routes/index.tsx.
