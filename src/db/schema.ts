@@ -59,3 +59,21 @@ export const partnerInvites = pgTable(
     ).on(table.inviterUserId, table.inviteeEmail, table.status),
   }),
 )
+
+export const partnerships = pgTable(
+  'partnerships',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userAId: text('user_a_id').notNull(),
+    userBId: text('user_b_id').notNull(),
+    startedAt: timestamp('started_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => ({
+    uniquePair: uniqueIndex('partnerships_user_pair_unique').on(
+      table.userAId,
+      table.userBId,
+    ),
+  }),
+)

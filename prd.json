@@ -168,7 +168,7 @@
       "Verify partnership is active",
       "Verify start date is recorded"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Partnering",
