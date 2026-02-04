@@ -1,7 +1,17 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { getRequestHeaders } from '@tanstack/react-start/server'
+import { and, desc, eq, inArray } from 'drizzle-orm'
+
+import { db } from '@/db/index.ts'
+import { habits } from '@/db/schema'
+import { auth } from '@/lib/auth'
 
 type HabitCreatePayload = {
   name?: unknown
+}
+
+type HabitOrderPayload = {
+  orderedIds?: unknown
 }
 
 const jsonHeaders = {
@@ -15,8 +25,22 @@ const badRequest = (message: string) => {
   })
 }
 
-const created = (name: string) => {
-  return new Response(JSON.stringify({ habit: { name } }), {
+const unauthorized = () => {
+  return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+    status: 401,
+    headers: jsonHeaders,
+  })
+}
+
+const ok = (payload: Record<string, unknown>) => {
+  return new Response(JSON.stringify(payload), {
+    status: 200,
+    headers: jsonHeaders,
+  })
+}
+
+const created = (habit: { id: string; name: string; sortOrder: number }) => {
+  return new Response(JSON.stringify({ habit }), {
     status: 201,
     headers: jsonHeaders,
   })
@@ -42,10 +66,61 @@ const getHabitName = (payload: unknown) => {
   return trimmedName
 }
 
+const getOrderedIds = (payload: unknown) => {
+  if (!payload || typeof payload !== 'object') {
+    return null
+  }
+
+  const { orderedIds } = payload as HabitOrderPayload
+
+  if (!Array.isArray(orderedIds) || orderedIds.length === 0) {
+    return null
+  }
+
+  const ids = orderedIds.filter((id) => typeof id === 'string')
+
+  if (ids.length !== orderedIds.length) {
+    return null
+  }
+
+  return ids
+}
+
+const getSessionUser = async () => {
+  const headers = getRequestHeaders()
+  const session = await auth.api.getSession({ headers })
+  return session?.user
+}
+
 export const Route = createFileRoute('/api/habits')({
   server: {
     handlers: {
+      GET: async () => {
+        const user = await getSessionUser()
+
+        if (!user) {
+          return unauthorized()
+        }
+
+        const rows = await db
+          .select({
+            id: habits.id,
+            name: habits.name,
+            sortOrder: habits.sortOrder,
+          })
+          .from(habits)
+          .where(eq(habits.userId, user.id))
+          .orderBy(habits.sortOrder)
+
+        return ok({ habits: rows })
+      },
       POST: async ({ request }) => {
+        const user = await getSessionUser()
+
+        if (!user) {
+          return unauthorized()
+        }
+
         let payload: unknown
 
         try {
@@ -60,7 +135,76 @@ export const Route = createFileRoute('/api/habits')({
           return badRequest('Name is required')
         }
 
-        return created(habitName)
+        const lastHabit = await db
+          .select({ sortOrder: habits.sortOrder })
+          .from(habits)
+          .where(eq(habits.userId, user.id))
+          .orderBy(desc(habits.sortOrder))
+          .limit(1)
+          .then((rows) => rows.at(0))
+
+        const nextSortOrder = (lastHabit?.sortOrder ?? 0) + 1
+
+        const inserted = await db
+          .insert(habits)
+          .values({
+            name: habitName,
+            userId: user.id,
+            sortOrder: nextSortOrder,
+          })
+          .returning({
+            id: habits.id,
+            name: habits.name,
+            sortOrder: habits.sortOrder,
+          })
+          .then((rows) => rows.at(0))
+
+        if (!inserted) {
+          return badRequest('Unable to save habit')
+        }
+
+        return created(inserted)
+      },
+      PATCH: async ({ request }) => {
+        const user = await getSessionUser()
+
+        if (!user) {
+          return unauthorized()
+        }
+
+        let payload: unknown
+
+        try {
+          payload = await request.json()
+        } catch {
+          return badRequest('Invalid JSON payload')
+        }
+
+        const orderedIds = getOrderedIds(payload)
+
+        if (!orderedIds) {
+          return badRequest('Ordered habit ids are required')
+        }
+
+        const existing = await db
+          .select({ id: habits.id })
+          .from(habits)
+          .where(
+            and(eq(habits.userId, user.id), inArray(habits.id, orderedIds)),
+          )
+
+        if (existing.length !== orderedIds.length) {
+          return badRequest('One or more habits were not found')
+        }
+
+        for (const [index, habitId] of orderedIds.entries()) {
+          await db
+            .update(habits)
+            .set({ sortOrder: index + 1 })
+            .where(and(eq(habits.userId, user.id), eq(habits.id, habitId)))
+        }
+
+        return ok({ success: true })
       },
     },
   },

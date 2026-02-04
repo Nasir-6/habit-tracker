@@ -23,3 +23,8 @@
 - Decisions: store completion state in local habit list; disable completion control once marked to avoid undo in this task scope.
 - Files changed: src/routes/index.tsx.
 - Blockers/notes: vitest hanging process message persists after run.
+
+- Task completed: Backend / Habit Management - Persist habit order per user.
+- Decisions: add habits table with sort order + user id; require auth session for habit CRUD; add GET/PATCH on /api/habits for ordered fetch and updates.
+- Files changed: src/db/schema.ts, src/routes/api/habits.ts.
+- Blockers/notes: vitest hanging process message persists after run.
