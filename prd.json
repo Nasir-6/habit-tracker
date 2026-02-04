@@ -246,7 +246,7 @@
       "Request calendar data for habit and month",
       "Verify only dates within month are returned"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Backend / Calendar View",

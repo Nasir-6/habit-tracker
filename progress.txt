@@ -9,6 +9,11 @@
 - Files changed: src/routes/api/habits.ts, src/routeTree.gen.ts.
 - Blockers/notes: vitest hanging process message persists after run.
 
+- Task completed: Backend / Calendar View - Return completion dates scoped to habit and month.
+- Decisions: add GET /api/calendar with habitId + YYYY-MM; validate month via UTC bounds; query completions within month only.
+- Files changed: src/routes/api/calendar.ts, src/routeTree.gen.ts, prd.json, progress.txt.
+- Blockers/notes: none.
+
 - Task completed: Frontend / Streaks - Display current and best streak per habit.
 - Decisions: fetch streaks per habit from /api/streaks using local YYYY-MM-DD; store streaks in separate map to avoid mutating habit list; default to 0 on fetch error.
 - Files changed: src/routes/index.tsx, src/components/dashboard/Dashboard.tsx, src/components/dashboard/HabitList.tsx, prd.json, progress.txt.

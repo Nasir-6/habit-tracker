@@ -14,6 +14,7 @@ import { Route as ApiStreaksRouteImport } from './routes/api/streaks'
 import { Route as ApiHistoryRouteImport } from './routes/api/history'
 import { Route as ApiHabitsRouteImport } from './routes/api/habits'
 import { Route as ApiCompletionsRouteImport } from './routes/api/completions'
+import { Route as ApiCalendarRouteImport } from './routes/api/calendar'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const IndexRoute = IndexRouteImport.update({
@@ -41,6 +42,11 @@ const ApiCompletionsRoute = ApiCompletionsRouteImport.update({
   path: '/api/completions',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiCalendarRoute = ApiCalendarRouteImport.update({
+  id: '/api/calendar',
+  path: '/api/calendar',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -49,6 +55,7 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api/calendar': typeof ApiCalendarRoute
   '/api/completions': typeof ApiCompletionsRoute
   '/api/habits': typeof ApiHabitsRoute
   '/api/history': typeof ApiHistoryRoute
@@ -57,6 +64,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api/calendar': typeof ApiCalendarRoute
   '/api/completions': typeof ApiCompletionsRoute
   '/api/habits': typeof ApiHabitsRoute
   '/api/history': typeof ApiHistoryRoute
@@ -66,6 +74,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api/calendar': typeof ApiCalendarRoute
   '/api/completions': typeof ApiCompletionsRoute
   '/api/habits': typeof ApiHabitsRoute
   '/api/history': typeof ApiHistoryRoute
@@ -76,6 +85,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/api/calendar'
     | '/api/completions'
     | '/api/habits'
     | '/api/history'
@@ -84,6 +94,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/api/calendar'
     | '/api/completions'
     | '/api/habits'
     | '/api/history'
@@ -92,6 +103,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/api/calendar'
     | '/api/completions'
     | '/api/habits'
     | '/api/history'
@@ -101,6 +113,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiCalendarRoute: typeof ApiCalendarRoute
   ApiCompletionsRoute: typeof ApiCompletionsRoute
   ApiHabitsRoute: typeof ApiHabitsRoute
   ApiHistoryRoute: typeof ApiHistoryRoute
@@ -145,6 +158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiCompletionsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/calendar': {
+      id: '/api/calendar'
+      path: '/api/calendar'
+      fullPath: '/api/calendar'
+      preLoaderRoute: typeof ApiCalendarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -157,6 +177,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiCalendarRoute: ApiCalendarRoute,
   ApiCompletionsRoute: ApiCompletionsRoute,
   ApiHabitsRoute: ApiHabitsRoute,
   ApiHistoryRoute: ApiHistoryRoute,
