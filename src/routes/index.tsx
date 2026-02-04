@@ -5,10 +5,18 @@ import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/')({ component: App })
 
+type Habit = {
+  id: string
+  name: string
+}
+
 export function App() {
   const [habitName, setHabitName] = useState('')
+  const [habits, setHabits] = useState<Habit[]>([])
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const trimmedHabitName = habitName.trim()
-  const isSaveDisabled = trimmedHabitName.length === 0
+  const isSaveDisabled = trimmedHabitName.length === 0 || isSubmitting
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#f8fafc,_#eef2f7_40%,_#e2e8f0_100%)] px-6 pb-20">
@@ -43,8 +51,50 @@ export function App() {
               </p>
               <form
                 className="mt-6 flex flex-col gap-4"
-                onSubmit={(event) => {
+                onSubmit={async (event) => {
                   event.preventDefault()
+
+                  if (isSaveDisabled) {
+                    return
+                  }
+
+                  setIsSubmitting(true)
+                  setErrorMessage(null)
+
+                  try {
+                    const response = await fetch('/api/habits', {
+                      method: 'POST',
+                      headers: {
+                        'content-type': 'application/json',
+                      },
+                      body: JSON.stringify({ name: trimmedHabitName }),
+                    })
+
+                    if (!response.ok) {
+                      const payload = (await response.json()) as {
+                        error?: string
+                      }
+
+                      throw new Error(payload.error || 'Unable to save habit')
+                    }
+
+                    const payload = (await response.json()) as {
+                      habit?: { name?: string }
+                    }
+                    const createdName = payload.habit?.name || trimmedHabitName
+
+                    setHabits((current) => [
+                      { id: crypto.randomUUID(), name: createdName },
+                      ...current,
+                    ])
+                    setHabitName('')
+                  } catch (error) {
+                    const message =
+                      error instanceof Error ? error.message : 'Request failed'
+                    setErrorMessage(message)
+                  } finally {
+                    setIsSubmitting(false)
+                  }
                 }}
               >
                 <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
@@ -71,12 +121,17 @@ export function App() {
                     disabled={isSaveDisabled}
                     type="submit"
                   >
-                    Save habit
+                    {isSubmitting ? 'Saving…' : 'Save habit'}
                   </button>
                   <span className="text-xs text-slate-400">
                     Required to keep your list focused.
                   </span>
                 </div>
+                {errorMessage ? (
+                  <p className="text-sm text-rose-500" role="status">
+                    {errorMessage}
+                  </p>
+                ) : null}
               </form>
             </div>
 
@@ -91,12 +146,35 @@ export function App() {
                   </span>
                 </div>
                 <div className="mt-6 grid gap-4">
-                  <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/80 p-6 text-slate-500">
-                    Add your first habit to start tracking daily completions.
-                  </div>
-                  <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/80 p-6 text-slate-500">
-                    Drag to reorder once you have more than one habit.
-                  </div>
+                  {habits.length === 0 ? (
+                    <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/80 p-6 text-slate-500">
+                      Add your first habit to start tracking daily completions.
+                    </div>
+                  ) : (
+                    habits.map((habit) => (
+                      <div
+                        key={habit.id}
+                        className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white/90 px-5 py-4 shadow-sm"
+                      >
+                        <div>
+                          <p className="text-sm font-semibold text-slate-900">
+                            {habit.name}
+                          </p>
+                          <p className="text-xs text-slate-500">
+                            Ready for today’s check-in.
+                          </p>
+                        </div>
+                        <span className="rounded-full border border-slate-200 px-3 py-1 text-xs text-slate-500">
+                          Pending
+                        </span>
+                      </div>
+                    ))
+                  )}
+                  {habits.length > 1 ? (
+                    <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/80 p-6 text-slate-500">
+                      Drag to reorder once you have more than one habit.
+                    </div>
+                  ) : null}
                 </div>
               </div>
 

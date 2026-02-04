@@ -8,3 +8,8 @@
 - Decisions: add POST /api/habits handler with JSON parsing + trimmed name validation; return 201 with name only, no persistence yet.
 - Files changed: src/routes/api/habits.ts, src/routeTree.gen.ts.
 - Blockers/notes: vitest hanging process message persists after run.
+
+- Task completed: Frontend / Habit Management - Display newly created habits in the Today list.
+- Decisions: submit to /api/habits and render response into local habit list; prepend new habit; show empty/drag hints conditionally; add lightweight error state.
+- Files changed: src/routes/index.tsx.
+- Blockers/notes: vitest hanging process message persists after run.
