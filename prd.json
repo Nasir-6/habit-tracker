@@ -188,7 +188,7 @@
       "Activate partnership",
       "Verify pre-partnership data is excluded"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Backend / Partnering",

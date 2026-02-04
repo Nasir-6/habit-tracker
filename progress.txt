@@ -14,6 +14,11 @@
 - Files changed: src/routes/api/calendar.ts, src/routeTree.gen.ts, prd.json, progress.txt.
 - Blockers/notes: none.
 
+- Task completed: Backend / Partnering - Restrict partner visibility to post-partnership data only.
+- Decisions: add GET /api/partnerships returning partner habits + today status; gate completion status when localDate < partnership startedOn; keep habit names visible regardless of start date.
+- Files changed: src/routes/api/partnerships.ts, prd.json, progress.txt.
+- Blockers/notes: none.
+
 - Task completed: Backend / Calendar View - Ensure calendar data respects user local timezone.
 - Decisions: accept optional tzOffsetMinutes query param (defaults 0); shift habit created/today bounds by offset; validate integer +/-14h.
 - Files changed: src/routes/api/calendar.ts, prd.json, progress.txt.
