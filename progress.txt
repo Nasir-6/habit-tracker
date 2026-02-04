@@ -9,6 +9,11 @@
 - Files changed: src/routes/api/habits.ts, src/routeTree.gen.ts.
 - Blockers/notes: vitest hanging process message persists after run.
 
+- Task completed: Frontend / Daily Check-in - Allow user to undo a habit completion for the current day.
+- Decisions: toggle completion in local state; keep button active with undo label and completed styling.
+- Files changed: src/routes/index.tsx.
+- Blockers/notes: vitest hanging process message persists after run.
+
 - Task completed: Frontend / Habit Management - Display newly created habits in the Today list.
 - Decisions: submit to /api/habits and render response into local habit list; prepend new habit; show empty/drag hints conditionally; add lightweight error state.
 - Files changed: src/routes/index.tsx.

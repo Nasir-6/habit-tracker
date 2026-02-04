@@ -186,22 +186,24 @@ export function App() {
                             className={cn(
                               'rounded-full border px-4 py-2 text-xs font-semibold transition',
                               habit.isCompleted
-                                ? 'cursor-not-allowed border-emerald-200 bg-emerald-100 text-emerald-600'
+                                ? 'border-emerald-200 bg-emerald-100 text-emerald-700 hover:bg-emerald-50'
                                 : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50',
                             )}
-                            disabled={habit.isCompleted}
                             type="button"
                             onClick={() => {
                               setHabits((current) =>
                                 current.map((item) =>
                                   item.id === habit.id
-                                    ? { ...item, isCompleted: true }
+                                    ? {
+                                        ...item,
+                                        isCompleted: !item.isCompleted,
+                                      }
                                     : item,
                                 ),
                               )
                             }}
                           >
-                            {habit.isCompleted ? 'Completed' : 'Mark complete'}
+                            {habit.isCompleted ? 'Undo' : 'Mark complete'}
                           </button>
                         </div>
                       </div>
