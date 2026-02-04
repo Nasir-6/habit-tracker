@@ -39,6 +39,11 @@
 - Files changed: src/lib/auth-client.ts, src/routes/index.tsx, drizzle/0001_create_habits.sql, drizzle/meta/_journal.json.
 - Blockers/notes: none.
 
+- Task completed: Backend / Streaks - Calculate current streak from consecutive daily completions.
+- Decisions: new GET /api/streaks with habitId/localDate query; streak counts consecutive completions ending on provided localDate to zero-out missed days.
+- Files changed: src/routes/api/streaks.ts, prd.json, progress.txt.
+- Blockers/notes: none.
+
 - Task completed: Backend / Daily Check-in - Remove or deactivate completion when undone.
 - Decisions: add DELETE /api/completions with same payload validation + habit ownership check; return removed boolean after delete.
 - Files changed: src/routes/api/completions.ts, prd.json.

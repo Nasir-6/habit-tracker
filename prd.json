@@ -97,7 +97,7 @@
       "Request streak data",
       "Verify current streak count"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Backend / Streaks",
