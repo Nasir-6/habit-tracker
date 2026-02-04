@@ -76,39 +76,37 @@ function App() {
             Neon Database Demo
           </h1>
         </div>
-        {todos && (
-          <>
-            <h1 className="text-2xl font-bold mb-4">Todos</h1>
-            <ul className="space-y-3 mb-6">
-              {todos.map((todo: { id: number; title: string }) => (
-                <li
-                  key={todo.id}
-                  className="bg-white/10 backdrop-blur-sm rounded-lg p-4 shadow-sm border border-white/20 transition-all hover:bg-white/20 hover:scale-[1.02] cursor-pointer group"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-lg font-medium group-hover:text-white/90">
-                      {todo.title}
-                    </span>
-                    <span className="text-xs text-white/50">#{todo.id}</span>
-                  </div>
-                </li>
-              ))}
-            </ul>
-            <form onSubmit={handleSubmit} className="mt-4 flex gap-2">
-              <input
-                type="text"
-                name="title"
-                className="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#00E0D9] bg-black/20"
-              />
-              <button
-                type="submit"
-                className="px-6 py-2 bg-[#00E0D9] text-black font-medium rounded-md hover:bg-[#00E0D9]/80 focus:outline-none focus:ring-2 focus:ring-[#00E0D9] focus:ring-offset-2 transition-colors disabled:opacity-50 whitespace-nowrap"
+        <>
+          <h1 className="text-2xl font-bold mb-4">Todos</h1>
+          <ul className="space-y-3 mb-6">
+            {todos.map((todo: { id: number; title: string }) => (
+              <li
+                key={todo.id}
+                className="bg-white/10 backdrop-blur-sm rounded-lg p-4 shadow-sm border border-white/20 transition-all hover:bg-white/20 hover:scale-[1.02] cursor-pointer group"
               >
-                Add Todo
-              </button>
-            </form>
-          </>
-        )}
+                <div className="flex items-center justify-between">
+                  <span className="text-lg font-medium group-hover:text-white/90">
+                    {todo.title}
+                  </span>
+                  <span className="text-xs text-white/50">#{todo.id}</span>
+                </div>
+              </li>
+            ))}
+          </ul>
+          <form onSubmit={handleSubmit} className="mt-4 flex gap-2">
+            <input
+              type="text"
+              name="title"
+              className="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#00E0D9] bg-black/20"
+            />
+            <button
+              type="submit"
+              className="px-6 py-2 bg-[#00E0D9] text-black font-medium rounded-md hover:bg-[#00E0D9]/80 focus:outline-none focus:ring-2 focus:ring-[#00E0D9] focus:ring-offset-2 transition-colors disabled:opacity-50 whitespace-nowrap"
+            >
+              Add Todo
+            </button>
+          </form>
+        </>
       </div>
     </div>
   )

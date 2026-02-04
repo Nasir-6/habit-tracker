@@ -1,6 +1,6 @@
 import { getPool } from '@/db/pool'
 
-export async function getClient() {
+export function getClient() {
   if (!process.env.DATABASE_URL) {
     return undefined
   }
