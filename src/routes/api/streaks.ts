@@ -175,17 +175,26 @@ export const Route = createFileRoute('/api/streaks')({
           return badRequest('Habit not found')
         }
 
-        const completions = await db
-          .select({ completedOn: habitCompletions.completedOn })
-          .from(habitCompletions)
-          .where(
-            and(
-              eq(habitCompletions.userId, user.id),
-              eq(habitCompletions.habitId, habitId),
-              lte(habitCompletions.completedOn, localDate),
-            ),
-          )
-          .orderBy(desc(habitCompletions.completedOn))
+        let completions: { completedOn: string }[] = []
+
+        try {
+          completions = await db
+            .select({ completedOn: habitCompletions.completedOn })
+            .from(habitCompletions)
+            .where(
+              and(
+                eq(habitCompletions.userId, user.id),
+                eq(habitCompletions.habitId, habitId),
+                lte(habitCompletions.completedOn, localDate),
+              ),
+            )
+            .orderBy(desc(habitCompletions.completedOn))
+        } catch (error) {
+          const pgError = (error as { cause?: { code?: string } })?.cause
+          if (pgError?.code !== '42P01') {
+            throw error
+          }
+        }
 
         const currentStreak = getCurrentStreak(completions, localDate)
         const bestStreak = getBestStreak(completions)
