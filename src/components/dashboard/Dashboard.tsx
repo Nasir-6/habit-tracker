@@ -5,6 +5,7 @@ import { CreateHabitCard } from '@/components/dashboard/CreateHabitCard'
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader'
 import { HabitList } from '@/components/dashboard/HabitList'
 import { PageShell } from '@/components/dashboard/PageShell'
+import { PartnerStatusCard } from '@/components/dashboard/PartnerStatusCard'
 import { WeekPreviewCard } from '@/components/dashboard/WeekPreviewCard'
 
 type DashboardProps = {
@@ -18,6 +19,11 @@ type DashboardProps = {
   historyError: string | null
   isHistoryLoading: boolean
   habitStreaks: Partial<Record<string, { current: number; best: number }>>
+  partnerHabits: { id: string; name: string; completedToday: boolean }[]
+  partnerStartedOn: string | null
+  partnerError: string | null
+  isPartnerLoading: boolean
+  hasPartner: boolean
   draggingHabitId: string | null
   onHabitNameChange: (value: string) => void
   onCreateHabit: (event: FormEvent<HTMLFormElement>) => void
@@ -39,6 +45,11 @@ export function Dashboard({
   historyError,
   isHistoryLoading,
   habitStreaks,
+  partnerHabits,
+  partnerStartedOn,
+  partnerError,
+  isPartnerLoading,
+  hasPartner,
   draggingHabitId,
   onHabitNameChange,
   onCreateHabit,
@@ -78,7 +89,16 @@ export function Dashboard({
               onToggleHabit={onToggleHabit}
               onToggleHistory={onToggleHistory}
             />
-            <WeekPreviewCard />
+            <div className="grid gap-6">
+              <WeekPreviewCard />
+              <PartnerStatusCard
+                errorMessage={partnerError}
+                habits={partnerHabits}
+                hasPartner={hasPartner}
+                isLoading={isPartnerLoading}
+                startedOn={partnerStartedOn}
+              />
+            </div>
           </div>
         </div>
       </div>

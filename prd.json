@@ -178,7 +178,7 @@
       "Open partner view",
       "Verify habit names and today status are visible"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Backend / Partnering",

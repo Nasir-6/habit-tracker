@@ -11,6 +11,12 @@ import { moveHabit, persistHabitOrder } from '@/components/dashboard/utils'
 
 export const Route = createFileRoute('/')({ component: App })
 
+type PartnerHabit = {
+  id: string
+  name: string
+  completedToday: boolean
+}
+
 const formatLocalDate = (value: Date) => {
   const year = value.getFullYear()
   const month = String(value.getMonth() + 1).padStart(2, '0')
@@ -36,12 +42,93 @@ export function App() {
   const [historyError, setHistoryError] = useState<string | null>(null)
   const [isHistoryLoading, setIsHistoryLoading] = useState(false)
   const historyRequestIdRef = useRef(0)
+  const [partnerHabits, setPartnerHabits] = useState<PartnerHabit[]>([])
+  const [partnerStartedOn, setPartnerStartedOn] = useState<string | null>(null)
+  const [partnerError, setPartnerError] = useState<string | null>(null)
+  const [isPartnerLoading, setIsPartnerLoading] = useState(false)
+  const [hasPartner, setHasPartner] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [draggingHabitId, setDraggingHabitId] = useState<string | null>(null)
   const trimmedHabitName = habitName.trim()
   const isSaveDisabled = trimmedHabitName.length === 0 || isSubmitting
   const localDate = formatLocalDate(new Date())
+
+  useEffect(() => {
+    if (!session?.user) {
+      setPartnerHabits([])
+      setPartnerStartedOn(null)
+      setPartnerError(null)
+      setIsPartnerLoading(false)
+      setHasPartner(false)
+      return
+    }
+
+    let isActive = true
+
+    const loadPartnerStatus = async () => {
+      setIsPartnerLoading(true)
+      setPartnerError(null)
+
+      try {
+        const response = await fetch(
+          `/api/partnerships?localDate=${encodeURIComponent(localDate)}`,
+        )
+
+        if (response.status === 404) {
+          if (!isActive) {
+            return
+          }
+
+          setHasPartner(false)
+          setPartnerHabits([])
+          setPartnerStartedOn(null)
+          return
+        }
+
+        if (!response.ok) {
+          const payload = (await response.json()) as { error?: string }
+          throw new Error(payload.error || 'Unable to load partner status')
+        }
+
+        const payload = (await response.json()) as {
+          partner?: { startedOn?: string }
+          habits?: PartnerHabit[]
+        }
+
+        if (!isActive) {
+          return
+        }
+
+        setHasPartner(true)
+        setPartnerStartedOn(payload.partner?.startedOn ?? null)
+        setPartnerHabits(Array.isArray(payload.habits) ? payload.habits : [])
+      } catch (error) {
+        if (!isActive) {
+          return
+        }
+
+        const message =
+          error instanceof Error
+            ? error.message
+            : 'Unable to load partner status'
+        setPartnerError(message)
+        setHasPartner(false)
+        setPartnerHabits([])
+        setPartnerStartedOn(null)
+      } finally {
+        if (isActive) {
+          setIsPartnerLoading(false)
+        }
+      }
+    }
+
+    void loadPartnerStatus()
+
+    return () => {
+      isActive = false
+    }
+  }, [localDate, session?.user.id])
 
   useEffect(() => {
     if (habits.length === 0) {
@@ -339,13 +426,18 @@ export function App() {
       errorMessage={errorMessage}
       habitName={habitName}
       habits={habits}
+      hasPartner={hasPartner}
       historyDates={historyDates}
       historyError={historyError}
       historyHabitId={historyHabitId}
       isHistoryLoading={isHistoryLoading}
+      isPartnerLoading={isPartnerLoading}
       habitStreaks={habitStreaks}
       isSaveDisabled={isSaveDisabled}
       isSubmitting={isSubmitting}
+      partnerError={partnerError}
+      partnerHabits={partnerHabits}
+      partnerStartedOn={partnerStartedOn}
       onCreateHabit={handleCreateHabitSubmit}
       onHabitDragEnd={() => {
         setDraggingHabitId(null)
