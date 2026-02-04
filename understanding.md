@@ -12,7 +12,7 @@ This is a quick, practical guide to how TanStack Start and TanStack Router are w
 ## Key files and what they do
 
 - `src/routes/__root.tsx`: Root layout and HTML shell. Global UI goes here (header, devtools, styles).
-- `src/routes/index.tsx`: The current home route (`/`). This is just a demo page.
+- `src/routes/index.tsx`: The current home route (`/`). This is a placeholder for the habit tracker.
 - `src/router.tsx`: Builds the router using the generated route tree and sets up Query integration.
 - `src/routeTree.gen.ts`: Auto-generated route map. Never edit manually.
 - `vite.config.ts`: Enables TanStack Start and other build plugins.
@@ -22,7 +22,6 @@ This is a quick, practical guide to how TanStack Start and TanStack Router are w
 - Each file under `src/routes` becomes a route.
 - File name controls the URL path. Examples:
   - `src/routes/index.tsx` -> `/`
-  - `src/routes/demo/drizzle.tsx` -> `/demo/drizzle`
   - `src/routes/api/auth/$.ts` -> `/api/auth/*` (splat)
 - The router builds a tree from the filesystem (see `src/routeTree.gen.ts`).
 
@@ -51,12 +50,12 @@ The `createFileRoute` path must match the file location. TanStack Router validat
 
 - `loader` runs before the route renders.
 - Use `Route.useLoaderData()` to read loader results inside the component.
-- In this repo, see `src/routes/demo/neon.tsx` and `src/routes/demo/drizzle.tsx` for loader usage.
+- Loader examples will be added alongside habit routes.
 
 ## Server functions (RPC-style)
 
 - `createServerFn` creates a server-only function you can call from the client.
-- In this repo, see `src/routes/demo/start.server-funcs.tsx` and `src/routes/demo/neon.tsx`.
+- Server function examples will be added alongside habit routes.
 - Pattern:
 
 ```tsx
@@ -74,11 +73,11 @@ const addTodo = createServerFn({ method: 'POST' })
 ## API routes
 
 - You can create API endpoints inside the route tree using `server.handlers`.
-- In this repo, see `src/routes/demo/api.names.ts` and `src/routes/demo/api.tq-todos.ts`.
+- API route examples will be added alongside habit routes.
 - Pattern:
 
 ```tsx
-export const Route = createFileRoute('/demo/api/names')({
+export const Route = createFileRoute('/api/example')({
   server: {
     handlers: {
       GET: () => json(['Alice', 'Bob']),
@@ -105,11 +104,5 @@ export const Route = createFileRoute('/demo/api/names')({
 - Shared UI components go in `src/components`.
 - Server logic can live in routes using `createServerFn` or `server.handlers`.
 - Database tables live in `src/db/schema.ts` and migrations in `drizzle/`.
-
-## What is demo-only in this repo
-
-- Most files under `src/routes/demo/**` are framework demos.
-- `src/routes/index.tsx` is a marketing splash page.
-- `src/db/schema.ts` currently defines a `todos` table for demos.
 
 If you want, I can add a “first real route” example for the habit tracker so you can follow a concrete path from route -> loader -> server fn -> db.

@@ -1,118 +1,70 @@
 import { createFileRoute } from '@tanstack/react-router'
-import {
-  Route as RouteIcon,
-  Server,
-  Shield,
-  Sparkles,
-  Waves,
-  Zap,
-} from 'lucide-react'
 
 export const Route = createFileRoute('/')({ component: App })
 
 function App() {
-  const features = [
-    {
-      icon: <Zap className="w-12 h-12 text-cyan-400" />,
-      title: 'Powerful Server Functions',
-      description:
-        'Write server-side code that seamlessly integrates with your client components. Type-safe, secure, and simple.',
-    },
-    {
-      icon: <Server className="w-12 h-12 text-cyan-400" />,
-      title: 'Flexible Server Side Rendering',
-      description:
-        'Full-document SSR, streaming, and progressive enhancement out of the box. Control exactly what renders where.',
-    },
-    {
-      icon: <RouteIcon className="w-12 h-12 text-cyan-400" />,
-      title: 'API Routes',
-      description:
-        'Build type-safe API endpoints alongside your application. No separate backend needed.',
-    },
-    {
-      icon: <Shield className="w-12 h-12 text-cyan-400" />,
-      title: 'Strongly Typed Everything',
-      description:
-        'End-to-end type safety from server to client. Catch errors before they reach production.',
-    },
-    {
-      icon: <Waves className="w-12 h-12 text-cyan-400" />,
-      title: 'Full Streaming Support',
-      description:
-        'Stream data from server to client progressively. Perfect for AI applications and real-time updates.',
-    },
-    {
-      icon: <Sparkles className="w-12 h-12 text-cyan-400" />,
-      title: 'Next Generation Ready',
-      description:
-        'Built from the ground up for modern web applications. Deploy anywhere JavaScript runs.',
-    },
-  ]
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
-      <section className="relative py-20 px-6 text-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 via-blue-500/10 to-purple-500/10"></div>
-        <div className="relative max-w-5xl mx-auto">
-          <div className="flex items-center justify-center gap-6 mb-6">
-            <img
-              src="/tanstack-circle-logo.png"
-              alt="TanStack Logo"
-              className="w-24 h-24 md:w-32 md:h-32"
-            />
-            <h1 className="text-6xl md:text-7xl font-black text-white [letter-spacing:-0.08em]">
-              <span className="text-gray-300">TANSTACK</span>{' '}
-              <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-                START
-              </span>
-            </h1>
-          </div>
-          <p className="text-2xl md:text-3xl text-gray-300 mb-4 font-light">
-            The framework for next generation AI applications
-          </p>
-          <p className="text-lg text-gray-400 max-w-3xl mx-auto mb-8">
-            Full-stack framework powered by TanStack Router for React and Solid.
-            Build modern applications with server functions, streaming, and type
-            safety.
-          </p>
-          <div className="flex flex-col items-center gap-4">
-            <a
-              href="https://tanstack.com/start"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-8 py-3 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-lg transition-colors shadow-lg shadow-cyan-500/50"
-            >
-              Documentation
-            </a>
-            <p className="text-gray-400 text-sm mt-2">
-              Begin your TanStack Start journey by editing{' '}
-              <code className="px-2 py-1 bg-slate-700 rounded text-cyan-400">
-                /src/routes/index.tsx
-              </code>
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section className="py-16 px-6 max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {features.map((feature, index) => (
-            <div
-              key={index}
-              className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/10"
-            >
-              <div className="mb-4">{feature.icon}</div>
-              <h3 className="text-xl font-semibold text-white mb-3">
-                {feature.title}
-              </h3>
-              <p className="text-gray-400 leading-relaxed">
-                {feature.description}
+    <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#f8fafc,_#eef2f7_40%,_#e2e8f0_100%)] px-6 pb-20">
+      <section className="max-w-6xl mx-auto pt-16">
+        <div className="flex flex-col gap-8">
+          <div className="flex items-center justify-between flex-wrap gap-6">
+            <div>
+              <p className="text-xs uppercase tracking-[0.3em] text-slate-500">
+                Today
+              </p>
+              <h1 className="text-4xl md:text-5xl font-semibold text-slate-900">
+                Build habits that compound.
+              </h1>
+              <p className="mt-3 max-w-xl text-base md:text-lg text-slate-600">
+                This is the starting point for your habit tracker. Next up: add
+                the creation flow, today list, and streak logic from the PRD.
               </p>
             </div>
-          ))}
+            <button className="rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-slate-900/15">
+              New habit
+            </button>
+          </div>
+
+          <div className="grid gap-6 lg:grid-cols-[2fr,1fr]">
+            <div className="rounded-3xl border border-slate-200 bg-white/70 p-8 shadow-sm">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-slate-900">Today</h2>
+                <span className="text-xs uppercase tracking-[0.2em] text-slate-400">
+                  Empty
+                </span>
+              </div>
+              <div className="mt-6 grid gap-4">
+                <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/80 p-6 text-slate-500">
+                  Add your first habit to start tracking daily completions.
+                </div>
+                <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/80 p-6 text-slate-500">
+                  Drag to reorder once you have more than one habit.
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-slate-200 bg-white/70 p-8 shadow-sm">
+              <h2 className="text-lg font-semibold text-slate-900">
+                This week
+              </h2>
+              <div className="mt-6 grid grid-cols-7 gap-2 text-center text-xs text-slate-500">
+                {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, index) => (
+                  <div
+                    key={`${day}-${index}`}
+                    className="rounded-full border border-slate-200 bg-white/80 px-2 py-2"
+                  >
+                    {day}
+                  </div>
+                ))}
+              </div>
+              <p className="mt-6 text-sm text-slate-500">
+                Calendar and streak data will live here once habits are in
+                place.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
-    </div>
+    </main>
   )
 }
