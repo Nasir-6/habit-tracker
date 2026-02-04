@@ -1,0 +1,5 @@
+
+- Task completed: Frontend / Habit Management - Render habit creation UI with a required name field.
+- Decisions: inline creation card on Today page for now; save disabled when trimmed name empty; test script uses --passWithNoTests since no test files.
+- Files changed: src/routes/index.tsx, package.json.
+- Blockers/notes: vitest reports hanging process message after run.

@@ -1,8 +1,15 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { useState } from 'react'
+
+import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/')({ component: App })
 
-function App() {
+export function App() {
+  const [habitName, setHabitName] = useState('')
+  const trimmedHabitName = habitName.trim()
+  const isSaveDisabled = trimmedHabitName.length === 0
+
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#f8fafc,_#eef2f7_40%,_#e2e8f0_100%)] px-6 pb-20">
       <section className="max-w-6xl mx-auto pt-16">
@@ -25,42 +32,93 @@ function App() {
             </button>
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-[2fr,1fr]">
-            <div className="rounded-3xl border border-slate-200 bg-white/70 p-8 shadow-sm">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-slate-900">Today</h2>
-                <span className="text-xs uppercase tracking-[0.2em] text-slate-400">
-                  Empty
-                </span>
-              </div>
-              <div className="mt-6 grid gap-4">
-                <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/80 p-6 text-slate-500">
-                  Add your first habit to start tracking daily completions.
+          <div className="grid gap-6">
+            <div className="rounded-3xl border border-slate-200 bg-white/80 p-8 shadow-sm">
+              <h2 className="text-lg font-semibold text-slate-900">
+                Create a habit
+              </h2>
+              <p className="mt-2 text-sm text-slate-500">
+                Give it a short, action-focused name. You can always edit it
+                later.
+              </p>
+              <form
+                className="mt-6 flex flex-col gap-4"
+                onSubmit={(event) => {
+                  event.preventDefault()
+                }}
+              >
+                <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
+                  Habit name
+                  <input
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 shadow-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+                    placeholder="Drink 8 cups of water"
+                    required
+                    type="text"
+                    value={habitName}
+                    onChange={(event) => {
+                      setHabitName(event.target.value)
+                    }}
+                  />
+                </label>
+                <div className="flex flex-wrap items-center gap-4">
+                  <button
+                    className={cn(
+                      'rounded-full px-6 py-3 text-sm font-semibold shadow-lg transition',
+                      isSaveDisabled
+                        ? 'cursor-not-allowed bg-slate-200 text-slate-500 shadow-none'
+                        : 'bg-slate-900 text-white shadow-slate-900/15 hover:bg-slate-800',
+                    )}
+                    disabled={isSaveDisabled}
+                    type="submit"
+                  >
+                    Save habit
+                  </button>
+                  <span className="text-xs text-slate-400">
+                    Required to keep your list focused.
+                  </span>
                 </div>
-                <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/80 p-6 text-slate-500">
-                  Drag to reorder once you have more than one habit.
-                </div>
-              </div>
+              </form>
             </div>
 
-            <div className="rounded-3xl border border-slate-200 bg-white/70 p-8 shadow-sm">
-              <h2 className="text-lg font-semibold text-slate-900">
-                This week
-              </h2>
-              <div className="mt-6 grid grid-cols-7 gap-2 text-center text-xs text-slate-500">
-                {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, index) => (
-                  <div
-                    key={`${day}-${index}`}
-                    className="rounded-full border border-slate-200 bg-white/80 px-2 py-2"
-                  >
-                    {day}
+            <div className="grid gap-6 lg:grid-cols-[2fr,1fr]">
+              <div className="rounded-3xl border border-slate-200 bg-white/70 p-8 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-semibold text-slate-900">
+                    Today
+                  </h2>
+                  <span className="text-xs uppercase tracking-[0.2em] text-slate-400">
+                    Empty
+                  </span>
+                </div>
+                <div className="mt-6 grid gap-4">
+                  <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/80 p-6 text-slate-500">
+                    Add your first habit to start tracking daily completions.
                   </div>
-                ))}
+                  <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/80 p-6 text-slate-500">
+                    Drag to reorder once you have more than one habit.
+                  </div>
+                </div>
               </div>
-              <p className="mt-6 text-sm text-slate-500">
-                Calendar and streak data will live here once habits are in
-                place.
-              </p>
+
+              <div className="rounded-3xl border border-slate-200 bg-white/70 p-8 shadow-sm">
+                <h2 className="text-lg font-semibold text-slate-900">
+                  This week
+                </h2>
+                <div className="mt-6 grid grid-cols-7 gap-2 text-center text-xs text-slate-500">
+                  {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, index) => (
+                    <div
+                      key={`${day}-${index}`}
+                      className="rounded-full border border-slate-200 bg-white/80 px-2 py-2"
+                    >
+                      {day}
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-6 text-sm text-slate-500">
+                  Calendar and streak data will live here once habits are in
+                  place.
+                </p>
+              </div>
             </div>
           </div>
         </div>
