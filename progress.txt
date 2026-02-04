@@ -14,6 +14,11 @@
 - Files changed: src/routes/api/calendar.ts, src/routeTree.gen.ts, prd.json, progress.txt.
 - Blockers/notes: none.
 
+- Task completed: Frontend / History - Render a read-only history view for a habit. (PRD Frontend / History)
+- Decisions: inline per-habit history panel vs new route to avoid route tree changes; fetch on-demand from /api/history with today localDate; render dates as read-only YYYY-MM-DD pills.
+- Files changed: src/routes/index.tsx, src/components/dashboard/Dashboard.tsx, src/components/dashboard/HabitList.tsx, prd.json, progress.txt.
+- Blockers/notes: none.
+
 - Task completed: Backend / Partnering - Restrict partner visibility to post-partnership data only.
 - Decisions: add GET /api/partnerships returning partner habits + today status; gate completion status when localDate < partnership startedOn; keep habit names visible regardless of start date.
 - Files changed: src/routes/api/partnerships.ts, prd.json, progress.txt.

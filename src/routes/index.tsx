@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { DragEvent, FormEvent } from 'react'
 import type { AuthMode, Habit } from '@/components/dashboard/types'
 
@@ -31,6 +31,11 @@ export function App() {
   const [habitStreaks, setHabitStreaks] = useState<
     Partial<Record<string, { current: number; best: number }>>
   >({})
+  const [historyHabitId, setHistoryHabitId] = useState<string | null>(null)
+  const [historyDates, setHistoryDates] = useState<string[]>([])
+  const [historyError, setHistoryError] = useState<string | null>(null)
+  const [isHistoryLoading, setIsHistoryLoading] = useState(false)
+  const historyRequestIdRef = useRef(0)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [draggingHabitId, setDraggingHabitId] = useState<string | null>(null)
@@ -246,6 +251,57 @@ export function App() {
     )
   }
 
+  const handleToggleHistory = async (habitId: string) => {
+    if (historyHabitId === habitId) {
+      historyRequestIdRef.current += 1
+      setHistoryHabitId(null)
+      setHistoryDates([])
+      setHistoryError(null)
+      setIsHistoryLoading(false)
+      return
+    }
+
+    const requestId = historyRequestIdRef.current + 1
+    historyRequestIdRef.current = requestId
+    setHistoryHabitId(habitId)
+    setHistoryDates([])
+    setHistoryError(null)
+    setIsHistoryLoading(true)
+
+    try {
+      const response = await fetch(
+        `/api/history?habitId=${encodeURIComponent(
+          habitId,
+        )}&localDate=${localDate}`,
+      )
+
+      if (!response.ok) {
+        const payload = (await response.json()) as { error?: string }
+        throw new Error(payload.error || 'Unable to load history')
+      }
+
+      const payload = (await response.json()) as { dates?: string[] }
+
+      if (historyRequestIdRef.current !== requestId) {
+        return
+      }
+
+      setHistoryDates(Array.isArray(payload.dates) ? payload.dates : [])
+    } catch (error) {
+      if (historyRequestIdRef.current !== requestId) {
+        return
+      }
+
+      const message =
+        error instanceof Error ? error.message : 'Unable to load history'
+      setHistoryError(message)
+    } finally {
+      if (historyRequestIdRef.current === requestId) {
+        setIsHistoryLoading(false)
+      }
+    }
+  }
+
   if (isPending) {
     return <LoadingScreen />
   }
@@ -283,6 +339,10 @@ export function App() {
       errorMessage={errorMessage}
       habitName={habitName}
       habits={habits}
+      historyDates={historyDates}
+      historyError={historyError}
+      historyHabitId={historyHabitId}
+      isHistoryLoading={isHistoryLoading}
       habitStreaks={habitStreaks}
       isSaveDisabled={isSaveDisabled}
       isSubmitting={isSubmitting}
@@ -294,6 +354,7 @@ export function App() {
       onHabitDrop={handleHabitDrop}
       onHabitNameChange={setHabitName}
       onToggleHabit={handleToggleHabit}
+      onToggleHistory={handleToggleHistory}
     />
   )
 }

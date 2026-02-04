@@ -13,6 +13,10 @@ type DashboardProps = {
   isSubmitting: boolean
   errorMessage: string | null
   habits: Habit[]
+  historyHabitId: string | null
+  historyDates: string[]
+  historyError: string | null
+  isHistoryLoading: boolean
   habitStreaks: Partial<Record<string, { current: number; best: number }>>
   draggingHabitId: string | null
   onHabitNameChange: (value: string) => void
@@ -21,6 +25,7 @@ type DashboardProps = {
   onHabitDragEnd: () => void
   onHabitDrop: (targetId: string) => void
   onToggleHabit: (habitId: string) => void
+  onToggleHistory: (habitId: string) => void
 }
 
 export function Dashboard({
@@ -29,6 +34,10 @@ export function Dashboard({
   isSubmitting,
   errorMessage,
   habits,
+  historyHabitId,
+  historyDates,
+  historyError,
+  isHistoryLoading,
   habitStreaks,
   draggingHabitId,
   onHabitNameChange,
@@ -37,6 +46,7 @@ export function Dashboard({
   onHabitDragEnd,
   onHabitDrop,
   onToggleHabit,
+  onToggleHistory,
 }: DashboardProps) {
   return (
     <PageShell maxWidthClass="max-w-6xl" paddingTopClass="pt-16">
@@ -57,11 +67,16 @@ export function Dashboard({
             <HabitList
               draggingHabitId={draggingHabitId}
               habits={habits}
+              historyDates={historyDates}
+              historyError={historyError}
+              historyHabitId={historyHabitId}
+              isHistoryLoading={isHistoryLoading}
               habitStreaks={habitStreaks}
               onHabitDragEnd={onHabitDragEnd}
               onHabitDragStart={onHabitDragStart}
               onHabitDrop={onHabitDrop}
               onToggleHabit={onToggleHabit}
+              onToggleHistory={onToggleHistory}
             />
             <WeekPreviewCard />
           </div>

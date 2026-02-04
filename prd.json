@@ -128,7 +128,7 @@
       "Verify completed days are visible",
       "Verify no editing is possible"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Backend / History",
