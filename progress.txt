@@ -143,3 +143,8 @@
 - Decisions: fetch calendar dates via /api/calendar with tzOffsetMinutes for local day mapping; derive status per YYYY-MM-DD and apply distinct Tailwind styles for completed/missed/today/future.
 - Files changed: src/components/dashboard/HabitCalendarCard.tsx, prd.json, progress.txt.
 - Blockers/notes: vitest hanging process message persists after run.
+
+- Task completed: Frontend / Platform - Ensure Today screen is usable on mobile viewports. (PRD Frontend / Platform)
+- Decisions: added responsive padding + stacked layout; increased touch target sizes with min height and full-width buttons on small screens; hide Empty label when habits exist.
+- Files changed: src/components/dashboard/PageShell.tsx, src/components/dashboard/CreateHabitCard.tsx, src/components/dashboard/HabitList.tsx, prd.json, progress.txt.
+- Blockers/notes: vitest still reports hanging process message after run.

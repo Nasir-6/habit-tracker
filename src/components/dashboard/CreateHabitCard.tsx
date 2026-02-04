@@ -20,7 +20,7 @@ export function CreateHabitCard({
   onCreateHabit,
 }: CreateHabitCardProps) {
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white/80 p-8 shadow-sm">
+    <div className="rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-sm sm:p-8">
       <h2 className="text-lg font-semibold text-slate-900">Create a habit</h2>
       <p className="mt-2 text-sm text-slate-500">
         Give it a short, action-focused name. You can always edit it later.
@@ -39,16 +39,17 @@ export function CreateHabitCard({
             }}
           />
         </label>
-        <div className="flex flex-wrap items-center gap-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
           <button
             className={cn(
-              'rounded-full px-6 py-3 text-sm font-semibold shadow-lg transition',
+              'min-h-[44px] w-full rounded-full px-6 py-3 text-sm font-semibold shadow-lg transition sm:w-auto',
               isSaveDisabled
                 ? 'cursor-not-allowed bg-slate-200 text-slate-500 shadow-none'
                 : 'bg-slate-900 text-white shadow-slate-900/15 hover:bg-slate-800',
             )}
             disabled={isSaveDisabled}
             type="submit"
+            aria-disabled={isSaveDisabled}
           >
             {isSubmitting ? 'Saving…' : 'Save habit'}
           </button>

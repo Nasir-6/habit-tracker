@@ -36,12 +36,14 @@ export function HabitList({
     `${value} day${value === 1 ? '' : 's'}`
 
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white/70 p-8 shadow-sm">
-      <div className="flex items-center justify-between">
+    <div className="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm sm:p-8">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-lg font-semibold text-slate-900">Today</h2>
-        <span className="text-xs uppercase tracking-[0.2em] text-slate-400">
-          Empty
-        </span>
+        {habits.length === 0 ? (
+          <span className="text-xs uppercase tracking-[0.2em] text-slate-400">
+            Empty
+          </span>
+        ) : null}
       </div>
       <div className="mt-6 grid gap-4">
         {habits.length === 0 ? (
@@ -53,7 +55,7 @@ export function HabitList({
             <div key={habit.id} className="grid gap-3">
               <div
                 className={cn(
-                  'flex items-center justify-between rounded-2xl border bg-white/90 px-5 py-4 shadow-sm transition',
+                  'flex flex-col gap-4 rounded-2xl border bg-white/90 px-4 py-4 shadow-sm transition sm:flex-row sm:items-center sm:justify-between sm:px-5',
                   draggingHabitId === habit.id
                     ? 'border-slate-400 bg-slate-50 shadow-md'
                     : 'border-slate-200',
@@ -70,7 +72,7 @@ export function HabitList({
                   onHabitDrop(habit.id)
                 }}
               >
-                <div>
+                <div className="space-y-1">
                   <p className="text-sm font-semibold text-slate-900">
                     {habit.name}
                   </p>
@@ -84,9 +86,9 @@ export function HabitList({
                     · Best {formatStreak(habitStreaks[habit.id]?.best ?? 0)}
                   </p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:gap-3">
                   <button
-                    className="rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600 transition hover:border-slate-300 hover:text-slate-700"
+                    className="min-h-[44px] w-full rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:border-slate-300 hover:text-slate-700 sm:w-auto"
                     type="button"
                     onClick={() => {
                       onToggleHistory(habit.id)
@@ -94,19 +96,9 @@ export function HabitList({
                   >
                     {historyHabitId === habit.id ? 'Hide history' : 'History'}
                   </button>
-                  <span
-                    className={cn(
-                      'rounded-full border px-3 py-1 text-xs',
-                      habit.isCompleted
-                        ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-                        : 'border-slate-200 text-slate-500',
-                    )}
-                  >
-                    {habit.isCompleted ? 'Completed' : 'Pending'}
-                  </span>
                   <button
                     className={cn(
-                      'rounded-full border px-4 py-2 text-xs font-semibold transition',
+                      'min-h-[44px] w-full rounded-full border px-4 py-2.5 text-sm font-semibold transition sm:w-auto',
                       habit.isCompleted
                         ? 'border-emerald-200 bg-emerald-100 text-emerald-700 hover:bg-emerald-50'
                         : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50',
@@ -118,10 +110,20 @@ export function HabitList({
                   >
                     {habit.isCompleted ? 'Undo' : 'Mark complete'}
                   </button>
+                  <span
+                    className={cn(
+                      'rounded-full border px-3 py-1 text-xs',
+                      habit.isCompleted
+                        ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                        : 'border-slate-200 text-slate-500',
+                    )}
+                  >
+                    {habit.isCompleted ? 'Completed' : 'Pending'}
+                  </span>
                 </div>
               </div>
               {historyHabitId === habit.id ? (
-                <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4 text-sm text-slate-600">
+                <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4 text-sm text-slate-600 sm:p-5">
                   <div className="flex items-center justify-between text-xs uppercase tracking-[0.2em] text-slate-400">
                     <span>History</span>
                     <span>{historyDates.length} total</span>

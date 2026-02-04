@@ -274,7 +274,7 @@
       "Open app on mobile viewport",
       "Verify all controls are touch-friendly"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Backend / Platform",
