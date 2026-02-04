@@ -10,10 +10,10 @@ const getTodos = createServerFn({
   if (!client) {
     return undefined
   }
-  return (await client.query(`SELECT * FROM todos`)) as Array<{
-    id: number
-    title: string
-  }>
+  const result = await client.query<{ id: number; title: string }>(
+    `SELECT id, title FROM todos`,
+  )
+  return result.rows
 })
 
 const insertTodo = createServerFn({
