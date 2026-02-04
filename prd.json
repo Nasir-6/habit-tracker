@@ -284,6 +284,6 @@
       "Restore connectivity",
       "Verify completions sync without duplication"
     ],
-    "passes": false
+    "passes": true
   }
 ]

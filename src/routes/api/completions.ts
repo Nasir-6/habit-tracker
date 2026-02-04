@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { getRequestHeaders } from '@tanstack/react-start/server'
-import { and, eq } from 'drizzle-orm'
+import { and, eq, inArray } from 'drizzle-orm'
 
 import { db } from '@/db/index.ts'
 import { habitCompletions, habits } from '@/db/schema'
@@ -9,6 +9,15 @@ import { auth } from '@/lib/auth'
 type CompletionCreatePayload = {
   habitId?: unknown
   localDate?: unknown
+}
+
+type CompletionListPayload = {
+  completions?: unknown
+}
+
+type CompletionPayload = {
+  habitId: string
+  localDate: string
 }
 
 const jsonHeaders = {
@@ -43,7 +52,7 @@ const created = (payload: Record<string, unknown>) => {
   })
 }
 
-const getCompletionPayload = (payload: unknown) => {
+const parseCompletion = (payload: unknown): CompletionPayload | null => {
   if (!payload || typeof payload !== 'object') {
     return null
   }
@@ -76,6 +85,32 @@ const getCompletionPayload = (payload: unknown) => {
   return { habitId, localDate }
 }
 
+const getCompletionPayload = (payload: unknown) => {
+  return parseCompletion(payload)
+}
+
+const getCompletionList = (payload: unknown) => {
+  if (!payload || typeof payload !== 'object') {
+    return null
+  }
+
+  const { completions } = payload as CompletionListPayload
+
+  if (!Array.isArray(completions) || completions.length === 0) {
+    return null
+  }
+
+  const parsed = completions.map((completion) => parseCompletion(completion))
+
+  if (parsed.some((completion) => !completion)) {
+    return null
+  }
+
+  return parsed.filter(
+    (completion): completion is CompletionPayload => completion !== null,
+  )
+}
+
 const getSessionUser = async () => {
   const headers = getRequestHeaders()
   const session = await auth.api.getSession({ headers })
@@ -98,6 +133,49 @@ export const Route = createFileRoute('/api/completions')({
           payload = await request.json()
         } catch {
           return badRequest('Invalid JSON payload')
+        }
+
+        const completionList = getCompletionList(payload)
+
+        if (completionList) {
+          const habitIds = Array.from(
+            new Set(completionList.map((completion) => completion.habitId)),
+          )
+
+          const ownedHabits = await db
+            .select({ id: habits.id })
+            .from(habits)
+            .where(
+              and(eq(habits.userId, user.id), inArray(habits.id, habitIds)),
+            )
+
+          if (ownedHabits.length !== habitIds.length) {
+            return badRequest('Habit not found')
+          }
+
+          const inserted = await db
+            .insert(habitCompletions)
+            .values(
+              completionList.map((completion) => ({
+                habitId: completion.habitId,
+                userId: user.id,
+                completedOn: completion.localDate,
+              })),
+            )
+            .onConflictDoNothing({
+              target: [habitCompletions.habitId, habitCompletions.completedOn],
+            })
+            .returning({
+              id: habitCompletions.id,
+              habitId: habitCompletions.habitId,
+              completedOn: habitCompletions.completedOn,
+            })
+
+          return ok({
+            completions: inserted,
+            createdCount: inserted.length,
+            totalCount: completionList.length,
+          })
         }
 
         const completionPayload = getCompletionPayload(payload)

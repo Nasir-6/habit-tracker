@@ -148,3 +148,8 @@
 - Decisions: added responsive padding + stacked layout; increased touch target sizes with min height and full-width buttons on small screens; hide Empty label when habits exist.
 - Files changed: src/components/dashboard/PageShell.tsx, src/components/dashboard/CreateHabitCard.tsx, src/components/dashboard/HabitList.tsx, prd.json, progress.txt.
 - Blockers/notes: vitest still reports hanging process message after run.
+
+- Task completed: Backend / Platform - Support offline completions with eventual sync. (PRD Backend / Platform)
+- Decisions: allow bulk completion payloads on POST /api/completions; rely on conflict-do-nothing to keep sync idempotent; validate habit ownership across batch before insert.
+- Files changed: src/routes/api/completions.ts, prd.json, progress.txt.
+- Blockers/notes: none.
