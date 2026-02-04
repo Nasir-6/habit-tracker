@@ -111,6 +111,44 @@ const getCompletionList = (payload: unknown) => {
   )
 }
 
+const parseLocalDate = (value: string) => {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value)
+
+  if (!match) {
+    return null
+  }
+
+  const year = Number(match[1])
+  const month = Number(match[2])
+  const day = Number(match[3])
+  const utcDate = new Date(Date.UTC(year, month - 1, day))
+
+  if (
+    utcDate.getUTCFullYear() !== year ||
+    utcDate.getUTCMonth() !== month - 1 ||
+    utcDate.getUTCDate() !== day
+  ) {
+    return null
+  }
+
+  return value
+}
+
+const getCompletionParams = (request: Request) => {
+  const url = new URL(request.url)
+  const localDate = url.searchParams.get('localDate')
+
+  if (!localDate) {
+    return null
+  }
+
+  if (!parseLocalDate(localDate)) {
+    return null
+  }
+
+  return { localDate }
+}
+
 const getSessionUser = async () => {
   const headers = getRequestHeaders()
   const session = await auth.api.getSession({ headers })
@@ -120,6 +158,31 @@ const getSessionUser = async () => {
 export const Route = createFileRoute('/api/completions')({
   server: {
     handlers: {
+      GET: async ({ request }) => {
+        const user = await getSessionUser()
+
+        if (!user) {
+          return unauthorized()
+        }
+
+        const params = getCompletionParams(request)
+
+        if (!params) {
+          return badRequest('Local date is required')
+        }
+
+        const rows = await db
+          .select({ habitId: habitCompletions.habitId })
+          .from(habitCompletions)
+          .where(
+            and(
+              eq(habitCompletions.userId, user.id),
+              eq(habitCompletions.completedOn, params.localDate),
+            ),
+          )
+
+        return ok({ habitIds: rows.map((row) => row.habitId) })
+      },
       POST: async ({ request }) => {
         const user = await getSessionUser()
 

@@ -56,6 +56,7 @@ export function App() {
 
   useEffect(() => {
     if (!session?.user) {
+      setHabits([])
       setPartnerHabits([])
       setPartnerStartedOn(null)
       setPartnerError(null)
@@ -124,6 +125,80 @@ export function App() {
     }
 
     void loadPartnerStatus()
+
+    return () => {
+      isActive = false
+    }
+  }, [localDate, session?.user.id])
+
+  useEffect(() => {
+    if (!session?.user) {
+      return
+    }
+
+    let isActive = true
+
+    const loadHabits = async () => {
+      setErrorMessage(null)
+
+      try {
+        const [habitsResponse, completionsResponse] = await Promise.all([
+          fetch('/api/habits'),
+          fetch(`/api/completions?localDate=${encodeURIComponent(localDate)}`),
+        ])
+
+        if (!habitsResponse.ok) {
+          const payload = (await habitsResponse.json()) as { error?: string }
+          throw new Error(payload.error || 'Unable to load habits')
+        }
+
+        if (!completionsResponse.ok) {
+          const payload = (await completionsResponse.json()) as {
+            error?: string
+          }
+          throw new Error(payload.error || 'Unable to load completions')
+        }
+
+        const habitsPayload = (await habitsResponse.json()) as {
+          habits?: { id?: string; name?: string }[]
+        }
+        const completionsPayload = (await completionsResponse.json()) as {
+          habitIds?: string[]
+        }
+
+        if (!isActive) {
+          return
+        }
+
+        const next = Array.isArray(habitsPayload.habits)
+          ? habitsPayload.habits
+          : []
+        const completedIds = new Set(
+          Array.isArray(completionsPayload.habitIds)
+            ? completionsPayload.habitIds
+            : [],
+        )
+
+        setHabits(
+          next.map((habit) => ({
+            id: habit.id ?? crypto.randomUUID(),
+            name: habit.name ?? 'Untitled habit',
+            isCompleted: completedIds.has(habit.id ?? ''),
+          })),
+        )
+      } catch (error) {
+        if (!isActive) {
+          return
+        }
+
+        const message =
+          error instanceof Error ? error.message : 'Unable to load habits'
+        setErrorMessage(message)
+        setHabits([])
+      }
+    }
+
+    void loadHabits()
 
     return () => {
       isActive = false
@@ -325,17 +400,55 @@ export function App() {
     }
   }
 
-  const handleToggleHabit = (habitId: string) => {
+  const handleToggleHabit = async (habitId: string) => {
+    const targetHabit = habits.find((habit) => habit.id === habitId)
+
+    if (!targetHabit) {
+      return
+    }
+
+    const nextCompleted = !targetHabit.isCompleted
+
     setHabits((current) =>
       current.map((item) =>
         item.id === habitId
           ? {
               ...item,
-              isCompleted: !item.isCompleted,
+              isCompleted: nextCompleted,
             }
           : item,
       ),
     )
+
+    try {
+      const response = await fetch('/api/completions', {
+        method: nextCompleted ? 'POST' : 'DELETE',
+        headers: {
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({ habitId, localDate }),
+      })
+
+      if (!response.ok) {
+        const payload = (await response.json()) as { error?: string }
+        throw new Error(payload.error || 'Unable to update completion')
+      }
+    } catch (error) {
+      setHabits((current) =>
+        current.map((item) =>
+          item.id === habitId
+            ? {
+                ...item,
+                isCompleted: !nextCompleted,
+              }
+            : item,
+        ),
+      )
+
+      const message =
+        error instanceof Error ? error.message : 'Unable to update completion'
+      setErrorMessage(message)
+    }
   }
 
   const handleToggleHistory = async (habitId: string) => {
