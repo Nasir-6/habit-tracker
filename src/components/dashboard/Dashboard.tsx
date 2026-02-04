@@ -90,7 +90,7 @@ export function Dashboard({
               onToggleHistory={onToggleHistory}
             />
             <div className="grid gap-6">
-              <HabitCalendarCard habits={habits} />
+              <HabitCalendarCard habitStreaks={habitStreaks} habits={habits} />
               <PartnerStatusCard
                 errorMessage={partnerError}
                 habits={partnerHabits}

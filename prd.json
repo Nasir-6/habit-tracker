@@ -237,7 +237,7 @@
       "Open calendar view",
       "Verify streak values are visible and correct"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Backend / Calendar View",

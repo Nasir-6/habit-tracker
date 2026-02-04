@@ -34,9 +34,13 @@ const buildCalendarDays = (reference: Date) => {
 
 type HabitCalendarCardProps = {
   habits: Habit[]
+  habitStreaks: Partial<Record<string, { current: number; best: number }>>
 }
 
-export function HabitCalendarCard({ habits }: HabitCalendarCardProps) {
+export function HabitCalendarCard({
+  habits,
+  habitStreaks,
+}: HabitCalendarCardProps) {
   const [monthAnchor, setMonthAnchor] = useState(() => new Date())
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(
     habits[0]?.id ?? null,
@@ -74,6 +78,13 @@ export function HabitCalendarCard({ habits }: HabitCalendarCardProps) {
   }, [calendar.monthIndex, calendar.year])
   const todayKey = useMemo(() => formatLocalDate(new Date()), [])
   const tzOffsetMinutes = useMemo(() => new Date().getTimezoneOffset(), [])
+  const selectedStreak = useMemo(() => {
+    if (!selectedHabitId) {
+      return { current: 0, best: 0 }
+    }
+
+    return habitStreaks[selectedHabitId] ?? { current: 0, best: 0 }
+  }, [habitStreaks, selectedHabitId])
   const monthLabel = useMemo(() => {
     return new Date(calendar.year, calendar.monthIndex, 1).toLocaleDateString(
       undefined,
@@ -83,6 +94,9 @@ export function HabitCalendarCard({ habits }: HabitCalendarCardProps) {
       },
     )
   }, [calendar.monthIndex, calendar.year])
+
+  const formatStreak = (value: number) =>
+    `${value} day${value === 1 ? '' : 's'}`
 
   const shiftMonth = (offset: number) => {
     setMonthAnchor(
@@ -200,6 +214,24 @@ export function HabitCalendarCard({ habits }: HabitCalendarCardProps) {
           <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
             {selectedHabit.name}
           </p>
+          <div className="grid gap-2 sm:grid-cols-2">
+            <div className="rounded-2xl border border-slate-200 bg-white/80 px-4 py-3">
+              <p className="text-[0.65rem] uppercase tracking-[0.2em] text-slate-400">
+                Current streak
+              </p>
+              <p className="mt-1 text-sm font-semibold text-slate-900">
+                {formatStreak(selectedStreak.current)}
+              </p>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-white/80 px-4 py-3">
+              <p className="text-[0.65rem] uppercase tracking-[0.2em] text-slate-400">
+                Best streak
+              </p>
+              <p className="mt-1 text-sm font-semibold text-slate-900">
+                {formatStreak(selectedStreak.best)}
+              </p>
+            </div>
+          </div>
           <div className="grid grid-cols-7 gap-2 text-center text-xs">
             {weekdayLabels.map((label) => (
               <div key={label} className="text-[0.65rem] text-slate-400">

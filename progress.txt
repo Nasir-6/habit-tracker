@@ -9,6 +9,11 @@
 - Files changed: src/routes/api/habits.ts, src/routeTree.gen.ts.
 - Blockers/notes: vitest hanging process message persists after run.
 
+- Task completed: Frontend / Calendar View - Display current and best streak above the calendar. (PRD Frontend / Calendar View)
+- Decisions: reuse habitStreaks map from dashboard; show current/best cards under selected habit label; default 0 when missing.
+- Files changed: src/components/dashboard/HabitCalendarCard.tsx, src/components/dashboard/Dashboard.tsx, prd.json, progress.txt.
+- Blockers/notes: vitest hanging process message persists after run.
+
 - Task completed: Frontend / Calendar View - Allow navigation between months. (PRD Frontend / Calendar View)
 - Decisions: add prev/next month controls in calendar card; shift month anchor to first of month to avoid date drift.
 - Files changed: src/components/dashboard/HabitCalendarCard.tsx, prd.json, progress.txt.
