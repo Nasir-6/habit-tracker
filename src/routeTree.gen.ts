@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiHabitsRouteImport } from './routes/api/habits'
+import { Route as ApiCompletionsRouteImport } from './routes/api/completions'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const IndexRoute = IndexRouteImport.update({
@@ -23,6 +24,11 @@ const ApiHabitsRoute = ApiHabitsRouteImport.update({
   path: '/api/habits',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiCompletionsRoute = ApiCompletionsRouteImport.update({
+  id: '/api/completions',
+  path: '/api/completions',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -31,30 +37,34 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api/completions': typeof ApiCompletionsRoute
   '/api/habits': typeof ApiHabitsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api/completions': typeof ApiCompletionsRoute
   '/api/habits': typeof ApiHabitsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api/completions': typeof ApiCompletionsRoute
   '/api/habits': typeof ApiHabitsRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/habits' | '/api/auth/$'
+  fullPaths: '/' | '/api/completions' | '/api/habits' | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/habits' | '/api/auth/$'
-  id: '__root__' | '/' | '/api/habits' | '/api/auth/$'
+  to: '/' | '/api/completions' | '/api/habits' | '/api/auth/$'
+  id: '__root__' | '/' | '/api/completions' | '/api/habits' | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiCompletionsRoute: typeof ApiCompletionsRoute
   ApiHabitsRoute: typeof ApiHabitsRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
@@ -75,6 +85,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiHabitsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/completions': {
+      id: '/api/completions'
+      path: '/api/completions'
+      fullPath: '/api/completions'
+      preLoaderRoute: typeof ApiCompletionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -87,6 +104,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiCompletionsRoute: ApiCompletionsRoute,
   ApiHabitsRoute: ApiHabitsRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }

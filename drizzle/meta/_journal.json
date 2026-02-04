@@ -15,6 +15,13 @@
       "when": 1770268000000,
       "tag": "0001_create_habits",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1770354400000,
+      "tag": "0002_create_habit_completions",
+      "breakpoints": true
     }
   ]
 }

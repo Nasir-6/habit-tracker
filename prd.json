@@ -77,7 +77,7 @@
       "Verify completion is stored with local date",
       "Verify duplicate completions are prevented"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Backend / Daily Check-in",
