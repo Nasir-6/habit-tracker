@@ -87,7 +87,7 @@
       "Verify completion record is removed or inactive",
       "Verify streaks recalculate"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Backend / Streaks",

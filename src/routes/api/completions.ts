@@ -161,6 +161,53 @@ export const Route = createFileRoute('/api/completions')({
 
         return ok({ completion: existing, created: false })
       },
+      DELETE: async ({ request }) => {
+        const user = await getSessionUser()
+
+        if (!user) {
+          return unauthorized()
+        }
+
+        let payload: unknown
+
+        try {
+          payload = await request.json()
+        } catch {
+          return badRequest('Invalid JSON payload')
+        }
+
+        const completionPayload = getCompletionPayload(payload)
+
+        if (!completionPayload) {
+          return badRequest('Habit id and local date are required')
+        }
+
+        const { habitId, localDate } = completionPayload
+
+        const habit = await db
+          .select({ id: habits.id })
+          .from(habits)
+          .where(and(eq(habits.id, habitId), eq(habits.userId, user.id)))
+          .then((rows) => rows.at(0))
+
+        if (!habit) {
+          return badRequest('Habit not found')
+        }
+
+        const deleted = await db
+          .delete(habitCompletions)
+          .where(
+            and(
+              eq(habitCompletions.habitId, habitId),
+              eq(habitCompletions.userId, user.id),
+              eq(habitCompletions.completedOn, localDate),
+            ),
+          )
+          .returning({ id: habitCompletions.id })
+          .then((rows) => rows.at(0))
+
+        return ok({ removed: Boolean(deleted) })
+      },
     },
   },
 })

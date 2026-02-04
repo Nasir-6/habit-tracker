@@ -39,6 +39,11 @@
 - Files changed: src/lib/auth-client.ts, src/routes/index.tsx, drizzle/0001_create_habits.sql, drizzle/meta/_journal.json.
 - Blockers/notes: none.
 
+- Task completed: Backend / Daily Check-in - Remove or deactivate completion when undone.
+- Decisions: add DELETE /api/completions with same payload validation + habit ownership check; return removed boolean after delete.
+- Files changed: src/routes/api/completions.ts, prd.json.
+- Blockers/notes: none.
+
 - Task completed: Backend / Daily Check-in - Store a single completion per habit per local day.
 - Decisions: create habit_completions table with unique (habit_id, completed_on); POST /api/completions expects habitId + localDate (YYYY-MM-DD), validates date, uses conflict-do-nothing to prevent duplicates.
 - Files changed: src/db/schema.ts, src/routes/api/completions.ts, drizzle/0002_create_habit_completions.sql, drizzle/meta/_journal.json, prd.json.
