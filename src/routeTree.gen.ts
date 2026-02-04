@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiStreaksRouteImport } from './routes/api/streaks'
+import { Route as ApiPartnershipsRouteImport } from './routes/api/partnerships'
 import { Route as ApiPartnerInvitesRouteImport } from './routes/api/partner-invites'
 import { Route as ApiHistoryRouteImport } from './routes/api/history'
 import { Route as ApiHabitsRouteImport } from './routes/api/habits'
@@ -26,6 +27,11 @@ const IndexRoute = IndexRouteImport.update({
 const ApiStreaksRoute = ApiStreaksRouteImport.update({
   id: '/api/streaks',
   path: '/api/streaks',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPartnershipsRoute = ApiPartnershipsRouteImport.update({
+  id: '/api/partnerships',
+  path: '/api/partnerships',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPartnerInvitesRoute = ApiPartnerInvitesRouteImport.update({
@@ -66,6 +72,7 @@ export interface FileRoutesByFullPath {
   '/api/habits': typeof ApiHabitsRoute
   '/api/history': typeof ApiHistoryRoute
   '/api/partner-invites': typeof ApiPartnerInvitesRoute
+  '/api/partnerships': typeof ApiPartnershipsRoute
   '/api/streaks': typeof ApiStreaksRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
@@ -76,6 +83,7 @@ export interface FileRoutesByTo {
   '/api/habits': typeof ApiHabitsRoute
   '/api/history': typeof ApiHistoryRoute
   '/api/partner-invites': typeof ApiPartnerInvitesRoute
+  '/api/partnerships': typeof ApiPartnershipsRoute
   '/api/streaks': typeof ApiStreaksRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
@@ -87,6 +95,7 @@ export interface FileRoutesById {
   '/api/habits': typeof ApiHabitsRoute
   '/api/history': typeof ApiHistoryRoute
   '/api/partner-invites': typeof ApiPartnerInvitesRoute
+  '/api/partnerships': typeof ApiPartnershipsRoute
   '/api/streaks': typeof ApiStreaksRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
@@ -99,6 +108,7 @@ export interface FileRouteTypes {
     | '/api/habits'
     | '/api/history'
     | '/api/partner-invites'
+    | '/api/partnerships'
     | '/api/streaks'
     | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
@@ -109,6 +119,7 @@ export interface FileRouteTypes {
     | '/api/habits'
     | '/api/history'
     | '/api/partner-invites'
+    | '/api/partnerships'
     | '/api/streaks'
     | '/api/auth/$'
   id:
@@ -119,6 +130,7 @@ export interface FileRouteTypes {
     | '/api/habits'
     | '/api/history'
     | '/api/partner-invites'
+    | '/api/partnerships'
     | '/api/streaks'
     | '/api/auth/$'
   fileRoutesById: FileRoutesById
@@ -130,6 +142,7 @@ export interface RootRouteChildren {
   ApiHabitsRoute: typeof ApiHabitsRoute
   ApiHistoryRoute: typeof ApiHistoryRoute
   ApiPartnerInvitesRoute: typeof ApiPartnerInvitesRoute
+  ApiPartnershipsRoute: typeof ApiPartnershipsRoute
   ApiStreaksRoute: typeof ApiStreaksRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
@@ -148,6 +161,13 @@ declare module '@tanstack/react-router' {
       path: '/api/streaks'
       fullPath: '/api/streaks'
       preLoaderRoute: typeof ApiStreaksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/partnerships': {
+      id: '/api/partnerships'
+      path: '/api/partnerships'
+      fullPath: '/api/partnerships'
+      preLoaderRoute: typeof ApiPartnershipsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/partner-invites': {
@@ -202,6 +222,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiHabitsRoute: ApiHabitsRoute,
   ApiHistoryRoute: ApiHistoryRoute,
   ApiPartnerInvitesRoute: ApiPartnerInvitesRoute,
+  ApiPartnershipsRoute: ApiPartnershipsRoute,
   ApiStreaksRoute: ApiStreaksRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }

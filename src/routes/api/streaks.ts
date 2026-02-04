@@ -190,7 +190,7 @@ export const Route = createFileRoute('/api/streaks')({
             )
             .orderBy(desc(habitCompletions.completedOn))
         } catch (error) {
-          const pgError = (error as { cause?: { code?: string } })?.cause
+          const pgError = (error as { cause?: { code?: string } }).cause
           if (pgError?.code !== '42P01') {
             throw error
           }

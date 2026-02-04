@@ -14,6 +14,11 @@
 - Files changed: src/routes/api/calendar.ts, src/routeTree.gen.ts, prd.json, progress.txt.
 - Blockers/notes: none.
 
+- Task completed: Backend / Partnering - Allow either user to revoke partnership immediately.
+- Decisions: add DELETE /api/partnerships to remove the current user's partnership by matching user id on either side; return 404 when none found.
+- Files changed: src/routes/api/partnerships.ts, src/routes/api/streaks.ts, src/routeTree.gen.ts, prd.json, progress.txt.
+- Blockers/notes: none.
+
 - Task completed: Backend / Partnering - Activate partnership upon acceptance.
 - Decisions: add partnerships table keyed by sorted user ids with started_at timestamp; accept via PATCH /api/partner-invites using inviteId, verify invitee email matches session user.
 - Files changed: src/routes/api/partner-invites.ts, src/db/schema.ts, drizzle/0004_create_partnerships.sql, drizzle/meta/_journal.json, prd.json, progress.txt.

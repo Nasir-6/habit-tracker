@@ -197,7 +197,7 @@
       "Revoke partnership",
       "Verify partner data is no longer accessible"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Calendar View",
