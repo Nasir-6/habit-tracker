@@ -14,6 +14,11 @@
 - Files changed: src/routes/api/calendar.ts, src/routeTree.gen.ts, prd.json, progress.txt.
 - Blockers/notes: none.
 
+- Task completed: Backend / Partnering - Create a pending partnership invite.
+- Decisions: add partner_invites table with pending status + unique inviter/invitee/status; POST /api/partner-invites validates email, prevents self-invite, onConflictDoNothing -> "Invite already pending".
+- Files changed: src/db/schema.ts, drizzle/0003_create_partner_invites.sql, drizzle/meta/_journal.json, src/routes/api/partner-invites.ts, src/routeTree.gen.ts, prd.json, progress.txt.
+- Blockers/notes: vitest hanging process message persists after run.
+
 - Task completed: Frontend / Streaks - Display current and best streak per habit.
 - Decisions: fetch streaks per habit from /api/streaks using local YYYY-MM-DD; store streaks in separate map to avoid mutating habit list; default to 0 on fetch error.
 - Files changed: src/routes/index.tsx, src/components/dashboard/Dashboard.tsx, src/components/dashboard/HabitList.tsx, prd.json, progress.txt.

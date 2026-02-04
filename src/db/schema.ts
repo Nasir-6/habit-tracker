@@ -41,3 +41,21 @@ export const habitCompletions = pgTable(
     ),
   }),
 )
+
+export const partnerInvites = pgTable(
+  'partner_invites',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    inviterUserId: text('inviter_user_id').notNull(),
+    inviteeEmail: text('invitee_email').notNull(),
+    status: text('status').notNull().default('pending'),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => ({
+    uniquePendingInvite: uniqueIndex(
+      'partner_invites_inviter_invitee_status_unique',
+    ).on(table.inviterUserId, table.inviteeEmail, table.status),
+  }),
+)

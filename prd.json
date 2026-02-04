@@ -158,7 +158,7 @@
       "Verify invite is stored as pending",
       "Verify no data is shared yet"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Backend / Partnering",
