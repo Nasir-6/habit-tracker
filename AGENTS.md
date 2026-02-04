@@ -70,6 +70,7 @@ Follow existing patterns in nearby files when editing.
   - routing + data loading only
   - move complex UI into colocated components
 - Hooks should not mix data fetching, state, and formatting concerns.
+- For component folders, use the component name as the folder name and keep the main component in `index.tsx`; keep subcomponents and utilities alongside it.
 
 ### Formatting rules (from `prettier.config.js`)
 
