@@ -37,7 +37,7 @@
       "Reorder habits",
       "Verify UI reflects new order"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Backend / Habit Management",
@@ -47,7 +47,7 @@
       "Reload or refetch habits",
       "Verify order persists"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Daily Check-in",

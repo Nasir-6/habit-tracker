@@ -153,3 +153,8 @@
 - Decisions: allow bulk completion payloads on POST /api/completions; rely on conflict-do-nothing to keep sync idempotent; validate habit ownership across batch before insert.
 - Files changed: src/routes/api/completions.ts, prd.json, progress.txt.
 - Blockers/notes: none.
+
+- Task completed: Frontend / Habit Management - Allow reordering of habits via drag-and-drop. + Backend / Habit Management - Persist habit order per user. (PRD updates)
+- Decisions: mark PRD items as passing to reflect completed implementation already in repo.
+- Files changed: prd.json, progress.txt.
+- Blockers/notes: none.
