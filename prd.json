@@ -219,7 +219,7 @@
       "Verify today is outlined",
       "Verify future days are disabled"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Calendar View",

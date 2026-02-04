@@ -123,3 +123,8 @@
 - Decisions: replace week preview card with calendar card; default to current month and first habit selection; show empty state when no habits.
 - Files changed: src/components/dashboard/HabitCalendarCard.tsx, src/components/dashboard/Dashboard.tsx, prd.json, progress.txt.
 - Blockers/notes: none.
+
+- Task completed: Frontend / Calendar View - Visually distinguish completed, missed, today, and future days. (PRD Frontend / Calendar View)
+- Decisions: fetch calendar dates via /api/calendar with tzOffsetMinutes for local day mapping; derive status per YYYY-MM-DD and apply distinct Tailwind styles for completed/missed/today/future.
+- Files changed: src/components/dashboard/HabitCalendarCard.tsx, prd.json, progress.txt.
+- Blockers/notes: vitest hanging process message persists after run.

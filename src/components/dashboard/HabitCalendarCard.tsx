@@ -1,8 +1,17 @@
 import { useEffect, useMemo, useState } from 'react'
 
 import type { Habit } from '@/components/dashboard/types'
+import { cn } from '@/lib/utils'
 
 const weekdayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+
+const padNumber = (value: number) => String(value).padStart(2, '0')
+
+const formatLocalDate = (value: Date) => {
+  return `${value.getFullYear()}-${padNumber(value.getMonth() + 1)}-${padNumber(
+    value.getDate(),
+  )}`
+}
 
 const buildCalendarDays = (reference: Date) => {
   const year = reference.getFullYear()
@@ -28,15 +37,24 @@ type HabitCalendarCardProps = {
 }
 
 export function HabitCalendarCard({ habits }: HabitCalendarCardProps) {
+  const [monthAnchor] = useState(() => new Date())
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(
     habits[0]?.id ?? null,
   )
+  const [completedDates, setCompletedDates] = useState<Set<string>>(
+    () => new Set(),
+  )
+  const [calendarError, setCalendarError] = useState<string | null>(null)
+  const [isCalendarLoading, setIsCalendarLoading] = useState(false)
 
   useEffect(() => {
     if (habits.length === 0) {
       if (selectedHabitId !== null) {
         setSelectedHabitId(null)
       }
+      setCompletedDates(new Set())
+      setCalendarError(null)
+      setIsCalendarLoading(false)
       return
     }
 
@@ -50,7 +68,12 @@ export function HabitCalendarCard({ habits }: HabitCalendarCardProps) {
 
   const selectedHabit =
     habits.find((habit) => habit.id === selectedHabitId) ?? null
-  const calendar = useMemo(() => buildCalendarDays(new Date()), [])
+  const calendar = useMemo(() => buildCalendarDays(monthAnchor), [monthAnchor])
+  const monthKey = useMemo(() => {
+    return `${calendar.year}-${padNumber(calendar.monthIndex + 1)}`
+  }, [calendar.monthIndex, calendar.year])
+  const todayKey = useMemo(() => formatLocalDate(new Date()), [])
+  const tzOffsetMinutes = useMemo(() => new Date().getTimezoneOffset(), [])
   const monthLabel = useMemo(() => {
     return new Date(calendar.year, calendar.monthIndex, 1).toLocaleDateString(
       undefined,
@@ -60,6 +83,63 @@ export function HabitCalendarCard({ habits }: HabitCalendarCardProps) {
       },
     )
   }, [calendar.monthIndex, calendar.year])
+
+  useEffect(() => {
+    if (!selectedHabit) {
+      setCompletedDates(new Set())
+      setCalendarError(null)
+      setIsCalendarLoading(false)
+      return
+    }
+
+    let isActive = true
+
+    const loadCalendar = async () => {
+      setIsCalendarLoading(true)
+      setCalendarError(null)
+
+      try {
+        const response = await fetch(
+          `/api/calendar?habitId=${encodeURIComponent(
+            selectedHabit.id,
+          )}&month=${monthKey}&tzOffsetMinutes=${tzOffsetMinutes}`,
+        )
+
+        if (!response.ok) {
+          const payload = (await response.json()) as { error?: string }
+          throw new Error(payload.error || 'Unable to load calendar data')
+        }
+
+        const payload = (await response.json()) as { dates?: string[] }
+        const next = new Set(Array.isArray(payload.dates) ? payload.dates : [])
+
+        if (isActive) {
+          setCompletedDates(next)
+        }
+      } catch (error) {
+        if (!isActive) {
+          return
+        }
+
+        const message =
+          error instanceof Error
+            ? error.message
+            : 'Unable to load calendar data'
+        setCalendarError(message)
+        setCompletedDates(new Set())
+      } finally {
+        if (isActive) {
+          setIsCalendarLoading(false)
+        }
+      }
+    }
+
+    void loadCalendar()
+
+    return () => {
+      isActive = false
+    }
+  }, [monthKey, selectedHabit, tzOffsetMinutes])
 
   return (
     <div className="rounded-3xl border border-slate-200 bg-white/70 p-8 shadow-sm">
@@ -105,7 +185,36 @@ export function HabitCalendarCard({ habits }: HabitCalendarCardProps) {
                 key={`${day ?? 'blank'}-${index}`}
                 className={
                   day
-                    ? 'rounded-xl border border-slate-200 bg-white/80 px-2 py-2 text-slate-600'
+                    ? (() => {
+                        const dayKey = `${calendar.year}-${padNumber(
+                          calendar.monthIndex + 1,
+                        )}-${padNumber(day)}`
+                        const isCompleted = completedDates.has(dayKey)
+                        const isToday = dayKey === todayKey
+                        const isFuture = dayKey > todayKey
+                        const isMissed = !isCompleted && !isFuture && !isToday
+
+                        return cn(
+                          'rounded-xl border px-2 py-2 text-xs font-medium transition-colors',
+                          isCompleted &&
+                            'border-emerald-200 bg-emerald-100 text-emerald-700',
+                          isToday &&
+                            !isCompleted &&
+                            'border-amber-300 bg-amber-50 text-amber-900',
+                          isToday &&
+                            isCompleted &&
+                            'ring-2 ring-amber-300 ring-offset-1',
+                          isFuture &&
+                            'border-slate-100 bg-white/40 text-slate-300',
+                          isMissed &&
+                            'border-slate-200 bg-slate-100 text-slate-400',
+                          !isCompleted &&
+                            !isToday &&
+                            !isFuture &&
+                            !isMissed &&
+                            'border-slate-200 bg-white/80 text-slate-600',
+                        )
+                      })()
                     : 'rounded-xl border border-transparent px-2 py-2'
                 }
               >
@@ -113,6 +222,12 @@ export function HabitCalendarCard({ habits }: HabitCalendarCardProps) {
               </div>
             ))}
           </div>
+          {isCalendarLoading ? (
+            <p className="text-xs text-slate-400">Refreshing calendar...</p>
+          ) : null}
+          {calendarError ? (
+            <p className="text-xs text-rose-500">{calendarError}</p>
+          ) : null}
         </div>
       )}
     </div>
