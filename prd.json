@@ -285,5 +285,109 @@
       "Verify completions sync without duplication"
     ],
     "passes": true
+  },
+  {
+    "category": "Frontend / Auth",
+    "description": "Render sign-in screen with email and password inputs.",
+    "steps_to_verify": [
+      "Open the app while logged out",
+      "Verify email and password inputs are visible",
+      "Verify submit button is disabled while fields are empty"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Auth",
+    "description": "Allow users to create an account with email and password.",
+    "steps_to_verify": [
+      "Switch to sign-up mode",
+      "Submit a new email and password",
+      "Verify user is signed in after success"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Auth",
+    "description": "Provide a visible sign-out action when a user is signed in.",
+    "steps_to_verify": [
+      "Sign in",
+      "Locate the header or profile control",
+      "Verify a sign-out action is visible"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Auth",
+    "description": "Sign out clears session and returns user to the sign-in view.",
+    "steps_to_verify": [
+      "Sign in",
+      "Trigger sign out",
+      "Verify session UI is cleared",
+      "Verify sign-in view is shown"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Auth",
+    "description": "Persist session across refresh when the user is signed in.",
+    "steps_to_verify": [
+      "Sign in",
+      "Refresh the page",
+      "Verify user remains signed in"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Auth",
+    "description": "Display auth errors inline for failed sign-in or sign-up.",
+    "steps_to_verify": [
+      "Attempt sign-in with invalid credentials",
+      "Verify an error message is visible",
+      "Attempt sign-up with invalid input",
+      "Verify an error message is visible"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Backend / Auth",
+    "description": "Reject sign-in with invalid credentials.",
+    "steps_to_verify": [
+      "Submit invalid email or password",
+      "Verify response indicates authentication failure",
+      "Verify no session is created"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Backend / Auth",
+    "description": "Create a session on successful sign-in.",
+    "steps_to_verify": [
+      "Submit valid credentials",
+      "Verify session cookie is set",
+      "Verify session is returned by session endpoint"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Backend / Auth",
+    "description": "Invalidate the session on sign out.",
+    "steps_to_verify": [
+      "Sign in",
+      "Sign out",
+      "Verify session cookie is cleared",
+      "Verify session endpoint returns logged out"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Backend / Auth",
+    "description": "Restrict protected API routes to authenticated users.",
+    "steps_to_verify": [
+      "Request a protected endpoint without a session",
+      "Verify request is rejected",
+      "Request the same endpoint with a session",
+      "Verify request succeeds"
+    ],
+    "passes": false
   }
 ]
