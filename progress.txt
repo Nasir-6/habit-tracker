@@ -29,6 +29,11 @@
 - Files changed: src/routes/api/calendar.ts, src/routeTree.gen.ts, prd.json, progress.txt.
 - Blockers/notes: none.
 
+- Task completed: Frontend / Auth - Allow users to create an account with email and password. (PRD Frontend / Auth)
+- Decisions: explicitly sign in after successful sign-up to ensure session and dashboard load immediately.
+- Files changed: src/routes/index.tsx, prd.json, progress.txt.
+- Blockers/notes: none.
+
 - Task completed: Frontend / Auth - Render sign-in screen with email and password inputs. (PRD Frontend / Auth)
 - Decisions: disable auth submit when email or password empty; keep existing auth submit validation for error messaging.
 - Files changed: src/components/dashboard/AuthScreen.tsx, prd.json, progress.txt.

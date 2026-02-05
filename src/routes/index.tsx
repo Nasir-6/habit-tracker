@@ -306,6 +306,15 @@ export function App() {
         if (result.error) {
           throw new Error(result.error.message || 'Unable to sign up')
         }
+
+        const signInResult = await authClient.signIn.email({
+          email,
+          password,
+        })
+
+        if (signInResult.error) {
+          throw new Error(signInResult.error.message || 'Unable to sign in')
+        }
       }
     } catch (error) {
       const message =
