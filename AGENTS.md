@@ -39,6 +39,7 @@ Keep guidance short, concrete, and consistent with repo conventions.
 - Tests run via `vitest run` (`npm run test`).
 - `@testing-library/react` and `@testing-library/dom` are available.
 - `jsdom` is installed for DOM environments when needed.
+- See `notes/testing.md` for manual test accounts.
 
 ## Project structure
 
