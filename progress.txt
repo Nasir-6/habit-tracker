@@ -163,3 +163,8 @@
 - Decisions: mark PRD items as passing to reflect completed implementation already in repo.
 - Files changed: prd.json, progress.txt.
 - Blockers/notes: none.
+
+- Task completed: Frontend / Auth - Provide a visible sign-out action when a user is signed in. + Sign out clears session and returns user to the sign-in view. (PRD Frontend / Auth)
+- Decisions: wire dashboard header sign-out to authClient.signOut with in-progress and inline error state; reset sign-out state on logout.
+- Files changed: src/routes/index.tsx, src/components/dashboard/Dashboard.tsx, src/components/dashboard/DashboardHeader.tsx, prd.json, progress.txt.
+- Blockers/notes: none.

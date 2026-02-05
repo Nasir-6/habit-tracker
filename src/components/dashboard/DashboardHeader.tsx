@@ -1,4 +1,14 @@
-export function DashboardHeader() {
+type DashboardHeaderProps = {
+  isSigningOut: boolean
+  signOutError: string | null
+  onSignOut: () => void
+}
+
+export function DashboardHeader({
+  isSigningOut,
+  signOutError,
+  onSignOut,
+}: DashboardHeaderProps) {
   return (
     <div className="flex items-center justify-between flex-wrap gap-6">
       <div>
@@ -13,9 +23,25 @@ export function DashboardHeader() {
           creation flow, today list, and streak logic from the PRD.
         </p>
       </div>
-      <button className="rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-slate-900/15">
-        New habit
-      </button>
+      <div className="flex flex-col items-end gap-2">
+        <button
+          className={
+            isSigningOut
+              ? 'rounded-full bg-slate-200 px-6 py-3 text-sm font-semibold text-slate-500'
+              : 'rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-slate-900/15 transition hover:bg-slate-800'
+          }
+          disabled={isSigningOut}
+          type="button"
+          onClick={onSignOut}
+        >
+          {isSigningOut ? 'Signing out…' : 'Sign out'}
+        </button>
+        {signOutError ? (
+          <p className="text-xs text-rose-500" role="status">
+            {signOutError}
+          </p>
+        ) : null}
+      </div>
     </div>
   )
 }

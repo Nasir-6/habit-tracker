@@ -314,7 +314,7 @@
       "Locate the header or profile control",
       "Verify a sign-out action is visible"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Auth",
@@ -325,7 +325,7 @@
       "Verify session UI is cleared",
       "Verify sign-in view is shown"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Auth",

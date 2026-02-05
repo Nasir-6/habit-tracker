@@ -32,6 +32,8 @@ export function App() {
   const [authPassword, setAuthPassword] = useState('')
   const [authError, setAuthError] = useState<string | null>(null)
   const [isAuthSubmitting, setIsAuthSubmitting] = useState(false)
+  const [signOutError, setSignOutError] = useState<string | null>(null)
+  const [isSigningOut, setIsSigningOut] = useState(false)
   const [habitName, setHabitName] = useState('')
   const [habits, setHabits] = useState<Habit[]>([])
   const [habitStreaks, setHabitStreaks] = useState<
@@ -62,6 +64,8 @@ export function App() {
       setPartnerError(null)
       setIsPartnerLoading(false)
       setHasPartner(false)
+      setSignOutError(null)
+      setIsSigningOut(false)
       return
     }
 
@@ -312,6 +316,29 @@ export function App() {
     }
   }
 
+  const handleSignOut = async () => {
+    if (isSigningOut) {
+      return
+    }
+
+    setIsSigningOut(true)
+    setSignOutError(null)
+
+    try {
+      const result = await authClient.signOut()
+
+      if (result.error) {
+        throw new Error(result.error.message || 'Unable to sign out')
+      }
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Unable to sign out'
+      setSignOutError(message)
+    } finally {
+      setIsSigningOut(false)
+    }
+  }
+
   const handleCreateHabitSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
@@ -545,12 +572,14 @@ export function App() {
       historyHabitId={historyHabitId}
       isHistoryLoading={isHistoryLoading}
       isPartnerLoading={isPartnerLoading}
+      isSigningOut={isSigningOut}
       habitStreaks={habitStreaks}
       isSaveDisabled={isSaveDisabled}
       isSubmitting={isSubmitting}
       partnerError={partnerError}
       partnerHabits={partnerHabits}
       partnerStartedOn={partnerStartedOn}
+      signOutError={signOutError}
       onCreateHabit={handleCreateHabitSubmit}
       onHabitDragEnd={() => {
         setDraggingHabitId(null)
@@ -560,6 +589,7 @@ export function App() {
       onHabitNameChange={setHabitName}
       onToggleHabit={handleToggleHabit}
       onToggleHistory={handleToggleHistory}
+      onSignOut={handleSignOut}
     />
   )
 }

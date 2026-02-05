@@ -25,6 +25,8 @@ type DashboardProps = {
   isPartnerLoading: boolean
   hasPartner: boolean
   draggingHabitId: string | null
+  isSigningOut: boolean
+  signOutError: string | null
   onHabitNameChange: (value: string) => void
   onCreateHabit: (event: FormEvent<HTMLFormElement>) => void
   onHabitDragStart: (event: DragEvent<HTMLDivElement>, habitId: string) => void
@@ -32,6 +34,7 @@ type DashboardProps = {
   onHabitDrop: (targetId: string) => void
   onToggleHabit: (habitId: string) => void
   onToggleHistory: (habitId: string) => void
+  onSignOut: () => void
 }
 
 export function Dashboard({
@@ -51,6 +54,8 @@ export function Dashboard({
   isPartnerLoading,
   hasPartner,
   draggingHabitId,
+  isSigningOut,
+  signOutError,
   onHabitNameChange,
   onCreateHabit,
   onHabitDragStart,
@@ -58,11 +63,16 @@ export function Dashboard({
   onHabitDrop,
   onToggleHabit,
   onToggleHistory,
+  onSignOut,
 }: DashboardProps) {
   return (
     <PageShell maxWidthClass="max-w-6xl" paddingTopClass="pt-16">
       <div className="flex flex-col gap-8">
-        <DashboardHeader />
+        <DashboardHeader
+          isSigningOut={isSigningOut}
+          signOutError={signOutError}
+          onSignOut={onSignOut}
+        />
 
         <div className="grid gap-6">
           <CreateHabitCard
