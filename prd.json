@@ -294,7 +294,7 @@
       "Verify email and password inputs are visible",
       "Verify submit button is disabled while fields are empty"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Auth",

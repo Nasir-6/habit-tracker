@@ -29,6 +29,11 @@
 - Files changed: src/routes/api/calendar.ts, src/routeTree.gen.ts, prd.json, progress.txt.
 - Blockers/notes: none.
 
+- Task completed: Frontend / Auth - Render sign-in screen with email and password inputs. (PRD Frontend / Auth)
+- Decisions: disable auth submit when email or password empty; keep existing auth submit validation for error messaging.
+- Files changed: src/components/dashboard/AuthScreen.tsx, prd.json, progress.txt.
+- Blockers/notes: none.
+
 - Task completed: Frontend / Partnering - Display partner habit names and today’s completion status. (PRD Frontend / Partnering)
 - Decisions: fetch partner status from /api/partnerships using local date; treat 404 as no partner; show completed pill per habit.
 - Files changed: src/routes/index.tsx, src/components/dashboard/Dashboard.tsx, src/components/dashboard/PartnerStatusCard.tsx, prd.json, progress.txt.

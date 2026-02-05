@@ -31,6 +31,11 @@ export function AuthScreen({
   onToggleMode,
   onSubmit,
 }: AuthScreenProps) {
+  const isSubmitDisabled =
+    isAuthSubmitting ||
+    authEmail.trim().length === 0 ||
+    authPassword.length === 0
+
   return (
     <PageShell maxWidthClass="max-w-3xl" paddingTopClass="pt-16">
       <div className="flex flex-col gap-8">
@@ -91,11 +96,11 @@ export function AuthScreen({
               <button
                 className={cn(
                   'rounded-full px-6 py-3 text-sm font-semibold shadow-lg transition',
-                  isAuthSubmitting
+                  isSubmitDisabled
                     ? 'cursor-not-allowed bg-slate-200 text-slate-500 shadow-none'
                     : 'bg-slate-900 text-white shadow-slate-900/15 hover:bg-slate-800',
                 )}
-                disabled={isAuthSubmitting}
+                disabled={isSubmitDisabled}
                 type="submit"
               >
                 {isAuthSubmitting
