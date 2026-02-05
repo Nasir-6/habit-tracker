@@ -29,6 +29,11 @@
 - Files changed: src/routes/api/calendar.ts, src/routeTree.gen.ts, prd.json, progress.txt.
 - Blockers/notes: none.
 
+- Task completed: Backend / Auth - Create a session on successful sign-in. (PRD Backend / Auth)
+- Decisions: confirmed better-auth handler + tanstackStartCookies handles session creation on sign-in; no extra server route needed.
+- Files changed: prd.json, progress.txt.
+- Blockers/notes: none.
+
 - Task completed: Frontend / Auth - Allow users to create an account with email and password. (PRD Frontend / Auth)
 - Decisions: explicitly sign in after successful sign-up to ensure session and dashboard load immediately.
 - Files changed: src/routes/index.tsx, prd.json, progress.txt.

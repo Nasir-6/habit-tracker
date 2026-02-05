@@ -366,7 +366,7 @@
       "Verify session cookie is set",
       "Verify session is returned by session endpoint"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Backend / Auth",
