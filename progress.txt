@@ -168,3 +168,8 @@
 - Decisions: wire dashboard header sign-out to authClient.signOut with in-progress and inline error state; reset sign-out state on logout.
 - Files changed: src/routes/index.tsx, src/components/dashboard/Dashboard.tsx, src/components/dashboard/DashboardHeader.tsx, prd.json, progress.txt.
 - Blockers/notes: none.
+
+- Task completed: Backend / Auth - Restrict protected API routes to authenticated users. (PRD Backend / Auth)
+- Decisions: confirmed all API routes use withAuth and session lookup via auth.api.getSession to return 401 when unauthenticated.
+- Files changed: prd.json, progress.txt.
+- Blockers/notes: none.

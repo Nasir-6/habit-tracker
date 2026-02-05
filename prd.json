@@ -388,6 +388,6 @@
       "Request the same endpoint with a session",
       "Verify request succeeds"
     ],
-    "passes": false
+    "passes": true
   }
 ]
