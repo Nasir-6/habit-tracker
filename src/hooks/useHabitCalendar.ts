@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
 
+import type { Habit } from '@/components/dashboard/types'
+
 import {
   buildCalendarDays,
   formatLocalDate,
   padNumber,
 } from '@/components/dashboard/HabitCalendarCard/habitCalendarUtils'
-
-import type { Habit } from '@/components/dashboard/types'
 
 type HabitStreak = { current: number; best: number }
 

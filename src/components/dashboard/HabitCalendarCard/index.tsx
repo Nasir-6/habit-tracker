@@ -2,9 +2,10 @@ import { HabitCalendarGrid } from './HabitCalendarGrid'
 import { HabitCalendarHeader } from './HabitCalendarHeader'
 import { HabitCalendarStatus } from './HabitCalendarStatus'
 import { HabitCalendarStreaks } from './HabitCalendarStreaks'
-import { useHabitCalendar } from '@/hooks/useHabitCalendar'
 
 import type { Habit } from '@/components/dashboard/types'
+
+import { useHabitCalendar } from '@/hooks/useHabitCalendar'
 
 type HabitCalendarCardProps = {
   habits: Habit[]
