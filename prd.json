@@ -356,7 +356,7 @@
       "Verify response indicates authentication failure",
       "Verify no session is created"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Backend / Auth",

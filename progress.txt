@@ -183,3 +183,8 @@
 - Decisions: confirmed all API routes use withAuth and session lookup via auth.api.getSession to return 401 when unauthenticated.
 - Files changed: prd.json, progress.txt.
 - Blockers/notes: none.
+
+- Task completed: Backend / Auth - Reject sign-in with invalid credentials. (PRD Backend / Auth)
+- Decisions: better-auth handler validates credentials and returns error on failed sign-in; no extra server route required.
+- Files changed: prd.json, progress.txt.
+- Blockers/notes: none.
