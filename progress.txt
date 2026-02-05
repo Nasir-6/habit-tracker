@@ -32,7 +32,7 @@
 - Task completed: Frontend / Auth - Render sign-in screen with email and password inputs. (PRD Frontend / Auth)
 - Decisions: disable auth submit when email or password empty; keep existing auth submit validation for error messaging.
 - Files changed: src/components/dashboard/AuthScreen.tsx, prd.json, progress.txt.
-- Blockers/notes: none.
+- Blockers/notes: vitest hanging process message persists after run.
 
 - Task completed: Frontend / Partnering - Display partner habit names and today’s completion status. (PRD Frontend / Partnering)
 - Decisions: fetch partner status from /api/partnerships using local date; treat 404 as no partner; show completed pill per habit.
