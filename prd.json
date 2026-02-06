@@ -181,6 +181,17 @@
     "passes": true
   },
   {
+    "category": "Frontend / Partnering",
+    "description": "Allow users to invite a partner from the UI.",
+    "steps_to_verify": [
+      "Open partner or settings view",
+      "Locate invite partner action",
+      "Enter partner email and submit",
+      "Verify invite confirmation is shown"
+    ],
+    "passes": false
+  },
+  {
     "category": "Backend / Partnering",
     "description": "Restrict partner visibility to post-partnership data only.",
     "steps_to_verify": [
