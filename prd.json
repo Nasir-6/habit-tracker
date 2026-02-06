@@ -189,7 +189,7 @@
       "Enter partner email and submit",
       "Verify invite confirmation is shown"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Backend / Partnering",

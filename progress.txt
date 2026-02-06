@@ -188,3 +188,8 @@
 - Decisions: better-auth handler validates credentials and returns error on failed sign-in; no extra server route required.
 - Files changed: prd.json, progress.txt.
 - Blockers/notes: none.
+
+- Task completed: Frontend / Partnering - Allow users to invite a partner from the UI. (PRD Frontend / Partnering)
+- Decisions: add invite form to Partner card when no active partner; submit to existing /api/partner-invites endpoint; show inline success/error confirmation to close loop after submit.
+- Files changed: src/routes/index.tsx, src/components/dashboard/Dashboard.tsx, src/components/dashboard/PartnerStatusCard.tsx, prd.json, progress.txt.
+- Blockers/notes: none.

@@ -49,6 +49,15 @@ export function App() {
   const [partnerError, setPartnerError] = useState<string | null>(null)
   const [isPartnerLoading, setIsPartnerLoading] = useState(false)
   const [hasPartner, setHasPartner] = useState(false)
+  const [partnerInviteEmail, setPartnerInviteEmail] = useState('')
+  const [partnerInviteError, setPartnerInviteError] = useState<string | null>(
+    null,
+  )
+  const [partnerInviteNotice, setPartnerInviteNotice] = useState<string | null>(
+    null,
+  )
+  const [isPartnerInviteSubmitting, setIsPartnerInviteSubmitting] =
+    useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [draggingHabitId, setDraggingHabitId] = useState<string | null>(null)
@@ -64,6 +73,10 @@ export function App() {
       setPartnerError(null)
       setIsPartnerLoading(false)
       setHasPartner(false)
+      setPartnerInviteEmail('')
+      setPartnerInviteError(null)
+      setPartnerInviteNotice(null)
+      setIsPartnerInviteSubmitting(false)
       setSignOutError(null)
       setIsSigningOut(false)
       return
@@ -399,6 +412,53 @@ export function App() {
     }
   }
 
+  const handlePartnerInviteSubmit = async (
+    event: FormEvent<HTMLFormElement>,
+  ) => {
+    event.preventDefault()
+
+    if (isPartnerInviteSubmitting) {
+      return
+    }
+
+    const email = partnerInviteEmail.trim()
+
+    if (!email) {
+      setPartnerInviteError('Partner email is required')
+      setPartnerInviteNotice(null)
+      return
+    }
+
+    setIsPartnerInviteSubmitting(true)
+    setPartnerInviteError(null)
+    setPartnerInviteNotice(null)
+
+    try {
+      const response = await fetch('/api/partner-invites', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      })
+
+      const payload = (await response.json()) as { error?: string }
+
+      if (!response.ok) {
+        throw new Error(payload.error || 'Unable to send invite')
+      }
+
+      setPartnerInviteEmail('')
+      setPartnerInviteNotice(`Invite sent to ${email}`)
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Unable to send invite'
+      setPartnerInviteError(message)
+    } finally {
+      setIsPartnerInviteSubmitting(false)
+    }
+  }
+
   const handleHabitDragStart = (
     event: DragEvent<HTMLDivElement>,
     habitId: string,
@@ -576,6 +636,10 @@ export function App() {
       habitName={habitName}
       habits={habits}
       hasPartner={hasPartner}
+      partnerInviteEmail={partnerInviteEmail}
+      partnerInviteError={partnerInviteError}
+      partnerInviteNotice={partnerInviteNotice}
+      isPartnerInviteSubmitting={isPartnerInviteSubmitting}
       historyDates={historyDates}
       historyError={historyError}
       historyHabitId={historyHabitId}
@@ -599,6 +663,12 @@ export function App() {
       onToggleHabit={handleToggleHabit}
       onToggleHistory={handleToggleHistory}
       onSignOut={handleSignOut}
+      onPartnerInvite={handlePartnerInviteSubmit}
+      onPartnerInviteEmailChange={(value) => {
+        setPartnerInviteError(null)
+        setPartnerInviteNotice(null)
+        setPartnerInviteEmail(value)
+      }}
     />
   )
 }

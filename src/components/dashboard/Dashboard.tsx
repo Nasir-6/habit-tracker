@@ -24,6 +24,10 @@ type DashboardProps = {
   partnerError: string | null
   isPartnerLoading: boolean
   hasPartner: boolean
+  partnerInviteEmail: string
+  partnerInviteError: string | null
+  partnerInviteNotice: string | null
+  isPartnerInviteSubmitting: boolean
   draggingHabitId: string | null
   isSigningOut: boolean
   signOutError: string | null
@@ -35,6 +39,8 @@ type DashboardProps = {
   onToggleHabit: (habitId: string) => void
   onToggleHistory: (habitId: string) => void
   onSignOut: () => void
+  onPartnerInviteEmailChange: (value: string) => void
+  onPartnerInvite: (event: FormEvent<HTMLFormElement>) => void
 }
 
 export function Dashboard({
@@ -53,6 +59,10 @@ export function Dashboard({
   partnerError,
   isPartnerLoading,
   hasPartner,
+  partnerInviteEmail,
+  partnerInviteError,
+  partnerInviteNotice,
+  isPartnerInviteSubmitting,
   draggingHabitId,
   isSigningOut,
   signOutError,
@@ -64,6 +74,8 @@ export function Dashboard({
   onToggleHabit,
   onToggleHistory,
   onSignOut,
+  onPartnerInviteEmailChange,
+  onPartnerInvite,
 }: DashboardProps) {
   return (
     <PageShell maxWidthClass="max-w-6xl" paddingTopClass="pt-16">
@@ -106,6 +118,12 @@ export function Dashboard({
                 habits={partnerHabits}
                 hasPartner={hasPartner}
                 isLoading={isPartnerLoading}
+                inviteEmail={partnerInviteEmail}
+                inviteError={partnerInviteError}
+                inviteNotice={partnerInviteNotice}
+                isInviteSubmitting={isPartnerInviteSubmitting}
+                onInvite={onPartnerInvite}
+                onInviteEmailChange={onPartnerInviteEmailChange}
                 startedOn={partnerStartedOn}
               />
             </div>
