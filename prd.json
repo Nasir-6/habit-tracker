@@ -289,7 +289,7 @@
       "Verify partnership is deleted or deactivated",
       "Verify partner data is no longer accessible"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Calendar View",

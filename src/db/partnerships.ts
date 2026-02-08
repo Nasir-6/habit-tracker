@@ -18,8 +18,13 @@ export const fetchPartnershipForUser = async (userId: string) => {
     .then((rows) => rows.at(0))
 }
 
-export const deletePartnership = async (partnershipId: string) => {
-  return db.delete(partnerships).where(eq(partnerships.id, partnershipId))
+export const deletePartnershipsForUser = async (userId: string) => {
+  return db
+    .delete(partnerships)
+    .where(
+      or(eq(partnerships.userAId, userId), eq(partnerships.userBId, userId)),
+    )
+    .returning({ id: partnerships.id })
 }
 
 export const fetchPartnerHabits = async (partnerUserId: string) => {

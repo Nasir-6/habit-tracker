@@ -1,7 +1,7 @@
 import { badRequest, notFound, ok } from '@/lib/api'
 import { formatUtcDate, parseLocalDateParts } from '@/lib/date'
 import {
-  deletePartnership,
+  deletePartnershipsForUser,
   fetchPartnerCompletionIds,
   fetchPartnerHabits,
   fetchPartnershipForUser,
@@ -68,13 +68,11 @@ export const handlePartnershipsGet = async (
 }
 
 export const handlePartnershipsDelete = async (userId: string) => {
-  const existing = await fetchPartnershipForUser(userId)
+  const deleted = await deletePartnershipsForUser(userId)
 
-  if (!existing) {
+  if (deleted.length === 0) {
     return notFound('No partnership found')
   }
-
-  await deletePartnership(existing.id)
 
   return ok({ revoked: true })
 }
