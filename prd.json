@@ -448,7 +448,7 @@
       "Attempt sign-up with invalid input",
       "Verify an error message is visible"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Backend / Auth",

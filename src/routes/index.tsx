@@ -31,6 +31,19 @@ const formatLocalDate = (value: Date) => {
   return `${year}-${month}-${day}`
 }
 
+const resolveAuthErrorMessage = (
+  authMode: AuthMode,
+  error: unknown,
+): string => {
+  if (error instanceof Error && error.message.trim()) {
+    return error.message
+  }
+
+  return authMode === 'sign-in'
+    ? 'Sign in failed. Check your credentials and try again.'
+    : 'Sign up failed. Check your details and try again.'
+}
+
 export function App() {
   const {
     data: session,
@@ -403,6 +416,7 @@ export function App() {
 
     const email = authEmail.trim()
     const password = authPassword
+    const submittingMode = authMode
 
     if (!email || !password) {
       setAuthError('Email and password are required')
@@ -413,7 +427,7 @@ export function App() {
     setAuthError(null)
 
     try {
-      if (authMode === 'sign-in') {
+      if (submittingMode === 'sign-in') {
         const result = await authClient.signIn.email({
           email,
           password,
@@ -444,9 +458,7 @@ export function App() {
         }
       }
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'Authentication failed'
-      setAuthError(message)
+      setAuthError(resolveAuthErrorMessage(submittingMode, error))
     } finally {
       setIsAuthSubmitting(false)
     }
@@ -858,12 +870,15 @@ export function App() {
         authPassword={authPassword}
         isAuthSubmitting={isAuthSubmitting}
         onAuthEmailChange={(event) => {
+          setAuthError(null)
           setAuthEmail(event.target.value)
         }}
         onAuthNameChange={(event) => {
+          setAuthError(null)
           setAuthName(event.target.value)
         }}
         onAuthPasswordChange={(event) => {
+          setAuthError(null)
           setAuthPassword(event.target.value)
         }}
         onSubmit={handleAuthSubmit}

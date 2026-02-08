@@ -120,7 +120,7 @@ export function AuthScreen({
               </button>
             </div>
             {authError ? (
-              <p className="text-sm text-rose-500" role="status">
+              <p className="text-sm text-rose-500" role="alert">
                 {authError}
               </p>
             ) : null}

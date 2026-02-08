@@ -238,3 +238,8 @@
 - Decisions: apply line-through + muted text only when habit marked completed; keep status copy/buttons unchanged to keep behavior scoped to visual requirement.
 - Files changed: src/components/dashboard/HabitList.tsx, prd.json, progress.txt.
 - Blockers/notes: vitest still prints hanging-process shutdown warning though command exits 0.
+
+- Task completed: Frontend / Auth - Display auth errors inline for failed sign-in or sign-up. (PRD Frontend / Auth)
+- Decisions: normalize fallback auth error copy by mode (sign-in vs sign-up) to keep failures explicit; clear stale auth errors on input edits so inline message reflects latest attempt; use role=alert for inline error accessibility.
+- Files changed: src/routes/index.tsx, src/components/dashboard/AuthScreen.tsx, prd.json, progress.txt.
+- Blockers/notes: none.
