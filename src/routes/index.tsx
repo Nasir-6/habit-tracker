@@ -32,7 +32,12 @@ const formatLocalDate = (value: Date) => {
 }
 
 export function App() {
-  const { data: session, isPending } = authClient.useSession()
+  const {
+    data: session,
+    isPending,
+    refetch: refetchSession,
+  } = authClient.useSession()
+  const hasRefetchedSessionRef = useRef(false)
   const [authMode, setAuthMode] = useState<AuthMode>('sign-in')
   const [authName, setAuthName] = useState('')
   const [authEmail, setAuthEmail] = useState('')
@@ -99,6 +104,15 @@ export function App() {
   const trimmedHabitName = habitName.trim()
   const isSaveDisabled = trimmedHabitName.length === 0 || isSubmitting
   const localDate = formatLocalDate(new Date())
+
+  useEffect(() => {
+    if (hasRefetchedSessionRef.current) {
+      return
+    }
+
+    hasRefetchedSessionRef.current = true
+    void refetchSession()
+  }, [refetchSession])
 
   useEffect(() => {
     if (!session?.user) {

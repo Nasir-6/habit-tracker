@@ -29,6 +29,11 @@
 - Files changed: src/routes/api/calendar.ts, src/routeTree.gen.ts, prd.json, progress.txt.
 - Blockers/notes: none.
 
+- Task completed: Frontend / Auth - Persist session across refresh when the user is signed in. (PRD Frontend / Auth)
+- Decisions: force one client-side session refetch on app mount; avoids stale SSR-null auth snapshot after hard refresh; keeps existing auth flow unchanged.
+- Files changed: src/routes/index.tsx, prd.json, progress.txt.
+- Blockers/notes: vitest still prints hanging-process shutdown warning though command exits 0.
+
 - Task completed: Frontend / Partnering - Allow users to remove an active partner from the UI. (PRD Frontend / Partnering)
 - Decisions: add remove action in active partner card with confirm guard; call existing DELETE /api/partnerships and clear local partner state immediately on success; keep inline success/error copy for user feedback.
 - Files changed: src/routes/index.tsx, src/components/dashboard/Dashboard.tsx, src/components/dashboard/PartnerStatusCard.tsx, prd.json, progress.txt.

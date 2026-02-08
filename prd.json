@@ -437,7 +437,7 @@
       "Refresh the page",
       "Verify user remains signed in"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Auth",
