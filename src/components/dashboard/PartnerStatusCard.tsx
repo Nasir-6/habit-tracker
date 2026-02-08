@@ -29,9 +29,13 @@ type PartnerStatusCardProps = {
   inviteError: string | null
   inviteNotice: string | null
   isInviteSubmitting: boolean
+  isRemovingPartner: boolean
+  removePartnerError: string | null
+  removePartnerNotice: string | null
   onInvite: (event: FormEvent<HTMLFormElement>) => void
   onInviteEmailChange: (value: string) => void
   onInviteAccept: (inviteId: string) => void
+  onRemovePartner: () => void
 }
 
 export function PartnerStatusCard({
@@ -50,9 +54,13 @@ export function PartnerStatusCard({
   inviteError,
   inviteNotice,
   isInviteSubmitting,
+  isRemovingPartner,
+  removePartnerError,
+  removePartnerNotice,
   onInvite,
   onInviteEmailChange,
   onInviteAccept,
+  onRemovePartner,
 }: PartnerStatusCardProps) {
   const formatInviteDate = (value: string) => {
     const parsed = new Date(value)
@@ -166,45 +174,62 @@ export function PartnerStatusCard({
             {acceptInviteError ? (
               <p className="text-sm text-rose-500">{acceptInviteError}</p>
             ) : acceptInviteNotice ? (
-              <p className="text-sm text-emerald-600">
-                {acceptInviteNotice}
-              </p>
+              <p className="text-sm text-emerald-600">{acceptInviteNotice}</p>
             ) : inviteError ? (
               <p className="text-sm text-rose-500">{inviteError}</p>
             ) : inviteNotice ? (
               <p className="text-sm text-emerald-600">{inviteNotice}</p>
             ) : null}
           </div>
-        ) : habits.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/80 p-4 text-sm text-slate-500">
-            Your partner has not added any habits yet.
-          </div>
         ) : (
-          habits.map((habit) => (
-            <div
-              key={habit.id}
-              className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white/90 px-4 py-3"
-            >
-              <div>
-                <p className="text-sm font-semibold text-slate-900">
-                  {habit.name}
-                </p>
-                <p className="text-xs text-slate-400">
-                  {startedOn ? `Active since ${startedOn}` : 'Partner habit'}
-                </p>
+          <>
+            {habits.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/80 p-4 text-sm text-slate-500">
+                Your partner has not added any habits yet.
               </div>
-              <span
-                className={cn(
-                  'rounded-full border px-3 py-1 text-xs',
-                  habit.completedToday
-                    ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-                    : 'border-slate-200 text-slate-500',
-                )}
-              >
-                {habit.completedToday ? 'Completed' : 'Not yet'}
-              </span>
-            </div>
-          ))
+            ) : (
+              habits.map((habit) => (
+                <div
+                  key={habit.id}
+                  className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white/90 px-4 py-3"
+                >
+                  <div>
+                    <p className="text-sm font-semibold text-slate-900">
+                      {habit.name}
+                    </p>
+                    <p className="text-xs text-slate-400">
+                      {startedOn
+                        ? `Active since ${startedOn}`
+                        : 'Partner habit'}
+                    </p>
+                  </div>
+                  <span
+                    className={cn(
+                      'rounded-full border px-3 py-1 text-xs',
+                      habit.completedToday
+                        ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                        : 'border-slate-200 text-slate-500',
+                    )}
+                  >
+                    {habit.completedToday ? 'Completed' : 'Not yet'}
+                  </span>
+                </div>
+              ))
+            )}
+            <button
+              className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:bg-rose-50 disabled:text-rose-300"
+              disabled={isRemovingPartner}
+              onClick={onRemovePartner}
+              type="button"
+            >
+              {isRemovingPartner ? 'Removing partner...' : 'Remove partner'}
+            </button>
+            {removePartnerError ? (
+              <p className="text-sm text-rose-500">{removePartnerError}</p>
+            ) : removePartnerNotice ? (
+              <p className="text-sm text-emerald-600">{removePartnerNotice}</p>
+            ) : null}
+          </>
         )}
       </div>
     </div>

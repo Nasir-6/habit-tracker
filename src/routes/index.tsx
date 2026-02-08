@@ -82,6 +82,13 @@ export function App() {
   const [acceptPartnerInviteNotice, setAcceptPartnerInviteNotice] = useState<
     string | null
   >(null)
+  const [isRemovingPartner, setIsRemovingPartner] = useState(false)
+  const [removePartnerError, setRemovePartnerError] = useState<string | null>(
+    null,
+  )
+  const [removePartnerNotice, setRemovePartnerNotice] = useState<string | null>(
+    null,
+  )
   const [partnerStatusRefreshToken, setPartnerStatusRefreshToken] = useState(0)
   const [pendingInvitesRefreshToken, setPendingInvitesRefreshToken] =
     useState(0)
@@ -111,6 +118,9 @@ export function App() {
       setAcceptingPartnerInviteId(null)
       setAcceptPartnerInviteError(null)
       setAcceptPartnerInviteNotice(null)
+      setIsRemovingPartner(false)
+      setRemovePartnerError(null)
+      setRemovePartnerNotice(null)
       setSignOutError(null)
       setIsSigningOut(false)
       setDeletingHabitId(null)
@@ -585,6 +595,49 @@ export function App() {
     }
   }
 
+  const handleRemovePartner = async () => {
+    if (isRemovingPartner) {
+      return
+    }
+
+    const confirmed = window.confirm(
+      'Remove your active partner? Shared visibility ends immediately.',
+    )
+
+    if (!confirmed) {
+      return
+    }
+
+    setIsRemovingPartner(true)
+    setRemovePartnerError(null)
+    setRemovePartnerNotice(null)
+
+    try {
+      const response = await fetch('/api/partnerships', {
+        method: 'DELETE',
+      })
+
+      const payload = (await response.json()) as { error?: string }
+
+      if (!response.ok) {
+        throw new Error(payload.error || 'Unable to remove partner')
+      }
+
+      setHasPartner(false)
+      setPartnerHabits([])
+      setPartnerStartedOn(null)
+      setPartnerError(null)
+      setPendingInvitesRefreshToken((value) => value + 1)
+      setRemovePartnerNotice('Partner removed')
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Unable to remove partner'
+      setRemovePartnerError(message)
+    } finally {
+      setIsRemovingPartner(false)
+    }
+  }
+
   const handleHabitDragStart = (
     event: DragEvent<HTMLDivElement>,
     habitId: string,
@@ -826,6 +879,9 @@ export function App() {
       acceptingPartnerInviteId={acceptingPartnerInviteId}
       acceptPartnerInviteError={acceptPartnerInviteError}
       acceptPartnerInviteNotice={acceptPartnerInviteNotice}
+      isRemovingPartner={isRemovingPartner}
+      removePartnerError={removePartnerError}
+      removePartnerNotice={removePartnerNotice}
       historyDates={historyDates}
       historyError={historyError}
       historyHabitId={historyHabitId}
@@ -852,6 +908,7 @@ export function App() {
       onSignOut={handleSignOut}
       onPartnerInvite={handlePartnerInviteSubmit}
       onPartnerInviteAccept={handlePartnerInviteAccept}
+      onRemovePartner={handleRemovePartner}
       onPartnerInviteEmailChange={(value) => {
         setPartnerInviteError(null)
         setPartnerInviteNotice(null)

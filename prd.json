@@ -279,7 +279,7 @@
       "Confirm the removal",
       "Verify the partner section returns to invite state"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Backend / Partnering",

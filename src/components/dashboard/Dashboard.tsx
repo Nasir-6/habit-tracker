@@ -28,6 +28,9 @@ type DashboardProps = {
   partnerInviteError: string | null
   partnerInviteNotice: string | null
   isPartnerInviteSubmitting: boolean
+  isRemovingPartner: boolean
+  removePartnerError: string | null
+  removePartnerNotice: string | null
   pendingPartnerInvites: {
     id: string
     inviterUserId: string
@@ -55,6 +58,7 @@ type DashboardProps = {
   onPartnerInviteEmailChange: (value: string) => void
   onPartnerInvite: (event: FormEvent<HTMLFormElement>) => void
   onPartnerInviteAccept: (inviteId: string) => void
+  onRemovePartner: () => void
 }
 
 export function Dashboard({
@@ -77,6 +81,9 @@ export function Dashboard({
   partnerInviteError,
   partnerInviteNotice,
   isPartnerInviteSubmitting,
+  isRemovingPartner,
+  removePartnerError,
+  removePartnerNotice,
   pendingPartnerInvites,
   pendingPartnerInvitesError,
   isPendingPartnerInvitesLoading,
@@ -99,6 +106,7 @@ export function Dashboard({
   onPartnerInviteEmailChange,
   onPartnerInvite,
   onPartnerInviteAccept,
+  onRemovePartner,
 }: DashboardProps) {
   return (
     <PageShell maxWidthClass="max-w-6xl" paddingTopClass="pt-16">
@@ -151,11 +159,15 @@ export function Dashboard({
                 inviteError={partnerInviteError}
                 inviteNotice={partnerInviteNotice}
                 isInviteSubmitting={isPartnerInviteSubmitting}
+                isRemovingPartner={isRemovingPartner}
                 onInvite={onPartnerInvite}
                 onInviteAccept={onPartnerInviteAccept}
                 onInviteEmailChange={onPartnerInviteEmailChange}
+                onRemovePartner={onRemovePartner}
                 pendingInvites={pendingPartnerInvites}
                 pendingInvitesError={pendingPartnerInvitesError}
+                removePartnerError={removePartnerError}
+                removePartnerNotice={removePartnerNotice}
                 startedOn={partnerStartedOn}
               />
             </div>
