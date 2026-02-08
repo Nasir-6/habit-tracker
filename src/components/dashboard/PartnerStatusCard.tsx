@@ -14,12 +14,24 @@ type PartnerStatusCardProps = {
   startedOn: string | null
   errorMessage: string | null
   habits: PartnerHabit[]
+  pendingInvites: {
+    id: string
+    inviterUserId: string
+    inviteeEmail: string
+    createdAt: string
+  }[]
+  pendingInvitesError: string | null
+  isPendingInvitesLoading: boolean
+  acceptingInviteId: string | null
+  acceptInviteError: string | null
+  acceptInviteNotice: string | null
   inviteEmail: string
   inviteError: string | null
   inviteNotice: string | null
   isInviteSubmitting: boolean
   onInvite: (event: FormEvent<HTMLFormElement>) => void
   onInviteEmailChange: (value: string) => void
+  onInviteAccept: (inviteId: string) => void
 }
 
 export function PartnerStatusCard({
@@ -28,13 +40,43 @@ export function PartnerStatusCard({
   startedOn,
   errorMessage,
   habits,
+  pendingInvites,
+  pendingInvitesError,
+  isPendingInvitesLoading,
+  acceptingInviteId,
+  acceptInviteError,
+  acceptInviteNotice,
   inviteEmail,
   inviteError,
   inviteNotice,
   isInviteSubmitting,
   onInvite,
   onInviteEmailChange,
+  onInviteAccept,
 }: PartnerStatusCardProps) {
+  const formatInviteDate = (value: string) => {
+    const parsed = new Date(value)
+
+    if (Number.isNaN(parsed.getTime())) {
+      return 'Recently'
+    }
+
+    return parsed.toLocaleDateString(undefined, {
+      month: 'short',
+      day: 'numeric',
+    })
+  }
+
+  const formatInviter = (value: string) => {
+    if (value.length <= 8) {
+      return value
+    }
+
+    return `${value.slice(0, 6)}…${value.slice(-2)}`
+  }
+
+  const hasPendingInvites = pendingInvites.length > 0
+
   return (
     <div className="rounded-3xl border border-slate-200 bg-white/70 p-8 shadow-sm">
       <div className="flex items-center justify-between">
@@ -53,6 +95,48 @@ export function PartnerStatusCard({
           <p className="text-sm text-rose-500">{errorMessage}</p>
         ) : !hasPartner ? (
           <div className="grid gap-3 rounded-2xl border border-dashed border-slate-200 bg-slate-50/80 p-4">
+            {isPendingInvitesLoading ? (
+              <p className="text-sm text-slate-500">
+                Checking for partner invites...
+              </p>
+            ) : pendingInvitesError ? (
+              <p className="text-sm text-rose-500">{pendingInvitesError}</p>
+            ) : hasPendingInvites ? (
+              <div className="grid gap-3">
+                <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+                  Pending invites
+                </p>
+                {pendingInvites.map((invite) => {
+                  const isAccepting = acceptingInviteId === invite.id
+
+                  return (
+                    <div
+                      key={invite.id}
+                      className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white/90 px-4 py-3"
+                    >
+                      <div>
+                        <p className="text-sm font-semibold text-slate-900">
+                          Invite from user {formatInviter(invite.inviterUserId)}
+                        </p>
+                        <p className="text-xs text-slate-400">
+                          Sent {formatInviteDate(invite.createdAt)}
+                        </p>
+                      </div>
+                      <button
+                        className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:bg-emerald-300"
+                        disabled={isAccepting}
+                        onClick={() => {
+                          onInviteAccept(invite.id)
+                        }}
+                        type="button"
+                      >
+                        {isAccepting ? 'Accepting...' : 'Accept'}
+                      </button>
+                    </div>
+                  )
+                })}
+              </div>
+            ) : null}
             <p className="text-sm text-slate-500">
               No partner yet. Invite someone to see shared progress here.
             </p>
@@ -79,7 +163,13 @@ export function PartnerStatusCard({
                 {isInviteSubmitting ? 'Sending invite...' : 'Send invite'}
               </button>
             </form>
-            {inviteError ? (
+            {acceptInviteError ? (
+              <p className="text-sm text-rose-500">{acceptInviteError}</p>
+            ) : acceptInviteNotice ? (
+              <p className="text-sm text-emerald-600">
+                {acceptInviteNotice}
+              </p>
+            ) : inviteError ? (
               <p className="text-sm text-rose-500">{inviteError}</p>
             ) : inviteNotice ? (
               <p className="text-sm text-emerald-600">{inviteNotice}</p>

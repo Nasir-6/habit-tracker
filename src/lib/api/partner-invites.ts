@@ -2,6 +2,7 @@ import { badRequest, created, ok, parseJson } from '@/lib/api'
 import {
   acceptPartnerInvite,
   fetchPartnerInvite,
+  fetchPendingInvitesForEmail,
   insertPartnerInvite,
 } from '@/db/partner-invites'
 
@@ -94,6 +95,22 @@ export const handlePartnerInvitesPost = async (
   }
 
   return created({ invite: inserted })
+}
+
+export const handlePartnerInvitesGet = async (user: InviteUser) => {
+  if (typeof user.email !== 'string') {
+    return ok({ invites: [] })
+  }
+
+  const inviteeEmail = user.email.trim().toLowerCase()
+
+  if (!inviteeEmail) {
+    return ok({ invites: [] })
+  }
+
+  const invites = await fetchPendingInvitesForEmail(inviteeEmail)
+
+  return ok({ invites })
 }
 
 export const handlePartnerInvitesPatch = async (

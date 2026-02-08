@@ -17,6 +17,13 @@ type PartnerHabit = {
   completedToday: boolean
 }
 
+type PendingPartnerInvite = {
+  id: string
+  inviterUserId: string
+  inviteeEmail: string
+  createdAt: string
+}
+
 const formatLocalDate = (value: Date) => {
   const year = value.getFullYear()
   const month = String(value.getMonth() + 1).padStart(2, '0')
@@ -58,6 +65,26 @@ export function App() {
   )
   const [isPartnerInviteSubmitting, setIsPartnerInviteSubmitting] =
     useState(false)
+  const [pendingPartnerInvites, setPendingPartnerInvites] = useState<
+    PendingPartnerInvite[]
+  >([])
+  const [pendingPartnerInvitesError, setPendingPartnerInvitesError] = useState<
+    string | null
+  >(null)
+  const [isPendingPartnerInvitesLoading, setIsPendingPartnerInvitesLoading] =
+    useState(false)
+  const [acceptingPartnerInviteId, setAcceptingPartnerInviteId] = useState<
+    string | null
+  >(null)
+  const [acceptPartnerInviteError, setAcceptPartnerInviteError] = useState<
+    string | null
+  >(null)
+  const [acceptPartnerInviteNotice, setAcceptPartnerInviteNotice] = useState<
+    string | null
+  >(null)
+  const [partnerStatusRefreshToken, setPartnerStatusRefreshToken] = useState(0)
+  const [pendingInvitesRefreshToken, setPendingInvitesRefreshToken] =
+    useState(0)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [draggingHabitId, setDraggingHabitId] = useState<string | null>(null)
@@ -77,6 +104,12 @@ export function App() {
       setPartnerInviteError(null)
       setPartnerInviteNotice(null)
       setIsPartnerInviteSubmitting(false)
+      setPendingPartnerInvites([])
+      setPendingPartnerInvitesError(null)
+      setIsPendingPartnerInvitesLoading(false)
+      setAcceptingPartnerInviteId(null)
+      setAcceptPartnerInviteError(null)
+      setAcceptPartnerInviteNotice(null)
       setSignOutError(null)
       setIsSigningOut(false)
       return
@@ -146,7 +179,62 @@ export function App() {
     return () => {
       isActive = false
     }
-  }, [localDate, session?.user.id])
+  }, [localDate, partnerStatusRefreshToken, session?.user.id])
+
+  useEffect(() => {
+    if (!session?.user) {
+      return
+    }
+
+    let isActive = true
+
+    const loadPendingInvites = async () => {
+      setIsPendingPartnerInvitesLoading(true)
+      setPendingPartnerInvitesError(null)
+
+      try {
+        const response = await fetch('/api/partner-invites')
+
+        if (!response.ok) {
+          const payload = (await response.json()) as { error?: string }
+          throw new Error(payload.error || 'Unable to load partner invites')
+        }
+
+        const payload = (await response.json()) as {
+          invites?: PendingPartnerInvite[]
+        }
+
+        if (!isActive) {
+          return
+        }
+
+        setPendingPartnerInvites(
+          Array.isArray(payload.invites) ? payload.invites : [],
+        )
+      } catch (error) {
+        if (!isActive) {
+          return
+        }
+
+        const message =
+          error instanceof Error
+            ? error.message
+            : 'Unable to load partner invites'
+        setPendingPartnerInvitesError(message)
+        setPendingPartnerInvites([])
+      } finally {
+        if (isActive) {
+          setIsPendingPartnerInvitesLoading(false)
+        }
+      }
+    }
+
+    void loadPendingInvites()
+
+    return () => {
+      isActive = false
+    }
+  }, [pendingInvitesRefreshToken, session?.user.id])
 
   useEffect(() => {
     if (!session?.user) {
@@ -459,6 +547,42 @@ export function App() {
     }
   }
 
+  const handlePartnerInviteAccept = async (inviteId: string) => {
+    if (acceptingPartnerInviteId) {
+      return
+    }
+
+    setAcceptingPartnerInviteId(inviteId)
+    setAcceptPartnerInviteError(null)
+    setAcceptPartnerInviteNotice(null)
+
+    try {
+      const response = await fetch('/api/partner-invites', {
+        method: 'PATCH',
+        headers: {
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({ inviteId }),
+      })
+
+      const payload = (await response.json()) as { error?: string }
+
+      if (!response.ok) {
+        throw new Error(payload.error || 'Unable to accept invite')
+      }
+
+      setAcceptPartnerInviteNotice('Partnership activated')
+      setPendingInvitesRefreshToken((value) => value + 1)
+      setPartnerStatusRefreshToken((value) => value + 1)
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Unable to accept invite'
+      setAcceptPartnerInviteError(message)
+    } finally {
+      setAcceptingPartnerInviteId(null)
+    }
+  }
+
   const handleHabitDragStart = (
     event: DragEvent<HTMLDivElement>,
     habitId: string,
@@ -640,6 +764,12 @@ export function App() {
       partnerInviteError={partnerInviteError}
       partnerInviteNotice={partnerInviteNotice}
       isPartnerInviteSubmitting={isPartnerInviteSubmitting}
+      pendingPartnerInvites={pendingPartnerInvites}
+      pendingPartnerInvitesError={pendingPartnerInvitesError}
+      isPendingPartnerInvitesLoading={isPendingPartnerInvitesLoading}
+      acceptingPartnerInviteId={acceptingPartnerInviteId}
+      acceptPartnerInviteError={acceptPartnerInviteError}
+      acceptPartnerInviteNotice={acceptPartnerInviteNotice}
       historyDates={historyDates}
       historyError={historyError}
       historyHabitId={historyHabitId}
@@ -664,6 +794,7 @@ export function App() {
       onToggleHistory={handleToggleHistory}
       onSignOut={handleSignOut}
       onPartnerInvite={handlePartnerInviteSubmit}
+      onPartnerInviteAccept={handlePartnerInviteAccept}
       onPartnerInviteEmailChange={(value) => {
         setPartnerInviteError(null)
         setPartnerInviteNotice(null)

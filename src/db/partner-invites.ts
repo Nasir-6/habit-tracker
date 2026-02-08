@@ -32,6 +32,24 @@ export const fetchPartnerInvite = async (inviteId: string) => {
     .then((rows) => rows.at(0))
 }
 
+export const fetchPendingInvitesForEmail = async (inviteeEmail: string) => {
+  return db
+    .select({
+      id: partnerInvites.id,
+      inviterUserId: partnerInvites.inviterUserId,
+      inviteeEmail: partnerInvites.inviteeEmail,
+      status: partnerInvites.status,
+      createdAt: partnerInvites.createdAt,
+    })
+    .from(partnerInvites)
+    .where(
+      and(
+        eq(partnerInvites.inviteeEmail, inviteeEmail),
+        eq(partnerInvites.status, 'pending'),
+      ),
+    )
+ }
+
 export const acceptPartnerInvite = async (
   inviteId: string,
   userAId: string,

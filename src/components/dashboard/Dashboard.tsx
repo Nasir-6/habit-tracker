@@ -28,6 +28,17 @@ type DashboardProps = {
   partnerInviteError: string | null
   partnerInviteNotice: string | null
   isPartnerInviteSubmitting: boolean
+  pendingPartnerInvites: {
+    id: string
+    inviterUserId: string
+    inviteeEmail: string
+    createdAt: string
+  }[]
+  pendingPartnerInvitesError: string | null
+  isPendingPartnerInvitesLoading: boolean
+  acceptingPartnerInviteId: string | null
+  acceptPartnerInviteError: string | null
+  acceptPartnerInviteNotice: string | null
   draggingHabitId: string | null
   isSigningOut: boolean
   signOutError: string | null
@@ -41,6 +52,7 @@ type DashboardProps = {
   onSignOut: () => void
   onPartnerInviteEmailChange: (value: string) => void
   onPartnerInvite: (event: FormEvent<HTMLFormElement>) => void
+  onPartnerInviteAccept: (inviteId: string) => void
 }
 
 export function Dashboard({
@@ -63,6 +75,12 @@ export function Dashboard({
   partnerInviteError,
   partnerInviteNotice,
   isPartnerInviteSubmitting,
+  pendingPartnerInvites,
+  pendingPartnerInvitesError,
+  isPendingPartnerInvitesLoading,
+  acceptingPartnerInviteId,
+  acceptPartnerInviteError,
+  acceptPartnerInviteNotice,
   draggingHabitId,
   isSigningOut,
   signOutError,
@@ -76,6 +94,7 @@ export function Dashboard({
   onSignOut,
   onPartnerInviteEmailChange,
   onPartnerInvite,
+  onPartnerInviteAccept,
 }: DashboardProps) {
   return (
     <PageShell maxWidthClass="max-w-6xl" paddingTopClass="pt-16">
@@ -114,16 +133,23 @@ export function Dashboard({
             <div className="grid gap-6">
               <HabitCalendarCard habitStreaks={habitStreaks} habits={habits} />
               <PartnerStatusCard
+                acceptInviteError={acceptPartnerInviteError}
+                acceptInviteNotice={acceptPartnerInviteNotice}
+                acceptingInviteId={acceptingPartnerInviteId}
                 errorMessage={partnerError}
                 habits={partnerHabits}
                 hasPartner={hasPartner}
                 isLoading={isPartnerLoading}
+                isPendingInvitesLoading={isPendingPartnerInvitesLoading}
                 inviteEmail={partnerInviteEmail}
                 inviteError={partnerInviteError}
                 inviteNotice={partnerInviteNotice}
                 isInviteSubmitting={isPartnerInviteSubmitting}
                 onInvite={onPartnerInvite}
+                onInviteAccept={onPartnerInviteAccept}
                 onInviteEmailChange={onPartnerInviteEmailChange}
+                pendingInvites={pendingPartnerInvites}
+                pendingInvitesError={pendingPartnerInvitesError}
                 startedOn={partnerStartedOn}
               />
             </div>

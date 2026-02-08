@@ -174,9 +174,12 @@
     "category": "Frontend / Partnering",
     "description": "Display partner habit names and today’s completion status.",
     "steps_to_verify": [
-      "Establish partnership",
-      "Open partner view",
-      "Verify habit names and today status are visible"
+      "Sign in as user A",
+      "Send a partner invite to user B",
+      "Sign in as user B and accept the invite",
+      "Return to the partner view",
+      "Verify partner habit names render",
+      "Verify today’s completion status is visible for each habit"
     ],
     "passes": true
   },
@@ -184,10 +187,26 @@
     "category": "Frontend / Partnering",
     "description": "Allow users to invite a partner from the UI.",
     "steps_to_verify": [
-      "Open partner or settings view",
-      "Locate invite partner action",
-      "Enter partner email and submit",
-      "Verify invite confirmation is shown"
+      "Open the Partner section",
+      "Locate the partner email input",
+      "Enter a valid email address",
+      "Submit the invite",
+      "Verify a success confirmation is shown",
+      "Verify the send action becomes disabled while sending"
+    ],
+    "passes": true
+  },
+  {
+    "category": "Frontend / Partnering",
+    "description": "Allow users to accept a partner invite from the UI.",
+    "steps_to_verify": [
+      "Sign in as user A and send a partner invite",
+      "Sign out and sign in as user B",
+      "Open the Partner section",
+      "Verify the pending invite is listed",
+      "Accept the invite",
+      "Verify the partner section switches to Active",
+      "Verify partner habits become visible"
     ],
     "passes": true
   },
