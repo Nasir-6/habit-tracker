@@ -40,6 +40,7 @@ type DashboardProps = {
   acceptPartnerInviteError: string | null
   acceptPartnerInviteNotice: string | null
   draggingHabitId: string | null
+  deletingHabitId: string | null
   isSigningOut: boolean
   signOutError: string | null
   onHabitNameChange: (value: string) => void
@@ -49,6 +50,7 @@ type DashboardProps = {
   onHabitDrop: (targetId: string) => void
   onToggleHabit: (habitId: string) => void
   onToggleHistory: (habitId: string) => void
+  onDeleteHabit: (habitId: string) => void
   onSignOut: () => void
   onPartnerInviteEmailChange: (value: string) => void
   onPartnerInvite: (event: FormEvent<HTMLFormElement>) => void
@@ -82,6 +84,7 @@ export function Dashboard({
   acceptPartnerInviteError,
   acceptPartnerInviteNotice,
   draggingHabitId,
+  deletingHabitId,
   isSigningOut,
   signOutError,
   onHabitNameChange,
@@ -91,6 +94,7 @@ export function Dashboard({
   onHabitDrop,
   onToggleHabit,
   onToggleHistory,
+  onDeleteHabit,
   onSignOut,
   onPartnerInviteEmailChange,
   onPartnerInvite,
@@ -124,9 +128,11 @@ export function Dashboard({
               historyHabitId={historyHabitId}
               isHistoryLoading={isHistoryLoading}
               habitStreaks={habitStreaks}
+              deletingHabitId={deletingHabitId}
               onHabitDragEnd={onHabitDragEnd}
               onHabitDragStart={onHabitDragStart}
               onHabitDrop={onHabitDrop}
+              onDeleteHabit={onDeleteHabit}
               onToggleHabit={onToggleHabit}
               onToggleHistory={onToggleHistory}
             />

@@ -198,3 +198,8 @@
 - Decisions: added DELETE /api/habits with habitId query for explicit intent; hard-delete habit row scoped by user and rely on FK cascade from habit_completions for related cleanup.
 - Files changed: src/db/habits.ts, src/lib/api/habits.ts, src/routes/api/habits.ts, prd.json, progress.txt.
 - Blockers/notes: vitest still prints hanging-process shutdown warning though command exits 0.
+
+- Task completed: Frontend / Habit Management - Allow users to delete a habit from the UI. (PRD Frontend / Habit Management)
+- Decisions: add inline Delete action per habit instead of a menu for minimal surface; require native confirm prompt before DELETE /api/habits; clear open history panel if deleted habit was selected.
+- Files changed: src/routes/index.tsx, src/components/dashboard/Dashboard.tsx, src/components/dashboard/HabitList.tsx, prd.json, progress.txt.
+- Blockers/notes: none.

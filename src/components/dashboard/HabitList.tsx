@@ -11,11 +11,13 @@ type HabitListProps = {
   isHistoryLoading: boolean
   habitStreaks: Partial<Record<string, { current: number; best: number }>>
   draggingHabitId: string | null
+  deletingHabitId: string | null
   onHabitDragStart: (event: DragEvent<HTMLDivElement>, habitId: string) => void
   onHabitDragEnd: () => void
   onHabitDrop: (targetId: string) => void
   onToggleHabit: (habitId: string) => void
   onToggleHistory: (habitId: string) => void
+  onDeleteHabit: (habitId: string) => void
 }
 
 export function HabitList({
@@ -26,11 +28,13 @@ export function HabitList({
   isHistoryLoading,
   habitStreaks,
   draggingHabitId,
+  deletingHabitId,
   onHabitDragStart,
   onHabitDragEnd,
   onHabitDrop,
   onToggleHabit,
   onToggleHistory,
+  onDeleteHabit,
 }: HabitListProps) {
   const formatStreak = (value: number) =>
     `${value} day${value === 1 ? '' : 's'}`
@@ -109,6 +113,21 @@ export function HabitList({
                     }}
                   >
                     {habit.isCompleted ? 'Undo' : 'Mark complete'}
+                  </button>
+                  <button
+                    className={cn(
+                      'min-h-[44px] w-full rounded-full border px-4 py-2.5 text-sm font-semibold transition sm:w-auto',
+                      deletingHabitId === habit.id
+                        ? 'border-rose-200 bg-rose-50 text-rose-400'
+                        : 'border-rose-200 bg-white text-rose-700 hover:bg-rose-50',
+                    )}
+                    disabled={deletingHabitId === habit.id}
+                    type="button"
+                    onClick={() => {
+                      onDeleteHabit(habit.id)
+                    }}
+                  >
+                    {deletingHabitId === habit.id ? 'Deleting…' : 'Delete'}
                   </button>
                   <span
                     className={cn(

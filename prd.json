@@ -179,7 +179,7 @@
       "Confirm deletion",
       "Verify the habit is removed from the list"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Backend / Habit Management",

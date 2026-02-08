@@ -88,6 +88,7 @@ export function App() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [draggingHabitId, setDraggingHabitId] = useState<string | null>(null)
+  const [deletingHabitId, setDeletingHabitId] = useState<string | null>(null)
   const trimmedHabitName = habitName.trim()
   const isSaveDisabled = trimmedHabitName.length === 0 || isSubmitting
   const localDate = formatLocalDate(new Date())
@@ -112,6 +113,7 @@ export function App() {
       setAcceptPartnerInviteNotice(null)
       setSignOutError(null)
       setIsSigningOut(false)
+      setDeletingHabitId(null)
       return
     }
 
@@ -722,6 +724,59 @@ export function App() {
     }
   }
 
+  const handleDeleteHabit = async (habitId: string) => {
+    if (deletingHabitId) {
+      return
+    }
+
+    const habit = habits.find((item) => item.id === habitId)
+
+    if (!habit) {
+      return
+    }
+
+    const confirmed = window.confirm(
+      `Delete "${habit.name}"? This cannot be undone.`,
+    )
+
+    if (!confirmed) {
+      return
+    }
+
+    setDeletingHabitId(habitId)
+    setErrorMessage(null)
+
+    try {
+      const response = await fetch(
+        `/api/habits?habitId=${encodeURIComponent(habitId)}`,
+        {
+          method: 'DELETE',
+        },
+      )
+
+      if (!response.ok) {
+        const payload = (await response.json()) as { error?: string }
+        throw new Error(payload.error || 'Unable to delete habit')
+      }
+
+      setHabits((current) => current.filter((item) => item.id !== habitId))
+
+      if (historyHabitId === habitId) {
+        historyRequestIdRef.current += 1
+        setHistoryHabitId(null)
+        setHistoryDates([])
+        setHistoryError(null)
+        setIsHistoryLoading(false)
+      }
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Unable to delete habit'
+      setErrorMessage(message)
+    } finally {
+      setDeletingHabitId(null)
+    }
+  }
+
   if (isPending) {
     return <LoadingScreen />
   }
@@ -756,6 +811,7 @@ export function App() {
   return (
     <Dashboard
       draggingHabitId={draggingHabitId}
+      deletingHabitId={deletingHabitId}
       errorMessage={errorMessage}
       habitName={habitName}
       habits={habits}
@@ -790,6 +846,7 @@ export function App() {
       onHabitDragStart={handleHabitDragStart}
       onHabitDrop={handleHabitDrop}
       onHabitNameChange={setHabitName}
+      onDeleteHabit={handleDeleteHabit}
       onToggleHabit={handleToggleHabit}
       onToggleHistory={handleToggleHistory}
       onSignOut={handleSignOut}
