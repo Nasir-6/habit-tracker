@@ -67,7 +67,7 @@
       "Complete a habit",
       "Verify the habit name displays with strikethrough styling"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Daily Check-in",

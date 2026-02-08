@@ -80,7 +80,14 @@ export function HabitList({
                 }}
               >
                 <div className="space-y-1">
-                  <p className="text-sm font-semibold text-slate-900">
+                  <p
+                    className={cn(
+                      'text-sm font-semibold',
+                      habit.isCompleted
+                        ? 'text-slate-500 line-through decoration-slate-400'
+                        : 'text-slate-900',
+                    )}
+                  >
                     {habit.name}
                   </p>
                   <p className="text-xs text-slate-500">

@@ -233,3 +233,8 @@
 - Decisions: derive greeting from session user.name, fallback to email prefix so greeting still renders when profile name is empty; render in dashboard header as "Hi {name}" to satisfy PRD check intent.
 - Files changed: src/routes/index.tsx, src/components/dashboard/Dashboard.tsx, src/components/dashboard/DashboardHeader.tsx, prd.json, progress.txt.
 - Blockers/notes: none.
+
+- Task completed: Frontend / Daily Check-in - Render a strikethrough style for habits completed today. (PRD Frontend / Daily Check-in)
+- Decisions: apply line-through + muted text only when habit marked completed; keep status copy/buttons unchanged to keep behavior scoped to visual requirement.
+- Files changed: src/components/dashboard/HabitList.tsx, prd.json, progress.txt.
+- Blockers/notes: vitest still prints hanging-process shutdown warning though command exits 0.
