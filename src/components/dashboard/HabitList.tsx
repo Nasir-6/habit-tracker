@@ -38,6 +38,9 @@ export function HabitList({
 }: HabitListProps) {
   const formatStreak = (value: number) =>
     `${value} day${value === 1 ? '' : 's'}`
+  const orderedHabits = [...habits].sort(
+    (left, right) => Number(left.isCompleted) - Number(right.isCompleted),
+  )
 
   return (
     <div className="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm sm:p-8">
@@ -55,7 +58,7 @@ export function HabitList({
             Add your first habit to start tracking daily completions.
           </div>
         ) : (
-          habits.map((habit) => (
+          orderedHabits.map((habit) => (
             <div key={habit.id} className="grid gap-3">
               <div
                 className={cn(

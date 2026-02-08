@@ -203,3 +203,8 @@
 - Decisions: add inline Delete action per habit instead of a menu for minimal surface; require native confirm prompt before DELETE /api/habits; clear open history panel if deleted habit was selected.
 - Files changed: src/routes/index.tsx, src/components/dashboard/Dashboard.tsx, src/components/dashboard/HabitList.tsx, prd.json, progress.txt.
 - Blockers/notes: none.
+
+- Task completed: Frontend / Daily Check-in - Move completed habits to the bottom of the Today list. (PRD Frontend / Daily Check-in)
+- Decisions: derive orderedHabits at render time and sort incomplete before completed for immediate move on toggle; keep source habit state unchanged to avoid persistence/API changes.
+- Files changed: src/components/dashboard/HabitList.tsx, prd.json, progress.txt.
+- Blockers/notes: none.

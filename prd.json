@@ -77,7 +77,7 @@
       "Complete a habit",
       "Verify the completed habit moves below incomplete habits"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Daily Check-in",
