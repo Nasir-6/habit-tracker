@@ -213,3 +213,8 @@
 - Decisions: derive orderedHabits at render time and sort incomplete before completed for immediate move on toggle; keep source habit state unchanged to avoid persistence/API changes.
 - Files changed: src/components/dashboard/HabitList.tsx, prd.json, progress.txt.
 - Blockers/notes: none.
+
+- Task completed: Backend / Auth - Invalidate the session on sign out. (PRD Backend / Auth)
+- Decisions: verified better-auth sign-out runs through /api/auth with tanstackStartCookies plugin, which clears auth cookie + invalidates session server-side; no custom logout route needed.
+- Files changed: prd.json, progress.txt.
+- Blockers/notes: none.

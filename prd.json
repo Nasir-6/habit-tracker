@@ -479,7 +479,7 @@
       "Verify session cookie is cleared",
       "Verify session endpoint returns logged out"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Backend / Auth",
