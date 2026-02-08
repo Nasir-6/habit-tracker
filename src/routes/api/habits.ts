@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { handleApi, withAuth } from '@/lib/api'
 import {
+  handleHabitsDelete,
   handleHabitsGet,
   handleHabitsPatch,
   handleHabitsPost,
@@ -16,6 +17,9 @@ export const Route = createFileRoute('/api/habits')({
       ),
       PATCH: handleApi(
         withAuth(({ request, user }) => handleHabitsPatch(request, user.id)),
+      ),
+      DELETE: handleApi(
+        withAuth(({ request, user }) => handleHabitsDelete(request, user.id)),
       ),
     },
   },

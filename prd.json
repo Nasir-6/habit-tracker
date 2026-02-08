@@ -189,7 +189,7 @@
       "Verify habit is removed",
       "Verify related completions are removed or archived"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Backend / Partnering",

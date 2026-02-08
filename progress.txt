@@ -193,3 +193,8 @@
 - Decisions: add invite form to Partner card when no active partner; submit to existing /api/partner-invites endpoint; show inline success/error confirmation to close loop after submit.
 - Files changed: src/routes/index.tsx, src/components/dashboard/Dashboard.tsx, src/components/dashboard/PartnerStatusCard.tsx, prd.json, progress.txt.
 - Blockers/notes: none.
+
+- Task completed: Backend / Habit Management - Delete a habit and its related data on request. (PRD Backend / Habit Management)
+- Decisions: added DELETE /api/habits with habitId query for explicit intent; hard-delete habit row scoped by user and rely on FK cascade from habit_completions for related cleanup.
+- Files changed: src/db/habits.ts, src/lib/api/habits.ts, src/routes/api/habits.ts, prd.json, progress.txt.
+- Blockers/notes: vitest still prints hanging-process shutdown warning though command exits 0.

@@ -80,3 +80,11 @@ export const updateHabitSortOrder = async (
     .set({ sortOrder })
     .where(and(eq(habits.userId, userId), eq(habits.id, habitId)))
 }
+
+export const deleteHabitById = async (userId: string, habitId: string) => {
+  return db
+    .delete(habits)
+    .where(and(eq(habits.userId, userId), eq(habits.id, habitId)))
+    .returning({ id: habits.id })
+    .then((rows) => rows.at(0))
+}

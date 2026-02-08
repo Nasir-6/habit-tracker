@@ -1,6 +1,7 @@
-import { badRequest, created, ok, parseJson } from '@/lib/api'
+import { badRequest, created, notFound, ok, parseJson } from '@/lib/api'
 import {
   archiveHabit,
+  deleteHabitById,
   fetchActiveHabits,
   fetchHabitById,
   fetchHabitsByIds,
@@ -75,6 +76,17 @@ const getArchiveId = (payload: unknown) => {
   return archiveId
 }
 
+const getHabitIdFromQuery = (request: Request) => {
+  const url = new URL(request.url)
+  const habitId = url.searchParams.get('habitId')
+
+  if (!habitId || habitId.trim().length === 0) {
+    return null
+  }
+
+  return habitId
+}
+
 export const handleHabitsGet = async (userId: string) => {
   const rows = await fetchActiveHabits(userId)
   return ok({ habits: rows })
@@ -140,4 +152,20 @@ export const handleHabitsPatch = async (request: Request, userId: string) => {
   }
 
   return ok({ success: true })
+}
+
+export const handleHabitsDelete = async (request: Request, userId: string) => {
+  const habitId = getHabitIdFromQuery(request)
+
+  if (!habitId) {
+    return badRequest('Habit id is required')
+  }
+
+  const deleted = await deleteHabitById(userId, habitId)
+
+  if (!deleted) {
+    return notFound('Habit not found')
+  }
+
+  return ok({ deleted: true })
 }
