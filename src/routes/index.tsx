@@ -875,8 +875,14 @@ export function App() {
     )
   }
 
+  const userDisplayName =
+    session.user.name.trim() ||
+    session.user.email.split('@')[0].trim() ||
+    'there'
+
   return (
     <Dashboard
+      userDisplayName={userDisplayName}
       draggingHabitId={draggingHabitId}
       deletingHabitId={deletingHabitId}
       errorMessage={errorMessage}

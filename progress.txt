@@ -228,3 +228,8 @@
 - Decisions: delete all partnerships for requesting user in one query (not first match) so remove request fully clears active partnership data even if duplicate rows exist.
 - Files changed: src/db/partnerships.ts, src/lib/api/partnerships.ts, prd.json, progress.txt.
 - Blockers/notes: none.
+
+- Task completed: Frontend / Auth - Display the signed-in user's name in the UI. (PRD Frontend / Auth)
+- Decisions: derive greeting from session user.name, fallback to email prefix so greeting still renders when profile name is empty; render in dashboard header as "Hi {name}" to satisfy PRD check intent.
+- Files changed: src/routes/index.tsx, src/components/dashboard/Dashboard.tsx, src/components/dashboard/DashboardHeader.tsx, prd.json, progress.txt.
+- Blockers/notes: none.

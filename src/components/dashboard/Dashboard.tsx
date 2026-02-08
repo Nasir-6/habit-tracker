@@ -9,6 +9,7 @@ import { PageShell } from '@/components/dashboard/PageShell'
 import { PartnerStatusCard } from '@/components/dashboard/PartnerStatusCard'
 
 type DashboardProps = {
+  userDisplayName: string
   habitName: string
   isSaveDisabled: boolean
   isSubmitting: boolean
@@ -62,6 +63,7 @@ type DashboardProps = {
 }
 
 export function Dashboard({
+  userDisplayName,
   habitName,
   isSaveDisabled,
   isSubmitting,
@@ -112,6 +114,7 @@ export function Dashboard({
     <PageShell maxWidthClass="max-w-6xl" paddingTopClass="pt-16">
       <div className="flex flex-col gap-8">
         <DashboardHeader
+          userDisplayName={userDisplayName}
           isSigningOut={isSigningOut}
           signOutError={signOutError}
           onSignOut={onSignOut}

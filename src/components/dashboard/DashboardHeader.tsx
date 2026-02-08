@@ -1,10 +1,12 @@
 type DashboardHeaderProps = {
+  userDisplayName: string
   isSigningOut: boolean
   signOutError: string | null
   onSignOut: () => void
 }
 
 export function DashboardHeader({
+  userDisplayName,
   isSigningOut,
   signOutError,
   onSignOut,
@@ -18,6 +20,9 @@ export function DashboardHeader({
         <h1 className="text-4xl md:text-5xl font-semibold text-slate-900">
           Build habits that compound.
         </h1>
+        <p className="mt-3 text-base md:text-lg font-medium text-slate-700">
+          Hi {userDisplayName}
+        </p>
         <p className="mt-3 max-w-xl text-base md:text-lg text-slate-600">
           This is the starting point for your habit tracker. Next up: add the
           creation flow, today list, and streak logic from the PRD.

@@ -416,7 +416,7 @@
       "Locate the greeting or user label",
       "Verify the user's name is shown (e.g., 'Hi Bob')"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Auth",
