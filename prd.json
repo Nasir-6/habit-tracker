@@ -61,6 +61,26 @@
   },
   {
     "category": "Frontend / Daily Check-in",
+    "description": "Render a strikethrough style for habits completed today.",
+    "steps_to_verify": [
+      "Open Today screen",
+      "Complete a habit",
+      "Verify the habit name displays with strikethrough styling"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Daily Check-in",
+    "description": "Move completed habits to the bottom of the Today list.",
+    "steps_to_verify": [
+      "Open Today screen",
+      "Complete a habit",
+      "Verify the completed habit moves below incomplete habits"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Daily Check-in",
     "description": "Allow user to undo a habit completion for the current day.",
     "steps_to_verify": [
       "Complete a habit",
@@ -151,6 +171,27 @@
     "passes": true
   },
   {
+    "category": "Frontend / Habit Management",
+    "description": "Allow users to delete a habit from the UI.",
+    "steps_to_verify": [
+      "Open the habit actions menu",
+      "Select delete",
+      "Confirm deletion",
+      "Verify the habit is removed from the list"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Backend / Habit Management",
+    "description": "Delete a habit and its related data on request.",
+    "steps_to_verify": [
+      "Send delete habit request",
+      "Verify habit is removed",
+      "Verify related completions are removed or archived"
+    ],
+    "passes": false
+  },
+  {
     "category": "Backend / Partnering",
     "description": "Create a pending partnership invite.",
     "steps_to_verify": [
@@ -228,6 +269,27 @@
       "Verify partner data is no longer accessible"
     ],
     "passes": true
+  },
+  {
+    "category": "Frontend / Partnering",
+    "description": "Allow users to remove an active partner from the UI.",
+    "steps_to_verify": [
+      "Open the Partner section with an active partner",
+      "Trigger the remove partner action",
+      "Confirm the removal",
+      "Verify the partner section returns to invite state"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Backend / Partnering",
+    "description": "Handle partner removal requests and clear partnership data.",
+    "steps_to_verify": [
+      "Send a partner removal request",
+      "Verify partnership is deleted or deactivated",
+      "Verify partner data is no longer accessible"
+    ],
+    "passes": false
   },
   {
     "category": "Frontend / Calendar View",
@@ -345,6 +407,16 @@
       "Verify a sign-out action is visible"
     ],
     "passes": true
+  },
+  {
+    "category": "Frontend / Auth",
+    "description": "Display the signed-in user's name in the UI.",
+    "steps_to_verify": [
+      "Sign in",
+      "Locate the greeting or user label",
+      "Verify the user's name is shown (e.g., 'Hi Bob')"
+    ],
+    "passes": false
   },
   {
     "category": "Frontend / Auth",
