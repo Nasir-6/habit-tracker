@@ -2,6 +2,8 @@ import { Check, Circle, History, X } from 'lucide-react'
 import type { DragEvent } from 'react'
 import type { Habit } from '@/components/dashboard/types'
 
+import { Calendar } from '@/components/ui/calendar'
+import { formatUtcDate, parseLocalDateParts } from '@/lib/date'
 import { cn } from '@/lib/utils'
 
 type HabitListProps = {
@@ -42,6 +44,65 @@ export function HabitList({
   const orderedHabits = [...habits].sort(
     (left, right) => Number(left.isCompleted) - Number(right.isCompleted),
   )
+  const selectedHabit = historyHabitId
+    ? habits.find((habit) => habit.id === historyHabitId)
+    : null
+  const historySelectedDates = historyDates
+    .map((date) => {
+      const parsed = parseLocalDateParts(date)
+
+      if (!parsed) {
+        return null
+      }
+
+      return new Date(parsed.year, parsed.month - 1, parsed.day)
+    })
+    .filter((date): date is Date => Boolean(date))
+  const historyDefaultMonth = historySelectedDates.length
+    ? historySelectedDates[historySelectedDates.length - 1]
+    : undefined
+  const historyDateSet = new Set(historyDates)
+  const streakStartDates: Date[] = []
+  const streakEndDates: Date[] = []
+  const streakMiddleDates: Date[] = []
+  const streakSingleDates: Date[] = []
+
+  const addUtcDays = (date: Date, days: number) => {
+    const copy = new Date(date)
+    copy.setUTCDate(copy.getUTCDate() + days)
+    return copy
+  }
+
+  historyDates.forEach((date) => {
+    const parsed = parseLocalDateParts(date)
+
+    if (!parsed) {
+      return
+    }
+
+    const previousDate = formatUtcDate(addUtcDays(parsed.utcDate, -1))
+    const nextDate = formatUtcDate(addUtcDays(parsed.utcDate, 1))
+    const hasPrevious = historyDateSet.has(previousDate)
+    const hasNext = historyDateSet.has(nextDate)
+    const localDate = new Date(parsed.year, parsed.month - 1, parsed.day)
+
+    if (!hasPrevious && !hasNext) {
+      streakSingleDates.push(localDate)
+      return
+    }
+
+    if (!hasPrevious) {
+      streakStartDates.push(localDate)
+    }
+
+    if (!hasNext) {
+      streakEndDates.push(localDate)
+    }
+
+    if (hasPrevious && hasNext) {
+      streakMiddleDates.push(localDate)
+    }
+  })
 
   return (
     <div className="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm sm:p-8">
@@ -168,36 +229,6 @@ export function HabitList({
                   </button>
                 </div>
               </div>
-              {historyHabitId === habit.id ? (
-                <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4 text-sm text-slate-600 sm:p-5">
-                  <div className="flex items-center justify-between text-xs uppercase tracking-[0.2em] text-slate-400">
-                    <span>History</span>
-                    <span>{historyDates.length} total</span>
-                  </div>
-                  <div className="mt-3">
-                    {isHistoryLoading ? (
-                      <p className="text-slate-500">Loading history...</p>
-                    ) : historyError ? (
-                      <p className="text-rose-500">{historyError}</p>
-                    ) : historyDates.length === 0 ? (
-                      <p className="text-slate-500">
-                        No completions yet. Check in to start building a streak.
-                      </p>
-                    ) : (
-                      <div className="flex flex-wrap gap-2">
-                        {historyDates.map((date) => (
-                          <span
-                            key={date}
-                            className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs text-slate-600"
-                          >
-                            {date}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ) : null}
             </div>
           ))
         )}
@@ -207,6 +238,86 @@ export function HabitList({
           </div>
         ) : null}
       </div>
+      {historyHabitId && selectedHabit ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/30 p-4 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${selectedHabit.name} history`}
+          onClick={() => {
+            onToggleHistory(historyHabitId)
+          }}
+        >
+          <div
+            className="w-fit rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-600 shadow-xl"
+            onClick={(event) => {
+              event.stopPropagation()
+            }}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+                  History
+                </p>
+                <p className="mt-2 text-base font-semibold text-slate-900">
+                  {selectedHabit.name}
+                </p>
+                <p className="mt-1 text-xs text-slate-400">
+                  {historyDates.length} total
+                </p>
+              </div>
+              <button
+                type="button"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:border-slate-300 hover:text-slate-700"
+                onClick={() => {
+                  onToggleHistory(historyHabitId)
+                }}
+                aria-label="Close history"
+              >
+                <X className="h-4 w-4" aria-hidden="true" />
+              </button>
+            </div>
+            <div className="mt-4">
+              {isHistoryLoading ? (
+                <p className="text-slate-500">Loading history...</p>
+              ) : historyError ? (
+                <p className="text-rose-500">{historyError}</p>
+              ) : historyDates.length === 0 ? (
+                <p className="text-slate-500">
+                  No completions yet. Check in to start building a streak.
+                </p>
+              ) : (
+                <Calendar
+                  mode="multiple"
+                  selected={historySelectedDates}
+                  defaultMonth={historyDefaultMonth}
+                  showOutsideDays={true}
+                  className="rounded-xl border border-slate-200 bg-white"
+                  modifiers={{
+                    streak: historySelectedDates,
+                    streakStart: streakStartDates,
+                    streakEnd: streakEndDates,
+                    streakMiddle: streakMiddleDates,
+                    streakSingle: streakSingleDates,
+                  }}
+                  modifiersClassNames={{
+                    streak: 'bg-emerald-500 text-white',
+                    streakStart: 'rounded-l-md',
+                    streakEnd: 'rounded-r-md',
+                    streakMiddle: 'rounded-none',
+                    streakSingle: 'rounded-md',
+                  }}
+                  classNames={{
+                    day: 'text-xs',
+                    day_button:
+                      'rounded-none bg-transparent text-inherit hover:bg-transparent data-[selected-single=true]:bg-transparent data-[selected-single=true]:text-inherit data-[range-start=true]:bg-transparent data-[range-end=true]:bg-transparent data-[range-middle=true]:bg-transparent',
+                  }}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   )
 }
