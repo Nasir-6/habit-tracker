@@ -838,6 +838,6 @@
       "Close user B app and send another nudge",
       "Verify user B still receives system notification and can open app from notification click"
     ],
-    "passes": false
+    "passes": true
   }
 ]
