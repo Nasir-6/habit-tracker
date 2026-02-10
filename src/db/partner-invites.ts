@@ -1,7 +1,7 @@
-import { and, eq, inArray } from 'drizzle-orm'
+import { and, eq, ilike, inArray } from 'drizzle-orm'
 
 import { db } from '@/db/index.ts'
-import { partnerInvites, partnerships } from '@/db/schema'
+import { partnerInvites, partnerships, users } from '@/db/schema'
 
 export const insertPartnerInvite = async (
   inviterUserId: string,
@@ -65,6 +65,36 @@ export const fetchPendingInvitesForInviter = async (inviterUserId: string) => {
         eq(partnerInvites.status, 'pending'),
       ),
     )
+}
+
+export const fetchUserByEmail = async (email: string) => {
+  return db
+    .select({
+      id: users.id,
+      email: users.email,
+    })
+    .from(users)
+    .where(ilike(users.email, email))
+    .then((rows) => rows.at(0))
+}
+
+export const fetchPendingInviteForPair = async (
+  inviterUserId: string,
+  inviteeEmail: string,
+) => {
+  return db
+    .select({
+      id: partnerInvites.id,
+    })
+    .from(partnerInvites)
+    .where(
+      and(
+        eq(partnerInvites.inviterUserId, inviterUserId),
+        eq(partnerInvites.inviteeEmail, inviteeEmail),
+        eq(partnerInvites.status, 'pending'),
+      ),
+    )
+    .then((rows) => rows.at(0))
 }
 
 export const fetchSentInvitesForInviter = async (inviterUserId: string) => {

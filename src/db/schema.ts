@@ -78,3 +78,8 @@ export const partnerships = pgTable(
     ),
   }),
 )
+
+export const users = pgTable('user', {
+  id: text('id').primaryKey(),
+  email: text('email').notNull(),
+})

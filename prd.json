@@ -641,7 +641,7 @@
       "Verify request is rejected with a clear duplicate or conflict message",
       "Verify only one pending invite exists between the two users"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Partnering",

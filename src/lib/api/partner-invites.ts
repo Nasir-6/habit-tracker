@@ -5,9 +5,11 @@ import {
   deletePendingInviteForInviter,
   fetchAcceptedInviteForPair,
   fetchPartnerInvite,
+  fetchPendingInviteForPair,
   fetchPendingInvitesForEmail,
   fetchPendingInvitesForInviter,
   fetchSentInvitesForInviter,
+  fetchUserByEmail,
   insertPartnerInvite,
   rejectPendingInviteForInvitee,
 } from '@/db/partner-invites'
@@ -124,6 +126,25 @@ export const handlePartnerInvitesPost = async (
 
   if (pendingSentInvites.length > 0) {
     return badRequest('You already have a pending invite')
+  }
+
+  if (typeof user.email === 'string') {
+    const inviterEmail = user.email.trim().toLowerCase()
+
+    const inviteTargetUser = await fetchUserByEmail(inviteEmail)
+
+    if (inviteTargetUser && inviteTargetUser.id !== user.id) {
+      const oppositePendingInvite = await fetchPendingInviteForPair(
+        inviteTargetUser.id,
+        inviterEmail,
+      )
+
+      if (oppositePendingInvite) {
+        return badRequest(
+          'A pending invite already exists from this user. Accept or reject it first',
+        )
+      }
+    }
   }
 
   const acceptedInvite = await fetchAcceptedInviteForPair(user.id, inviteEmail)

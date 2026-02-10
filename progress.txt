@@ -278,3 +278,8 @@
 - Decisions: keep one sent-invite delete mutation path, but derive invite status client-side so rejected rows use explicit Clear affordance/copy; preserve same backend action to avoid API surface growth for a UI-only distinction.
 - Files changed: src/components/dashboard/PartnerStatusCard/PartnerSentInvites.tsx, src/hooks/usePartnerStatus.ts, prd.json, progress.txt.
 - Blockers/notes: none.
+
+- Task completed: Backend / Partnering - Prevent duplicate cross-invites when opposite-direction pending invite already exists. (PRD Backend / Partnering)
+- Decisions: resolve invite target user by email, then check pending invite in reverse direction (target->current user) before insert; reject with explicit conflict message so users accept/reject existing invite instead of creating duplicate pair.
+- Files changed: src/db/schema.ts, src/db/partner-invites.ts, src/lib/api/partner-invites.ts, prd.json, progress.txt.
+- Blockers/notes: npm run test passes with 0 tests but still prints Vitest hanging-process shutdown warning.
