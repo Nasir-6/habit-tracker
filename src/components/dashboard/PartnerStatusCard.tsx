@@ -210,8 +210,11 @@ export function PartnerStatusCard({
                         ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
                         : 'border-slate-200 text-slate-500',
                     )}
+                    aria-label={
+                      habit.completedToday ? 'Completed' : 'Not completed'
+                    }
                   >
-                    {habit.completedToday ? 'Completed' : 'Not yet'}
+                    {habit.completedToday ? '✓' : '○'}
                   </span>
                 </div>
               ))

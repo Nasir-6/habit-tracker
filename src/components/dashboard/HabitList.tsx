@@ -121,8 +121,13 @@ export function HabitList({
                     onClick={() => {
                       onToggleHabit(habit.id)
                     }}
+                    aria-label={
+                      habit.isCompleted
+                        ? 'Mark as pending'
+                        : 'Mark as completed'
+                    }
                   >
-                    {habit.isCompleted ? 'Undo' : 'Mark complete'}
+                    {habit.isCompleted ? '✓' : '○'}
                   </button>
                   <button
                     className={cn(
@@ -139,16 +144,6 @@ export function HabitList({
                   >
                     {deletingHabitId === habit.id ? 'Deleting…' : 'Delete'}
                   </button>
-                  <span
-                    className={cn(
-                      'rounded-full border px-3 py-1 text-xs',
-                      habit.isCompleted
-                        ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-                        : 'border-slate-200 text-slate-500',
-                    )}
-                  >
-                    {habit.isCompleted ? 'Completed' : 'Pending'}
-                  </span>
                 </div>
               </div>
               {historyHabitId === habit.id ? (
