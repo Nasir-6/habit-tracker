@@ -27,11 +27,14 @@ export function PartnerStatusCard() {
     rejectingInviteId,
     acceptInviteError,
     acceptInviteNotice,
+    nudgeError,
+    nudgeNotice,
     inviteEmail,
     canSendInvite,
     inviteError,
     inviteNotice,
     isInviteSubmitting,
+    isSendingNudge,
     isRemovingPartner,
     removePartnerError,
     removePartnerNotice,
@@ -40,6 +43,7 @@ export function PartnerStatusCard() {
     handleInviteSubmit,
     handleInviteDelete,
     handleInviteResend,
+    handleSendNudge,
     handleRemovePartner,
     handleInviteReject,
   } = usePartnerStatus()
@@ -117,6 +121,21 @@ export function PartnerStatusCard() {
         ) : (
           <>
             <PartnerActiveHabits habits={habits} startedOn={startedOn} />
+            <button
+              className="rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-700 transition hover:bg-indigo-100 disabled:cursor-not-allowed disabled:bg-indigo-50 disabled:text-indigo-300"
+              disabled={isSendingNudge}
+              onClick={() => {
+                handleSendNudge()
+              }}
+              type="button"
+            >
+              {isSendingNudge ? 'Sending nudge...' : 'Send nudge'}
+            </button>
+            {nudgeError ? (
+              <p className="text-sm text-rose-500">{nudgeError}</p>
+            ) : nudgeNotice ? (
+              <p className="text-sm text-emerald-600">{nudgeNotice}</p>
+            ) : null}
             <button
               className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:bg-rose-50 disabled:text-rose-300"
               disabled={isRemovingPartner}

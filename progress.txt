@@ -29,6 +29,11 @@
 - Files changed: src/routes/api/calendar.ts, src/routeTree.gen.ts, prd.json, progress.txt.
 - Blockers/notes: none.
 
+- Task completed: Frontend / Partnering - Allow users to send a generic nudge to an active partner from the Partner section. (PRD Frontend / Partnering)
+- Decisions: add nudge action only in active partner state and wire to POST /api/nudges; surface backend cooldown/limit errors inline via shared requestApi message path; keep scope to send + confirmation (cooldown UI/timestamps handled in later PRD items).
+- Files changed: src/hooks/usePartnerStatus.ts, src/components/dashboard/PartnerStatusCard/index.tsx, prd.json, progress.txt.
+- Blockers/notes: none.
+
 - Task completed: Frontend / Partnering - Show rejected sent invites to the inviter with clear rejected status. (PRD Frontend / Partnering)
 - Decisions: add explicit status pill in sent invites row; use red rejected vs neutral pending styling so outcome is scannable without opening invite detail.
 - Files changed: src/components/dashboard/PartnerStatusCard/PartnerSentInvites.tsx, prd.json, progress.txt.

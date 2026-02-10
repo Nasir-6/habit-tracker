@@ -54,6 +54,8 @@ export function usePartnerStatus() {
   const [removePartnerNotice, setRemovePartnerNotice] = useState<string | null>(
     null,
   )
+  const [nudgeError, setNudgeError] = useState<string | null>(null)
+  const [nudgeNotice, setNudgeNotice] = useState<string | null>(null)
 
   const partnerStatusQuery = useQuery({
     queryKey: partnerStatusQueryKey(localDate),
@@ -327,12 +329,38 @@ export function usePartnerStatus() {
     },
   })
 
+  const sendNudgeMutation = useMutation({
+    mutationFn: async () => {
+      await requestApi(
+        '/api/nudges',
+        {
+          method: 'POST',
+        },
+        'Unable to send nudge',
+      )
+    },
+    onMutate: () => {
+      setNudgeError(null)
+      setNudgeNotice(null)
+    },
+    onSuccess: () => {
+      setNudgeNotice('Nudge sent')
+    },
+    onError: (error) => {
+      setNudgeError(
+        error instanceof Error ? error.message : 'Unable to send nudge',
+      )
+    },
+  })
+
   const handleInviteEmailChange = (value: string) => {
     setInviteValidationError(null)
     setInviteRequestError(null)
     setInviteNotice(null)
     setAcceptInviteError(null)
     setAcceptInviteNotice(null)
+    setNudgeError(null)
+    setNudgeNotice(null)
     setInviteEmail(value)
   }
 
@@ -364,6 +392,14 @@ export function usePartnerStatus() {
     }
 
     acceptInviteMutation.mutate(inviteId)
+  }
+
+  const handleSendNudge = () => {
+    if (sendNudgeMutation.isPending) {
+      return
+    }
+
+    sendNudgeMutation.mutate()
   }
 
   const handleRemovePartner = () => {
@@ -451,6 +487,9 @@ export function usePartnerStatus() {
       : null,
     acceptInviteError,
     acceptInviteNotice,
+    nudgeError,
+    nudgeNotice,
+    isSendingNudge: sendNudgeMutation.isPending,
     isRemovingPartner: removePartnerMutation.isPending,
     removePartnerError,
     removePartnerNotice,
@@ -460,6 +499,7 @@ export function usePartnerStatus() {
     handleInviteResend,
     handleInviteAccept,
     handleInviteReject,
+    handleSendNudge,
     handleRemovePartner,
   }
 }

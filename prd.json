@@ -728,7 +728,7 @@
       "Click the nudge action",
       "Verify user A sees a clear nudge-sent confirmation"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Backend / Partnering",
