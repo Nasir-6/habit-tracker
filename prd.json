@@ -717,7 +717,7 @@
       "Verify the request is rejected",
       "Verify the response includes a clear self-invite validation message"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Partnering",

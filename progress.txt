@@ -288,3 +288,8 @@
 - Decisions: filter partner habit query to `archived_at IS NULL` so only active habits are exposed; keep hard-deleted behavior unchanged since deleted rows are already excluded.
 - Files changed: src/db/partnerships.ts, prd.json, progress.txt.
 - Blockers/notes: none.
+
+- Task completed: Backend / Partnering - Reject partner invites where the target email matches the inviter email. (PRD Backend / Partnering)
+- Decisions: enforce self-invite rejection by resolved target user id (not only email string compare), so validation still holds if session email is missing/non-normalized; keep existing error copy.
+- Files changed: src/lib/api/partner-invites.ts, prd.json, progress.txt.
+- Blockers/notes: none.

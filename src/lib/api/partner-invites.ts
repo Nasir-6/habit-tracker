@@ -128,10 +128,14 @@ export const handlePartnerInvitesPost = async (
     return badRequest('You already have a pending invite')
   }
 
+  const inviteTargetUser = await fetchUserByEmail(inviteEmail)
+
+  if (inviteTargetUser?.id === user.id) {
+    return badRequest('Cannot invite yourself')
+  }
+
   if (typeof user.email === 'string') {
     const inviterEmail = user.email.trim().toLowerCase()
-
-    const inviteTargetUser = await fetchUserByEmail(inviteEmail)
 
     if (inviteTargetUser && inviteTargetUser.id !== user.id) {
       const oppositePendingInvite = await fetchPendingInviteForPair(
