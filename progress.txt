@@ -273,3 +273,8 @@
 - Decisions: add resend action only on rejected sent invites; reuse existing POST /api/partner-invites with invitee email from selected rejected invite; track per-row resending state to prevent duplicate submit and keep delete disabled during resend.
 - Files changed: src/components/dashboard/PartnerStatusCard/PartnerSentInvites.tsx, src/components/dashboard/PartnerStatusCard/index.tsx, src/hooks/usePartnerStatus.ts, prd.json, progress.txt.
 - Blockers/notes: clear-rejected action still pending for next iteration.
+
+- Task completed: Frontend / Partnering - Allow inviters to clear a rejected invite from their sent invites list. (PRD Frontend / Partnering)
+- Decisions: keep one sent-invite delete mutation path, but derive invite status client-side so rejected rows use explicit Clear affordance/copy; preserve same backend action to avoid API surface growth for a UI-only distinction.
+- Files changed: src/components/dashboard/PartnerStatusCard/PartnerSentInvites.tsx, src/hooks/usePartnerStatus.ts, prd.json, progress.txt.
+- Blockers/notes: none.

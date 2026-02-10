@@ -608,7 +608,7 @@
       "Sign in as user A and click Clear on rejected invite",
       "Verify rejected invite is removed from user A sent invites"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Backend / Partnering",

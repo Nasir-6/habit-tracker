@@ -25,6 +25,11 @@ type ResendInvitePayload = {
   email: string
 }
 
+type DeleteInvitePayload = {
+  id: string
+  status: 'pending' | 'rejected'
+}
+
 export function usePartnerStatus() {
   const localDate = useLocalDate()
   const queryClient = useQueryClient()
@@ -142,7 +147,7 @@ export function usePartnerStatus() {
   })
 
   const deleteInviteMutation = useMutation({
-    mutationFn: async (inviteId: string) => {
+    mutationFn: async ({ id }: DeleteInvitePayload) => {
       const payload = await requestApi<{ invite?: { id?: string } }>(
         '/api/partner-invites',
         {
@@ -150,7 +155,7 @@ export function usePartnerStatus() {
           headers: {
             'content-type': 'application/json',
           },
-          body: JSON.stringify({ inviteId, action: 'delete' }),
+          body: JSON.stringify({ inviteId: id, action: 'delete' }),
         },
         'Unable to delete invite',
       )
@@ -165,8 +170,12 @@ export function usePartnerStatus() {
       setInviteNotice(null)
       setAcceptInviteNotice(null)
     },
-    onSuccess: async () => {
-      setInviteNotice('Pending invite deleted')
+    onSuccess: async (_data, variables) => {
+      setInviteNotice(
+        variables.status === 'rejected'
+          ? 'Rejected invite cleared'
+          : 'Pending invite deleted',
+      )
 
       await queryClient.invalidateQueries({
         queryKey: pendingInvitesQueryKey,
@@ -378,7 +387,19 @@ export function usePartnerStatus() {
       return
     }
 
-    deleteInviteMutation.mutate(inviteId)
+    const inviteToDelete = (pendingInvitesQuery.data?.sentInvites ?? []).find(
+      (invite) => invite.id === inviteId,
+    )
+
+    if (!inviteToDelete) {
+      setInviteRequestError('Invite not found')
+      return
+    }
+
+    deleteInviteMutation.mutate({
+      id: inviteToDelete.id,
+      status: inviteToDelete.status,
+    })
   }
 
   const handleInviteResend = (inviteId: string) => {
@@ -415,7 +436,7 @@ export function usePartnerStatus() {
     sentInvites: pendingInvitesQuery.data?.sentInvites ?? [],
     canSendInvite: (pendingInvitesQuery.data?.sentInvites.length ?? 0) === 0,
     deletingInviteId: deleteInviteMutation.isPending
-      ? deleteInviteMutation.variables
+      ? deleteInviteMutation.variables.id
       : null,
     resendingInviteId: resendInviteMutation.isPending
       ? resendInviteMutation.variables.id

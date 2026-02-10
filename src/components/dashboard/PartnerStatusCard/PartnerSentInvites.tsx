@@ -79,7 +79,13 @@ export function PartnerSentInvites({
                 }}
                 type="button"
               >
-                {isDeleting ? 'Deleting...' : 'Delete'}
+                {isDeleting
+                  ? isRejected
+                    ? 'Clearing...'
+                    : 'Deleting...'
+                  : isRejected
+                    ? 'Clear'
+                    : 'Delete'}
               </button>
             </div>
           </div>
