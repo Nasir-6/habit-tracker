@@ -37,11 +37,13 @@ export const fetchPendingInvitesForEmail = async (inviteeEmail: string) => {
     .select({
       id: partnerInvites.id,
       inviterUserId: partnerInvites.inviterUserId,
+      inviterEmail: users.email,
       inviteeEmail: partnerInvites.inviteeEmail,
       status: partnerInvites.status,
       createdAt: partnerInvites.createdAt,
     })
     .from(partnerInvites)
+    .leftJoin(users, eq(users.id, partnerInvites.inviterUserId))
     .where(
       and(
         eq(partnerInvites.inviteeEmail, inviteeEmail),

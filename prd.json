@@ -260,7 +260,7 @@
       "Verify the invite label reads like 'Invite from Bob (bob@gmail.com)'",
       "Verify the label does not show a raw user ID format such as 'Invite from user <ID>'"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Backend / Partnering",

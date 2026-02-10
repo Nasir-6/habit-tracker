@@ -7,6 +7,7 @@ export type PartnerHabit = {
 export type PendingPartnerInvite = {
   id: string
   inviterUserId: string
+  inviterEmail: string | null
   inviteeEmail: string
   createdAt: string
 }

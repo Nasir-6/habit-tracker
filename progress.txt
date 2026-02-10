@@ -313,3 +313,8 @@
 - Decisions: trigger push dispatch in POST /api/nudges after successful nudge insert; treat 404/410 push responses as stale subscriptions and soft-deactivate them; keep nudge API success even if push dispatch fails to avoid blocking sender flow.
 - Files changed: src/lib/api/nudges.ts, package.json, package-lock.json, prd.json, progress.txt.
 - Blockers/notes: `npm run test` exits 0 with no tests but still prints Vitest hanging-process shutdown warning.
+
+- Task completed: Frontend / Partnering - Display incoming invite labels using inviter name and email instead of raw user ID. (PRD Frontend / Partnering)
+- Decisions: include inviter email in pending invite payload via user join; derive display name from email local-part for label format `Invite from Name (email)`; keep user-id fallback only when email is unavailable.
+- Files changed: src/db/partner-invites.ts, src/types/dashboard/partner.ts, src/components/dashboard/PartnerStatusCard/partnerStatusUtils.ts, src/components/dashboard/PartnerStatusCard/PartnerPendingInvites.tsx, prd.json, progress.txt.
+- Blockers/notes: none.

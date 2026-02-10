@@ -1,9 +1,10 @@
-import { formatInviteDate, formatInviter } from './partnerStatusUtils'
+import { formatInviteDate, getInviterLabel } from './partnerStatusUtils'
 
 type PartnerPendingInvitesProps = {
   pendingInvites: {
     id: string
     inviterUserId: string
+    inviterEmail: string | null
     inviteeEmail: string
     createdAt: string
   }[]
@@ -41,7 +42,8 @@ export function PartnerPendingInvites({
           >
             <div>
               <p className="text-sm font-semibold text-slate-900">
-                Invite from user {formatInviter(invite.inviterUserId)}
+                Invite from{' '}
+                {getInviterLabel(invite.inviterEmail, invite.inviterUserId)}
               </p>
               <p className="text-xs text-slate-400">
                 Sent {formatInviteDate(invite.createdAt)}
