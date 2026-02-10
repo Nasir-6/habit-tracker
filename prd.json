@@ -491,5 +491,134 @@
       "Verify request succeeds"
     ],
     "passes": true
+  },
+  {
+    "category": "Frontend / Partnering",
+    "description": "Display pending invites sent by the current user in the Partner section.",
+    "steps_to_verify": [
+      "Sign in as user A",
+      "Send a partner invite",
+      "Verify the invite appears under a Sent invites list"
+    ],
+    "passes": true
+  },
+  {
+    "category": "Backend / Partnering",
+    "description": "Restrict users to one pending sent invite at a time.",
+    "steps_to_verify": [
+      "Send a partner invite as user A",
+      "Attempt to send a second invite before the first is accepted or deleted",
+      "Verify request is rejected with a pending-invite message"
+    ],
+    "passes": true
+  },
+  {
+    "category": "Frontend / Partnering",
+    "description": "Hide partner invite input/actions while a pending sent invite exists.",
+    "steps_to_verify": [
+      "Send a partner invite",
+      "Return to the Partner section",
+      "Verify the invite input and send button are hidden while pending"
+    ],
+    "passes": true
+  },
+  {
+    "category": "Frontend / Partnering",
+    "description": "Allow users to delete their own pending sent invite from the UI.",
+    "steps_to_verify": [
+      "Send a partner invite",
+      "Click Delete on the sent invite",
+      "Verify the invite disappears and invite input/actions return"
+    ],
+    "passes": true
+  },
+  {
+    "category": "Backend / Partnering",
+    "description": "Allow inviters to cancel their own pending invite and support re-invite after stale accepted invite history.",
+    "steps_to_verify": [
+      "Create a pending invite and cancel it as inviter",
+      "Verify invite record is removed",
+      "Attempt to re-invite same email after previous partnership removal",
+      "Verify invite creation succeeds"
+    ],
+    "passes": true
+  },
+  {
+    "category": "Frontend / Partnering",
+    "description": "Allow invited users to reject a pending partner invite from the UI.",
+    "steps_to_verify": [
+      "Sign in as user A and send an invite to user B",
+      "Sign in as user B and open the Partner section",
+      "Verify a Reject action is available on the pending invite",
+      "Reject the invite",
+      "Verify the invite is removed from user B pending invites"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Backend / Partnering",
+    "description": "Support rejecting an invite by transitioning status from pending to rejected for the invitee only.",
+    "steps_to_verify": [
+      "Send invite from user A to user B",
+      "Submit reject action as user B",
+      "Verify invite status changes to rejected",
+      "Verify reject action fails for non-invitee users"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Partnering",
+    "description": "Show rejected sent invites to the inviter with clear rejected status.",
+    "steps_to_verify": [
+      "Send invite from user A to user B",
+      "Reject invite as user B",
+      "Return to user A Partner section",
+      "Verify invite appears as rejected in sent invites"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Backend / Partnering",
+    "description": "Include rejected sent invites in inviter-facing invite responses.",
+    "steps_to_verify": [
+      "Send invite from user A to user B",
+      "Reject invite as user B",
+      "Fetch inviter invite list",
+      "Verify rejected invite is returned with rejected status"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Partnering",
+    "description": "Allow inviters to resend a rejected invite from the sent invites list.",
+    "steps_to_verify": [
+      "Send invite from user A to user B",
+      "Reject invite as user B",
+      "Sign in as user A and click Resend on rejected invite",
+      "Verify invite becomes pending again"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Partnering",
+    "description": "Allow inviters to clear a rejected invite from their sent invites list.",
+    "steps_to_verify": [
+      "Send invite from user A to user B",
+      "Reject invite as user B",
+      "Sign in as user A and click Clear on rejected invite",
+      "Verify rejected invite is removed from user A sent invites"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Backend / Partnering",
+    "description": "Allow inviters to clear rejected invites without affecting active partnerships.",
+    "steps_to_verify": [
+      "Create a rejected invite for user A",
+      "Submit clear action as user A",
+      "Verify rejected invite is deleted",
+      "Verify active partnerships remain unchanged"
+    ],
+    "passes": false
   }
 ]
