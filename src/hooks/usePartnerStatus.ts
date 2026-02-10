@@ -31,6 +31,11 @@ type DeleteInvitePayload = {
   status: 'pending' | 'rejected'
 }
 
+type PendingSentInviteSnapshot = {
+  id: string
+  inviteeEmail: string
+}
+
 type NudgeMutationPayload = {
   limits?: {
     cooldownSeconds?: number
@@ -82,6 +87,9 @@ export function usePartnerStatus() {
     null,
   )
   const [inviteNotice, setInviteNotice] = useState<string | null>(null)
+  const [sentInviteOutcomeNotice, setSentInviteOutcomeNotice] = useState<
+    string | null
+  >(null)
   const [acceptInviteError, setAcceptInviteError] = useState<string | null>(
     null,
   )
@@ -179,6 +187,9 @@ export function usePartnerStatus() {
   })
 
   const previousHasPartnerRef = useRef<boolean | null>(null)
+  const previousPendingSentInviteRef = useRef<PendingSentInviteSnapshot | null>(
+    null,
+  )
 
   useEffect(() => {
     if (!partnerStatusQuery.isSuccess) {
@@ -226,6 +237,71 @@ export function usePartnerStatus() {
     },
   })
 
+  useEffect(() => {
+    if (!pendingInvitesQuery.isSuccess || !partnerStatusQuery.isSuccess) {
+      return
+    }
+
+    const pendingSentInvite = pendingInvitesQuery.data.sentInvites.find(
+      (invite) => invite.status === 'pending',
+    )
+
+    const previousPendingSentInvite = previousPendingSentInviteRef.current
+
+    if (!previousPendingSentInvite) {
+      previousPendingSentInviteRef.current = pendingSentInvite
+        ? {
+            id: pendingSentInvite.id,
+            inviteeEmail: pendingSentInvite.inviteeEmail,
+          }
+        : null
+      return
+    }
+
+    if (
+      !pendingSentInvite ||
+      pendingSentInvite.id !== previousPendingSentInvite.id
+    ) {
+      const matchingRejectedInvite = pendingInvitesQuery.data.sentInvites.find(
+        (invite) =>
+          invite.id === previousPendingSentInvite.id &&
+          invite.status === 'rejected',
+      )
+
+      if (matchingRejectedInvite) {
+        setSentInviteOutcomeNotice(
+          `${matchingRejectedInvite.inviteeEmail} rejected your invite`,
+        )
+      } else if (
+        partnerStatusQuery.data.hasPartner &&
+        (!partnerStatusQuery.data.partnerEmail ||
+          partnerStatusQuery.data.partnerEmail.toLowerCase().trim() ===
+            previousPendingSentInvite.inviteeEmail.toLowerCase().trim())
+      ) {
+        setSentInviteOutcomeNotice(
+          `${previousPendingSentInvite.inviteeEmail} accepted your invite`,
+        )
+      } else {
+        setSentInviteOutcomeNotice(
+          `Invite to ${previousPendingSentInvite.inviteeEmail} was cancelled`,
+        )
+      }
+    }
+
+    previousPendingSentInviteRef.current = pendingSentInvite
+      ? {
+          id: pendingSentInvite.id,
+          inviteeEmail: pendingSentInvite.inviteeEmail,
+        }
+      : null
+  }, [
+    pendingInvitesQuery.data?.sentInvites,
+    pendingInvitesQuery.isSuccess,
+    partnerStatusQuery.data?.hasPartner,
+    partnerStatusQuery.data?.partnerEmail,
+    partnerStatusQuery.isSuccess,
+  ])
+
   const inviteMutation = useMutation({
     mutationFn: async (email: string) => {
       await requestApi(
@@ -244,6 +320,7 @@ export function usePartnerStatus() {
       setInviteValidationError(null)
       setInviteRequestError(null)
       setInviteNotice(null)
+      setSentInviteOutcomeNotice(null)
       setAcceptInviteNotice(null)
     },
     onSuccess: async (_data, email) => {
@@ -283,6 +360,7 @@ export function usePartnerStatus() {
       setInviteValidationError(null)
       setInviteRequestError(null)
       setInviteNotice(null)
+      setSentInviteOutcomeNotice(null)
       setAcceptInviteNotice(null)
     },
     onSuccess: async (_data, variables) => {
@@ -321,6 +399,7 @@ export function usePartnerStatus() {
       setInviteValidationError(null)
       setInviteRequestError(null)
       setInviteNotice(null)
+      setSentInviteOutcomeNotice(null)
       setAcceptInviteNotice(null)
     },
     onSuccess: async (_data, variables) => {
@@ -355,6 +434,7 @@ export function usePartnerStatus() {
       setAcceptInviteError(null)
       setAcceptInviteNotice(null)
       setInviteNotice(null)
+      setSentInviteOutcomeNotice(null)
     },
     onSuccess: async () => {
       setAcceptInviteNotice('Partnership activated')
@@ -392,6 +472,7 @@ export function usePartnerStatus() {
       setAcceptInviteError(null)
       setAcceptInviteNotice(null)
       setInviteNotice(null)
+      setSentInviteOutcomeNotice(null)
     },
     onSuccess: async () => {
       setAcceptInviteNotice('Invite rejected')
@@ -421,6 +502,7 @@ export function usePartnerStatus() {
       setRemovePartnerNotice(null)
       setAcceptInviteNotice(null)
       setInviteNotice(null)
+      setSentInviteOutcomeNotice(null)
     },
     onSuccess: async () => {
       queryClient.setQueryData(partnerStatusQueryKey(localDate), {
@@ -518,6 +600,7 @@ export function usePartnerStatus() {
     setInviteValidationError(null)
     setInviteRequestError(null)
     setInviteNotice(null)
+    setSentInviteOutcomeNotice(null)
     setAcceptInviteError(null)
     setAcceptInviteNotice(null)
     setNudgeError(null)
@@ -638,6 +721,7 @@ export function usePartnerStatus() {
     inviteEmail,
     inviteError: inviteValidationError ?? inviteRequestError,
     inviteNotice,
+    sentInviteOutcomeNotice,
     isInviteSubmitting: inviteMutation.isPending,
     pendingInvites: pendingInvitesQuery.data?.receivedInvites ?? [],
     sentInvites: pendingInvitesQuery.data?.sentInvites ?? [],

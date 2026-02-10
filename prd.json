@@ -652,7 +652,7 @@
       "Return to user A and open the Partner section",
       "Verify user A sees a clear status message for the resulting invite outcome"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Partnering",

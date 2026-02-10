@@ -50,6 +50,7 @@ export function PartnerStatusCard() {
     canSendInvite,
     inviteError,
     inviteNotice,
+    sentInviteOutcomeNotice,
     isInviteSubmitting,
     isSendingNudge,
     isRemovingPartner,
@@ -128,6 +129,10 @@ export function PartnerStatusCard() {
               <p className="text-sm text-sky-700">{partnerEndedNotice}</p>
             ) : null}
 
+            {sentInviteOutcomeNotice ? (
+              <p className="text-sm text-sky-700">{sentInviteOutcomeNotice}</p>
+            ) : null}
+
             {canSendInvite ? (
               <PartnerInviteForm
                 inviteEmail={inviteEmail}
@@ -157,6 +162,11 @@ export function PartnerStatusCard() {
             {latestIncomingNudgeLabel ? (
               <p className="rounded-xl border border-sky-200 bg-sky-50 px-3 py-2 text-sm text-sky-700">
                 {latestIncomingNudgeLabel}
+              </p>
+            ) : null}
+            {sentInviteOutcomeNotice ? (
+              <p className="rounded-xl border border-sky-200 bg-sky-50 px-3 py-2 text-sm text-sky-700">
+                {sentInviteOutcomeNotice}
               </p>
             ) : null}
             <PartnerActiveHabits habits={habits} startedOn={startedOn} />

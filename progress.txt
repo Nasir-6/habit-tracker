@@ -29,6 +29,11 @@
 - Files changed: src/routes/api/calendar.ts, src/routeTree.gen.ts, prd.json, progress.txt.
 - Blockers/notes: none.
 
+- Task completed: Frontend / Partnering - Show explicit in-app feedback to inviters when sent invites are accepted, rejected, or cancelled. (PRD Frontend / Partnering)
+- Decisions: prioritized this remaining partnering integration item over empty-state/timestamp polish; detect sent-invite outcome transitions client-side from pending->accepted/rejected/cancelled using invite + partner status query changes, no backend schema/API expansion.
+- Files changed: src/hooks/usePartnerStatus.ts, src/components/dashboard/PartnerStatusCard/index.tsx, prd.json, progress.txt.
+- Blockers/notes: `npm run test` exits 0 with no tests but still prints Vitest hanging-process shutdown warning.
+
 - Task completed: Frontend / Notifications - Show in-app nudge banner when the app is currently visible and focused. (PRD Frontend / Notifications)
 - Decisions: prioritize as integration point between SW push runtime and foreground UI; in SW push handler, if any visible+focused app client exists send `postMessage` banner payload and skip system notification to prevent duplicates; render lightweight auto-dismiss in-app banner from service worker message events in dashboard.
 - Files changed: public/sw.js, src/components/dashboard/InAppNudgeBanner.tsx, src/components/dashboard/Dashboard.tsx, prd.json, progress.txt.
