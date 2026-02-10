@@ -243,3 +243,8 @@
 - Decisions: normalize fallback auth error copy by mode (sign-in vs sign-up) to keep failures explicit; clear stale auth errors on input edits so inline message reflects latest attempt; use role=alert for inline error accessibility.
 - Files changed: src/routes/index.tsx, src/components/dashboard/AuthScreen.tsx, prd.json, progress.txt.
 - Blockers/notes: none.
+
+- Task completed: Backend / Partnering - Support rejecting an invite by transitioning status from pending to rejected for the invitee only. (PRD Backend / Partnering)
+- Decisions: add PATCH action `reject` in existing partner-invites endpoint to avoid new route; enforce invitee ownership via existing email/id checks before status update; update invite row status to `rejected` (not delete) so later inviter-facing flows can read outcome.
+- Files changed: src/lib/api/partner-invites.ts, src/db/partner-invites.ts, src/hooks/usePartnerStatus.ts, prd.json, progress.txt.
+- Blockers/notes: none.

@@ -122,6 +122,25 @@ export const deletePendingInviteForInviter = async (
     .then((rows) => rows.at(0))
 }
 
+export const rejectPendingInviteForInvitee = async (inviteId: string) => {
+  return db
+    .update(partnerInvites)
+    .set({ status: 'rejected' })
+    .where(
+      and(
+        eq(partnerInvites.id, inviteId),
+        eq(partnerInvites.status, 'pending'),
+      ),
+    )
+    .returning({
+      id: partnerInvites.id,
+      inviterUserId: partnerInvites.inviterUserId,
+      inviteeEmail: partnerInvites.inviteeEmail,
+      status: partnerInvites.status,
+    })
+    .then((rows) => rows.at(0))
+}
+
 export const acceptPartnerInvite = async (
   inviteId: string,
   userAId: string,

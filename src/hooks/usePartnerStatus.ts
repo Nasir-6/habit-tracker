@@ -150,7 +150,7 @@ export function usePartnerStatus() {
         'Unable to delete invite',
       )
 
-      if (typeof payload?.invite?.id !== 'string') {
+      if (typeof payload.invite?.id !== 'string') {
         throw new Error('Unable to delete invite')
       }
     },
@@ -314,7 +314,7 @@ export function usePartnerStatus() {
     isInviteSubmitting: inviteMutation.isPending,
     pendingInvites: pendingInvitesQuery.data?.receivedInvites ?? [],
     sentInvites: pendingInvitesQuery.data?.sentInvites ?? [],
-    canSendInvite: (pendingInvitesQuery.data?.sentInvites?.length ?? 0) === 0,
+    canSendInvite: (pendingInvitesQuery.data?.sentInvites.length ?? 0) === 0,
     deletingInviteId: deleteInviteMutation.isPending
       ? deleteInviteMutation.variables
       : null,

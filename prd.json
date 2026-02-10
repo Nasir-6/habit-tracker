@@ -564,7 +564,7 @@
       "Verify invite status changes to rejected",
       "Verify reject action fails for non-invitee users"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Partnering",

@@ -8,6 +8,7 @@ import {
   fetchPendingInvitesForEmail,
   fetchPendingInvitesForInviter,
   insertPartnerInvite,
+  rejectPendingInviteForInvitee,
 } from '@/db/partner-invites'
 import { fetchPartnershipForUser } from '@/db/partnerships'
 
@@ -85,6 +86,10 @@ const getInviteAction = (payload: unknown) => {
 
   if (action === 'delete') {
     return 'delete' as const
+  }
+
+  if (action === 'reject') {
+    return 'reject' as const
   }
 
   return 'accept' as const
@@ -201,6 +206,16 @@ export const handlePartnerInvitesPatch = async (
 
   if (invite.inviterUserId === user.id) {
     return badRequest('Cannot accept your own invite')
+  }
+
+  if (action === 'reject') {
+    const rejected = await rejectPendingInviteForInvitee(invite.id)
+
+    if (!rejected) {
+      return badRequest('Invite is no longer pending')
+    }
+
+    return ok({ invite: rejected })
   }
 
   const acceptedInvite = await fetchAcceptedInviteForPair(
