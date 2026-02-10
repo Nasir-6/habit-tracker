@@ -31,14 +31,36 @@ self.addEventListener('push', (event) => {
     typeof payload?.url === 'string' && payload.url.startsWith('/')
       ? payload.url
       : '/'
+  const bannerPayload = {
+    type: 'partner_nudge_banner',
+    title,
+    body,
+    url,
+    nudgeId: typeof payload?.nudgeId === 'string' ? payload.nudgeId : undefined,
+    createdAt:
+      typeof payload?.createdAt === 'string' ? payload.createdAt : undefined,
+  }
 
   event.waitUntil(
-    self.registration.showNotification(title, {
-      body,
-      tag: typeof payload?.nudgeId === 'string' ? payload.nudgeId : undefined,
-      data: { url },
-      renotify: false,
-    }),
+    self.clients
+      .matchAll({ type: 'window', includeUncontrolled: true })
+      .then((clients) => {
+        const activeClient = clients.find(
+          (client) => client.visibilityState === 'visible' && client.focused,
+        )
+
+        if (activeClient) {
+          activeClient.postMessage(bannerPayload)
+          return undefined
+        }
+
+        return self.registration.showNotification(title, {
+          body,
+          tag: bannerPayload.nudgeId,
+          data: { url },
+          renotify: false,
+        })
+      }),
   )
 })
 

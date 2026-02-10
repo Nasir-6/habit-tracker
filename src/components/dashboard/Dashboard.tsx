@@ -4,6 +4,7 @@ import { CreateHabitCard } from '@/components/dashboard/CreateHabitCard'
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader'
 import { HabitCalendarCard } from '@/components/dashboard/HabitCalendarCard'
 import { HabitList } from '@/components/dashboard/HabitList'
+import { InAppNudgeBanner } from '@/components/dashboard/InAppNudgeBanner'
 import { NotificationPermissionCard } from '@/components/dashboard/NotificationPermissionCard'
 import { PageShell } from '@/components/dashboard/PageShell'
 import { PartnerStatusCard } from '@/components/dashboard/PartnerStatusCard'
@@ -31,6 +32,7 @@ export function Dashboard({
     <PageShell maxWidthClass="max-w-6xl" paddingTopClass="pt-16">
       <div className="flex flex-col gap-8">
         <DashboardHeader userDisplayName={userDisplayName} />
+        <InAppNudgeBanner />
 
         <div className="grid gap-6">
           <CreateHabitCard />

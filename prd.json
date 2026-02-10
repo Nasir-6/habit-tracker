@@ -783,7 +783,7 @@
       "Verify user B sees in-app nudge banner",
       "Verify no duplicate system notification is shown while visible"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "PWA / Platform",

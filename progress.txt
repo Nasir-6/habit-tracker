@@ -29,6 +29,11 @@
 - Files changed: src/routes/api/calendar.ts, src/routeTree.gen.ts, prd.json, progress.txt.
 - Blockers/notes: none.
 
+- Task completed: Frontend / Notifications - Show in-app nudge banner when the app is currently visible and focused. (PRD Frontend / Notifications)
+- Decisions: prioritize as integration point between SW push runtime and foreground UI; in SW push handler, if any visible+focused app client exists send `postMessage` banner payload and skip system notification to prevent duplicates; render lightweight auto-dismiss in-app banner from service worker message events in dashboard.
+- Files changed: public/sw.js, src/components/dashboard/InAppNudgeBanner.tsx, src/components/dashboard/Dashboard.tsx, prd.json, progress.txt.
+- Blockers/notes: none.
+
 - Task completed: Frontend / Partnering - Show nudge cooldown state in UI and prevent repeated nudge taps during cooldown. (PRD Frontend / Partnering)
 - Decisions: prioritized as integration point between nudge rate-limit API and partner UI; switched nudge mutation to parse cooldown metadata (`retryAfterSeconds` / `limits.cooldownSeconds`) so UI can lock button on both success and 429 cooldown; countdown kept client-side with 1s interval to avoid extra polling.
 - Files changed: src/hooks/usePartnerStatus.ts, src/components/dashboard/PartnerStatusCard/index.tsx, prd.json, progress.txt.
