@@ -68,13 +68,14 @@ export function usePartnerStatus() {
         return {
           hasPartner: false,
           startedOn: null,
+          partnerEmail: null,
           habits: [] as PartnerHabit[],
         }
       }
 
       const payload = (await response.json()) as {
         error?: string
-        partner?: { startedOn?: string }
+        partner?: { startedOn?: string; email?: string | null }
         habits?: PartnerHabit[]
       }
 
@@ -85,6 +86,10 @@ export function usePartnerStatus() {
       return {
         hasPartner: true,
         startedOn: payload.partner?.startedOn ?? null,
+        partnerEmail:
+          typeof payload.partner?.email === 'string'
+            ? payload.partner.email
+            : null,
         habits: Array.isArray(payload.habits) ? payload.habits : [],
       }
     },
@@ -313,6 +318,7 @@ export function usePartnerStatus() {
       queryClient.setQueryData(partnerStatusQueryKey(localDate), {
         hasPartner: false,
         startedOn: null,
+        partnerEmail: null,
         habits: [] as PartnerHabit[],
       })
 
@@ -461,6 +467,7 @@ export function usePartnerStatus() {
   return {
     habits: partnerStatusQuery.data?.habits ?? [],
     startedOn: partnerStatusQuery.data?.startedOn ?? null,
+    partnerEmail: partnerStatusQuery.data?.partnerEmail ?? null,
     errorMessage: partnerStatusQuery.error?.message ?? null,
     isLoading: partnerStatusQuery.isLoading,
     hasPartner: partnerStatusQuery.data?.hasPartner ?? false,

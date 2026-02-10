@@ -5,6 +5,7 @@ import {
   fetchPartnerCompletionIds,
   fetchPartnerHabits,
   fetchPartnershipForUser,
+  fetchUserEmailById,
 } from '@/db/partnerships'
 
 const getPartnerParams = (request: Request) => {
@@ -40,6 +41,7 @@ export const handlePartnershipsGet = async (
 
   const partnerUserId =
     partnership.userAId === userId ? partnership.userBId : partnership.userAId
+  const partnerEmail = await fetchUserEmailById(partnerUserId)
   const startedOn = formatUtcDate(partnership.startedAt)
   const { localDate } = params
 
@@ -62,7 +64,7 @@ export const handlePartnershipsGet = async (
   }))
 
   return ok({
-    partner: { userId: partnerUserId, startedOn },
+    partner: { userId: partnerUserId, startedOn, email: partnerEmail },
     habits: habitsWithStatus,
   })
 }

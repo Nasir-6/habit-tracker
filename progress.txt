@@ -29,6 +29,11 @@
 - Files changed: src/routes/api/calendar.ts, src/routeTree.gen.ts, prd.json, progress.txt.
 - Blockers/notes: none.
 
+- Task completed: Frontend / Partnering - Display the active partner name in the partner habits heading instead of a generic Partner label. (PRD Frontend / Partnering)
+- Decisions: prioritized as cross-module integration (partner API payload + UI heading) over polish-only items; derive display name from partner email local-part to avoid schema migration for profile names.
+- Files changed: src/db/partnerships.ts, src/lib/api/partnerships.ts, src/hooks/usePartnerStatus.ts, src/components/dashboard/PartnerStatusCard/partnerStatusUtils.ts, src/components/dashboard/PartnerStatusCard/PartnerStatusHeader.tsx, src/components/dashboard/PartnerStatusCard/index.tsx, prd.json, progress.txt.
+- Blockers/notes: none.
+
 - Task completed: Frontend / Partnering - Allow users to send a generic nudge to an active partner from the Partner section. (PRD Frontend / Partnering)
 - Decisions: add nudge action only in active partner state and wire to POST /api/nudges; surface backend cooldown/limit errors inline via shared requestApi message path; keep scope to send + confirmation (cooldown UI/timestamps handled in later PRD items).
 - Files changed: src/hooks/usePartnerStatus.ts, src/components/dashboard/PartnerStatusCard/index.tsx, prd.json, progress.txt.

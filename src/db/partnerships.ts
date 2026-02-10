@@ -1,7 +1,7 @@
 import { and, eq, isNull, or } from 'drizzle-orm'
 
 import { db } from '@/db/index.ts'
-import { habitCompletions, habits, partnerships } from '@/db/schema'
+import { habitCompletions, habits, partnerships, users } from '@/db/schema'
 
 export const fetchPartnershipForUser = async (userId: string) => {
   return db
@@ -48,4 +48,12 @@ export const fetchPartnerCompletionIds = async (
         eq(habitCompletions.completedOn, localDate),
       ),
     )
+}
+
+export const fetchUserEmailById = async (userId: string) => {
+  return db
+    .select({ email: users.email })
+    .from(users)
+    .where(eq(users.id, userId))
+    .then((rows) => rows.at(0)?.email ?? null)
 }

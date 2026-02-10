@@ -663,7 +663,7 @@
       "Verify the heading reads Bob's Habits or equivalent partner-name-based text",
       "Verify a generic Partner heading is not shown for the active partnership"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Backend / Partnering",

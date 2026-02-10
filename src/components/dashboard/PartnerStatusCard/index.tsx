@@ -5,6 +5,7 @@ import { PartnerInviteForm } from './PartnerInviteForm'
 import { PartnerPendingInvites } from './PartnerPendingInvites'
 import { PartnerSentInvites } from './PartnerSentInvites'
 import { PartnerStatusHeader } from './PartnerStatusHeader'
+import { getPartnerDisplayName } from './partnerStatusUtils'
 import { ConfirmModal } from '@/components/dashboard/ConfirmModal'
 
 import { usePartnerStatus } from '@/hooks/usePartnerStatus'
@@ -17,6 +18,7 @@ export function PartnerStatusCard() {
     errorMessage,
     habits,
     startedOn,
+    partnerEmail,
     pendingInvites,
     sentInvites,
     deletingInviteId,
@@ -47,10 +49,11 @@ export function PartnerStatusCard() {
     handleRemovePartner,
     handleInviteReject,
   } = usePartnerStatus()
+  const partnerName = getPartnerDisplayName(partnerEmail)
 
   return (
     <div className="rounded-3xl border border-slate-200 bg-white/70 p-8 shadow-sm">
-      <PartnerStatusHeader hasPartner={hasPartner} />
+      <PartnerStatusHeader hasPartner={hasPartner} partnerName={partnerName} />
       <div className="mt-6 grid gap-3">
         {isLoading ? (
           <p className="text-sm text-slate-500">Loading partner status...</p>

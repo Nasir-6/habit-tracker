@@ -33,3 +33,13 @@ export const getInviterLabel = (
 
   return `${displayName} (${inviterEmail})`
 }
+
+export const getPartnerDisplayName = (partnerEmail: string | null) => {
+  if (!partnerEmail) {
+    return null
+  }
+
+  const localPart = partnerEmail.split('@')[0] || partnerEmail
+
+  return localPart.charAt(0).toUpperCase() + localPart.slice(1).toLowerCase()
+}
