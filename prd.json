@@ -575,7 +575,7 @@
       "Return to user A Partner section",
       "Verify invite appears as rejected in sent invites"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Backend / Partnering",

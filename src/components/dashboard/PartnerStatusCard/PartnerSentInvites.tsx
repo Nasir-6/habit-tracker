@@ -5,6 +5,7 @@ type PartnerSentInvitesProps = {
     id: string
     inviteeEmail: string
     createdAt: string
+    status: 'pending' | 'rejected'
   }[]
   deletingInviteId: string | null
   onInviteDelete: (inviteId: string) => void
@@ -26,6 +27,7 @@ export function PartnerSentInvites({
       </p>
       {sentInvites.map((invite) => {
         const isDeleting = deletingInviteId === invite.id
+        const isRejected = invite.status === 'rejected'
 
         return (
           <div
@@ -33,9 +35,20 @@ export function PartnerSentInvites({
             className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white/90 px-4 py-3"
           >
             <div>
-              <p className="text-sm font-semibold text-slate-900">
-                {invite.inviteeEmail}
-              </p>
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-semibold text-slate-900">
+                  {invite.inviteeEmail}
+                </p>
+                <span
+                  className={
+                    isRejected
+                      ? 'rounded-full border border-rose-200 bg-rose-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-rose-700'
+                      : 'rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-600'
+                  }
+                >
+                  {isRejected ? 'Rejected' : 'Pending'}
+                </span>
+              </div>
               <p className="text-xs text-slate-400">
                 Sent {formatInviteDate(invite.createdAt)}
               </p>

@@ -29,6 +29,11 @@
 - Files changed: src/routes/api/calendar.ts, src/routeTree.gen.ts, prd.json, progress.txt.
 - Blockers/notes: none.
 
+- Task completed: Frontend / Partnering - Show rejected sent invites to the inviter with clear rejected status. (PRD Frontend / Partnering)
+- Decisions: add explicit status pill in sent invites row; use red rejected vs neutral pending styling so outcome is scannable without opening invite detail.
+- Files changed: src/components/dashboard/PartnerStatusCard/PartnerSentInvites.tsx, prd.json, progress.txt.
+- Blockers/notes: none.
+
 - Task completed: Backend / Partnering - Allow inviters to clear rejected invites without affecting active partnerships. (PRD Backend / Partnering)
 - Decisions: widened inviter delete filter to allow pending+rejected statuses only; kept accepted/partnership records untouched to avoid side effects.
 - Files changed: src/db/partner-invites.ts, src/lib/api/partner-invites.ts, prd.json, progress.txt.
