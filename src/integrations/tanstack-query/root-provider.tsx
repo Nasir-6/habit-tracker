@@ -1,7 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
-import { LocalDateProvider } from '@/context/local-date'
-
 export function getContext() {
   const queryClient = new QueryClient()
   return {
@@ -17,8 +15,6 @@ export function Provider({
   queryClient: QueryClient
 }) {
   return (
-    <QueryClientProvider client={queryClient}>
-      <LocalDateProvider>{children}</LocalDateProvider>
-    </QueryClientProvider>
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   )
 }

@@ -15,16 +15,19 @@ export function usePartnerStatus() {
   const queryClient = useQueryClient()
 
   const [inviteEmail, setInviteEmail] = useState('')
-  const [inviteError, setInviteError] = useState<string | null>(null)
+  const [inviteValidationError, setInviteValidationError] = useState<
+    string | null
+  >(null)
+  const [inviteRequestError, setInviteRequestError] = useState<string | null>(
+    null,
+  )
   const [inviteNotice, setInviteNotice] = useState<string | null>(null)
-
   const [acceptInviteError, setAcceptInviteError] = useState<string | null>(
     null,
   )
   const [acceptInviteNotice, setAcceptInviteNotice] = useState<string | null>(
     null,
   )
-
   const [removePartnerError, setRemovePartnerError] = useState<string | null>(
     null,
   )
@@ -80,7 +83,7 @@ export function usePartnerStatus() {
 
   const inviteMutation = useMutation({
     mutationFn: async (email: string) => {
-      return requestApi<{ error?: string }>(
+      await requestApi(
         '/api/partner-invites',
         {
           method: 'POST',
@@ -92,11 +95,26 @@ export function usePartnerStatus() {
         'Unable to send invite',
       )
     },
+    onMutate: () => {
+      setInviteValidationError(null)
+      setInviteRequestError(null)
+      setInviteNotice(null)
+      setAcceptInviteNotice(null)
+    },
+    onSuccess: (_data, email) => {
+      setInviteEmail('')
+      setInviteNotice(`Invite sent to ${email}`)
+    },
+    onError: (error) => {
+      setInviteRequestError(
+        error instanceof Error ? error.message : 'Unable to send invite',
+      )
+    },
   })
 
   const acceptInviteMutation = useMutation({
     mutationFn: async (inviteId: string) => {
-      return requestApi<{ error?: string }>(
+      await requestApi(
         '/api/partner-invites',
         {
           method: 'PATCH',
@@ -108,65 +126,12 @@ export function usePartnerStatus() {
         'Unable to accept invite',
       )
     },
-  })
-
-  const removePartnerMutation = useMutation({
-    mutationFn: async () => {
-      return requestApi<{ revoked?: boolean }>(
-        '/api/partnerships',
-        {
-          method: 'DELETE',
-        },
-        'Unable to remove partner',
-      )
-    },
-  })
-
-  const handleInviteEmailChange = (value: string) => {
-    setAcceptInviteError(null)
-    setAcceptInviteNotice(null)
-    setInviteError(null)
-    setInviteNotice(null)
-    setInviteEmail(value)
-  }
-
-  const handleInviteSubmit = async () => {
-    if (inviteMutation.isPending) {
-      return
-    }
-
-    const email = inviteEmail.trim()
-
-    if (!email) {
-      setInviteError('Partner email is required')
+    onMutate: () => {
+      setAcceptInviteError(null)
+      setAcceptInviteNotice(null)
       setInviteNotice(null)
-      return
-    }
-
-    setInviteError(null)
-    setInviteNotice(null)
-
-    try {
-      await inviteMutation.mutateAsync(email)
-      setInviteEmail('')
-      setInviteNotice(`Invite sent to ${email}`)
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'Unable to send invite'
-      setInviteError(message)
-    }
-  }
-
-  const handleInviteAccept = async (inviteId: string) => {
-    if (acceptInviteMutation.isPending) {
-      return
-    }
-
-    setAcceptInviteError(null)
-    setAcceptInviteNotice(null)
-
-    try {
-      await acceptInviteMutation.mutateAsync(inviteId)
+    },
+    onSuccess: async () => {
       setAcceptInviteNotice('Partnership activated')
       await Promise.all([
         queryClient.invalidateQueries({
@@ -176,24 +141,31 @@ export function usePartnerStatus() {
           queryKey: partnerStatusQueryKey(localDate),
         }),
       ])
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'Unable to accept invite'
-      setAcceptInviteError(message)
-    }
-  }
+    },
+    onError: (error) => {
+      setAcceptInviteError(
+        error instanceof Error ? error.message : 'Unable to accept invite',
+      )
+    },
+  })
 
-  const handleRemovePartner = async () => {
-    if (removePartnerMutation.isPending) {
-      return
-    }
-
-    setRemovePartnerError(null)
-    setRemovePartnerNotice(null)
-
-    try {
-      await removePartnerMutation.mutateAsync()
-
+  const removePartnerMutation = useMutation({
+    mutationFn: async () => {
+      await requestApi(
+        '/api/partnerships',
+        {
+          method: 'DELETE',
+        },
+        'Unable to remove partner',
+      )
+    },
+    onMutate: () => {
+      setRemovePartnerError(null)
+      setRemovePartnerNotice(null)
+      setAcceptInviteNotice(null)
+      setInviteNotice(null)
+    },
+    onSuccess: async () => {
       queryClient.setQueryData(partnerStatusQueryKey(localDate), {
         hasPartner: false,
         startedOn: null,
@@ -205,11 +177,52 @@ export function usePartnerStatus() {
       })
 
       setRemovePartnerNotice('Partner removed')
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'Unable to remove partner'
-      setRemovePartnerError(message)
+    },
+    onError: (error) => {
+      setRemovePartnerError(
+        error instanceof Error ? error.message : 'Unable to remove partner',
+      )
+    },
+  })
+
+  const handleInviteEmailChange = (value: string) => {
+    setInviteValidationError(null)
+    setInviteRequestError(null)
+    setInviteNotice(null)
+    setAcceptInviteError(null)
+    setAcceptInviteNotice(null)
+    setInviteEmail(value)
+  }
+
+  const handleInviteSubmit = () => {
+    if (inviteMutation.isPending) {
+      return
     }
+
+    const email = inviteEmail.trim()
+
+    if (!email) {
+      setInviteValidationError('Partner email is required')
+      return
+    }
+
+    inviteMutation.mutate(email)
+  }
+
+  const handleInviteAccept = (inviteId: string) => {
+    if (acceptInviteMutation.isPending) {
+      return
+    }
+
+    acceptInviteMutation.mutate(inviteId)
+  }
+
+  const handleRemovePartner = () => {
+    if (removePartnerMutation.isPending) {
+      return
+    }
+
+    removePartnerMutation.mutate()
   }
 
   return {
@@ -219,7 +232,7 @@ export function usePartnerStatus() {
     isLoading: partnerStatusQuery.isLoading,
     hasPartner: partnerStatusQuery.data?.hasPartner ?? false,
     inviteEmail,
-    inviteError,
+    inviteError: inviteValidationError ?? inviteRequestError,
     inviteNotice,
     isInviteSubmitting: inviteMutation.isPending,
     pendingInvites: pendingInvitesQuery.data ?? [],

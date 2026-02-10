@@ -115,9 +115,8 @@ export function PartnerStatusCard() {
           }
         }}
         onConfirm={() => {
-          void handleRemovePartner().finally(() => {
-            setIsRemoveConfirmOpen(false)
-          })
+          handleRemovePartner()
+          setIsRemoveConfirmOpen(false)
         }}
       />
     </div>

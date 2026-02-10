@@ -1,3 +1,4 @@
+import { useMutation } from '@tanstack/react-query'
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 
@@ -25,45 +26,37 @@ export function AuthScreen() {
   const [authName, setAuthName] = useState('')
   const [authEmail, setAuthEmail] = useState('')
   const [authPassword, setAuthPassword] = useState('')
-  const [authError, setAuthError] = useState<string | null>(null)
-  const [isAuthSubmitting, setIsAuthSubmitting] = useState(false)
+  const [authValidationError, setAuthValidationError] = useState<string | null>(
+    null,
+  )
+  const [authRequestError, setAuthRequestError] = useState<string | null>(null)
 
-  const isSubmitDisabled =
-    isAuthSubmitting ||
-    authEmail.trim().length === 0 ||
-    authPassword.length === 0
+  const { mutate: submitAuth, isPending: isAuthSubmitting } = useMutation({
+    mutationFn: async ({
+      mode,
+      email,
+      password,
+      name,
+    }: {
+      mode: AuthMode
+      email: string
+      password: string
+      name: string
+    }) => {
+      try {
+        if (mode === 'sign-in') {
+          const result = await authClient.signIn.email({
+            email,
+            password,
+          })
 
-  const handleAuthSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
+          if (result.error) {
+            throw new Error(result.error.message || 'Unable to sign in')
+          }
 
-    if (isAuthSubmitting) {
-      return
-    }
-
-    const email = authEmail.trim()
-    const password = authPassword
-    const submittingMode = authMode
-
-    if (!email || !password) {
-      setAuthError('Email and password are required')
-      return
-    }
-
-    setIsAuthSubmitting(true)
-    setAuthError(null)
-
-    try {
-      if (submittingMode === 'sign-in') {
-        const result = await authClient.signIn.email({
-          email,
-          password,
-        })
-
-        if (result.error) {
-          throw new Error(result.error.message || 'Unable to sign in')
+          return
         }
-      } else {
-        const name = authName.trim() || email.split('@')[0] || 'Habit Tracker'
+
         const result = await authClient.signUp.email({
           email,
           password,
@@ -82,12 +75,52 @@ export function AuthScreen() {
         if (signInResult.error) {
           throw new Error(signInResult.error.message || 'Unable to sign in')
         }
+      } catch (mutationError) {
+        throw new Error(resolveAuthErrorMessage(mode, mutationError))
       }
-    } catch (error) {
-      setAuthError(resolveAuthErrorMessage(submittingMode, error))
-    } finally {
-      setIsAuthSubmitting(false)
+    },
+    onMutate: () => {
+      setAuthRequestError(null)
+    },
+    onError: (error) => {
+      setAuthRequestError(
+        error instanceof Error
+          ? error.message
+          : resolveAuthErrorMessage(authMode, error),
+      )
+    },
+  })
+
+  const authError = authValidationError ?? authRequestError
+
+  const isSubmitDisabled =
+    isAuthSubmitting ||
+    authEmail.trim().length === 0 ||
+    authPassword.length === 0
+
+  const handleAuthSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+
+    if (isAuthSubmitting) {
+      return
     }
+
+    const email = authEmail.trim()
+    const password = authPassword
+    const submittingMode = authMode
+
+    if (!email || !password) {
+      setAuthValidationError('Email and password are required')
+      return
+    }
+
+    setAuthValidationError(null)
+    submitAuth({
+      mode: submittingMode,
+      email,
+      password,
+      name: authName.trim() || email.split('@')[0] || 'Habit Tracker',
+    })
   }
 
   return (
@@ -124,7 +157,8 @@ export function AuthScreen() {
                   type="text"
                   value={authName}
                   onChange={(event) => {
-                    setAuthError(null)
+                    setAuthValidationError(null)
+                    setAuthRequestError(null)
                     setAuthName(event.target.value)
                   }}
                 />
@@ -139,7 +173,8 @@ export function AuthScreen() {
                 type="email"
                 value={authEmail}
                 onChange={(event) => {
-                  setAuthError(null)
+                  setAuthValidationError(null)
+                  setAuthRequestError(null)
                   setAuthEmail(event.target.value)
                 }}
               />
@@ -153,7 +188,8 @@ export function AuthScreen() {
                 type="password"
                 value={authPassword}
                 onChange={(event) => {
-                  setAuthError(null)
+                  setAuthValidationError(null)
+                  setAuthRequestError(null)
                   setAuthPassword(event.target.value)
                 }}
               />
@@ -179,7 +215,8 @@ export function AuthScreen() {
                 className="text-sm font-medium text-slate-500 hover:text-slate-700"
                 type="button"
                 onClick={() => {
-                  setAuthError(null)
+                  setAuthValidationError(null)
+                  setAuthRequestError(null)
                   setAuthMode((mode) =>
                     mode === 'sign-in' ? 'sign-up' : 'sign-in',
                   )

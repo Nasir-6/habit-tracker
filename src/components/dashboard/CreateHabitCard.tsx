@@ -8,10 +8,9 @@ import { cn } from '@/lib/utils'
 export function CreateHabitCard() {
   const queryClient = useQueryClient()
   const [habitName, setHabitName] = useState('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [createError, setCreateError] = useState<string | null>(null)
 
-  const createHabitMutation = useMutation({
+  const { mutate: createHabit, isPending } = useMutation({
     mutationFn: async (name: string) => {
       return requestApi<{ habit?: { id?: string; name?: string } }>(
         '/api/habits',
@@ -25,33 +24,33 @@ export function CreateHabitCard() {
         'Unable to save habit',
       )
     },
+    onMutate: () => {
+      setCreateError(null)
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['dashboard-habits'],
+      })
+      setHabitName('')
+    },
+    onError: (error) => {
+      setCreateError(
+        error instanceof Error ? error.message : 'Unable to save habit',
+      )
+    },
   })
 
   const trimmedHabitName = habitName.trim()
-  const isSaveDisabled = trimmedHabitName.length === 0 || isSubmitting
+  const isSaveDisabled = trimmedHabitName.length === 0 || isPending
 
-  const handleCreateHabit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleCreateHabit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     if (isSaveDisabled) {
       return
     }
 
-    setIsSubmitting(true)
-    setErrorMessage(null)
-
-    try {
-      await createHabitMutation.mutateAsync(trimmedHabitName)
-      await queryClient.invalidateQueries({
-        queryKey: ['dashboard-habits'],
-      })
-      setHabitName('')
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Request failed'
-      setErrorMessage(message)
-    } finally {
-      setIsSubmitting(false)
-    }
+    createHabit(trimmedHabitName)
   }
 
   return (
@@ -70,7 +69,7 @@ export function CreateHabitCard() {
             type="text"
             value={habitName}
             onChange={(event) => {
-              setErrorMessage(null)
+              setCreateError(null)
               setHabitName(event.target.value)
             }}
           />
@@ -87,15 +86,15 @@ export function CreateHabitCard() {
             type="submit"
             aria-disabled={isSaveDisabled}
           >
-            {isSubmitting ? 'Saving…' : 'Save habit'}
+            {isPending ? 'Saving…' : 'Save habit'}
           </button>
           <span className="text-xs text-slate-400">
             Required to keep your list focused.
           </span>
         </div>
-        {errorMessage ? (
+        {createError ? (
           <p className="text-sm text-rose-500" role="status">
-            {errorMessage}
+            {createError}
           </p>
         ) : null}
       </form>

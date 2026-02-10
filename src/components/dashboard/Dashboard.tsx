@@ -11,8 +11,9 @@ type DashboardProps = {
   userDisplayName: string
   habits: Habit[]
   habitStreaks: Partial<Record<string, { current: number; best: number }>>
-  onHabitReorder: (fromId: string, toId: string) => Promise<void>
-  onToggleHabit: (habitId: string) => Promise<void>
+  habitActionError: string | null
+  onHabitReorder: (fromId: string, toId: string) => void
+  onToggleHabit: (habitId: string) => void
   onDeleteHabit: (habitId: string) => Promise<void>
 }
 
@@ -20,6 +21,7 @@ export function Dashboard({
   userDisplayName,
   habits,
   habitStreaks,
+  habitActionError,
   onHabitReorder,
   onToggleHabit,
   onDeleteHabit,
@@ -36,6 +38,7 @@ export function Dashboard({
             <HabitList
               habits={habits}
               habitStreaks={habitStreaks}
+              actionError={habitActionError}
               onDeleteHabit={onDeleteHabit}
               onHabitReorder={onHabitReorder}
               onToggleHabit={onToggleHabit}

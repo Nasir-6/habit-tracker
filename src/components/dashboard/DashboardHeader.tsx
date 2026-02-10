@@ -1,3 +1,4 @@
+import { useMutation } from '@tanstack/react-query'
 import { useState } from 'react'
 
 import { authClient } from '@/lib/auth-client'
@@ -7,30 +8,37 @@ type DashboardHeaderProps = {
 }
 
 export function DashboardHeader({ userDisplayName }: DashboardHeaderProps) {
-  const [isSigningOut, setIsSigningOut] = useState(false)
+  const [signOutNotice, setSignOutNotice] = useState<string | null>(null)
   const [signOutError, setSignOutError] = useState<string | null>(null)
 
-  const handleSignOut = async () => {
-    if (isSigningOut) {
-      return
-    }
-
-    setIsSigningOut(true)
-    setSignOutError(null)
-
-    try {
+  const { mutate: signOut, isPending: isSigningOut } = useMutation({
+    mutationFn: async () => {
       const result = await authClient.signOut()
 
       if (result.error) {
         throw new Error(result.error.message || 'Unable to sign out')
       }
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'Unable to sign out'
-      setSignOutError(message)
-    } finally {
-      setIsSigningOut(false)
+    },
+    onMutate: () => {
+      setSignOutNotice(null)
+      setSignOutError(null)
+    },
+    onSuccess: () => {
+      setSignOutNotice('Signed out')
+    },
+    onError: (error) => {
+      setSignOutError(
+        error instanceof Error ? error.message : 'Unable to sign out',
+      )
+    },
+  })
+
+  const handleSignOut = () => {
+    if (isSigningOut) {
+      return
     }
+
+    signOut()
   }
 
   return (
@@ -66,6 +74,10 @@ export function DashboardHeader({ userDisplayName }: DashboardHeaderProps) {
         {signOutError ? (
           <p className="text-xs text-rose-500" role="status">
             {signOutError}
+          </p>
+        ) : signOutNotice ? (
+          <p className="text-xs text-emerald-600" role="status">
+            {signOutNotice}
           </p>
         ) : null}
       </div>

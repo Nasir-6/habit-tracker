@@ -14,6 +14,8 @@ import appCss from '../styles.css?url'
 
 import type { QueryClient } from '@tanstack/react-query'
 
+import { LocalDateProvider } from '@/context/local-date'
+
 interface MyRouterContext {
   queryClient: QueryClient
 }
@@ -51,7 +53,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <Header />
-        {children}
+        <LocalDateProvider>{children}</LocalDateProvider>
         <TanStackDevtools
           config={{
             position: 'bottom-right',

@@ -22,6 +22,30 @@ const streaksQueryKey = (
   habitIds: string[],
 ) => ['dashboard-streaks', userId, localDate, habitIds] as const
 
+type HabitQueryKey = ReturnType<typeof habitsQueryKey>
+
+type ReorderHabitVariables = {
+  orderedIds: string[]
+  queryKey: HabitQueryKey
+  previous: Habit[]
+  updated: Habit[]
+}
+
+type ToggleHabitVariables = {
+  queryKey: HabitQueryKey
+  previous: Habit[]
+  habitId: string
+  nextCompleted: boolean
+  userId: string
+  streakHabitIds: string[]
+}
+
+type DeleteHabitVariables = {
+  queryKey: HabitQueryKey
+  previous: Habit[]
+  habitId: string
+}
+
 const mapHabitsPayload = (
   habitsPayload: { habits?: { id?: string; name?: string }[] },
   completionsPayload: { habitIds?: string[] },
@@ -133,7 +157,7 @@ export function App() {
   const habitStreaks = habits.length === 0 ? {} : (streaksQuery.data ?? {})
 
   const reorderHabitMutation = useMutation({
-    mutationFn: async (orderedIds: string[]) => {
+    mutationFn: async ({ orderedIds }: ReorderHabitVariables) => {
       return requestApi<{ success?: boolean }>(
         '/api/habits',
         {
@@ -146,16 +170,16 @@ export function App() {
         'Unable to update habit order',
       )
     },
+    onMutate: ({ queryKey, updated }: ReorderHabitVariables) => {
+      queryClient.setQueryData(queryKey, updated)
+    },
+    onError: (_error, { queryKey, previous }: ReorderHabitVariables) => {
+      queryClient.setQueryData(queryKey, previous)
+    },
   })
 
   const toggleHabitMutation = useMutation({
-    mutationFn: async ({
-      habitId,
-      nextCompleted,
-    }: {
-      habitId: string
-      nextCompleted: boolean
-    }) => {
+    mutationFn: async ({ habitId, nextCompleted }: ToggleHabitVariables) => {
       return requestApi<{ removed?: boolean }>(
         '/api/completions',
         {
@@ -168,10 +192,33 @@ export function App() {
         'Unable to update completion',
       )
     },
+    onMutate: ({ queryKey, habitId, nextCompleted }: ToggleHabitVariables) => {
+      queryClient.setQueryData<Habit[]>(queryKey, (current = []) =>
+        current.map((item) =>
+          item.id === habitId
+            ? {
+                ...item,
+                isCompleted: nextCompleted,
+              }
+            : item,
+        ),
+      )
+    },
+    onSuccess: async (
+      _data,
+      { userId: mutationUserId, streakHabitIds }: ToggleHabitVariables,
+    ) => {
+      await queryClient.invalidateQueries({
+        queryKey: streaksQueryKey(mutationUserId, localDate, streakHabitIds),
+      })
+    },
+    onError: (_error, { queryKey, previous }: ToggleHabitVariables) => {
+      queryClient.setQueryData(queryKey, previous)
+    },
   })
 
   const deleteHabitMutation = useMutation({
-    mutationFn: async (habitId: string) => {
+    mutationFn: async ({ habitId }: DeleteHabitVariables) => {
       return requestApi<{ archived?: boolean }>(
         '/api/habits',
         {
@@ -184,9 +231,17 @@ export function App() {
         'Unable to delete habit',
       )
     },
+    onMutate: ({ queryKey, habitId }: DeleteHabitVariables) => {
+      queryClient.setQueryData<Habit[]>(queryKey, (current = []) =>
+        current.filter((habit) => habit.id !== habitId),
+      )
+    },
+    onError: (_error, { queryKey, previous }: DeleteHabitVariables) => {
+      queryClient.setQueryData(queryKey, previous)
+    },
   })
 
-  const handleHabitReorder = async (fromId: string, toId: string) => {
+  const handleHabitReorder = (fromId: string, toId: string) => {
     if (!userId) {
       return
     }
@@ -199,21 +254,15 @@ export function App() {
       return
     }
 
-    const orderedIds = updated.map((item) => item.id)
-    queryClient.setQueryData(queryKey, updated)
-
-    try {
-      await reorderHabitMutation.mutateAsync(orderedIds)
-    } catch (error) {
-      queryClient.setQueryData(queryKey, previous)
-
-      const message =
-        error instanceof Error ? error.message : 'Unable to update habit order'
-      throw new Error(message)
-    }
+    reorderHabitMutation.mutate({
+      orderedIds: updated.map((item) => item.id),
+      queryKey,
+      previous,
+      updated,
+    })
   }
 
-  const handleToggleHabit = async (habitId: string) => {
+  const handleToggleHabit = (habitId: string) => {
     if (!userId) {
       return
     }
@@ -226,36 +275,14 @@ export function App() {
       return
     }
 
-    const nextCompleted = !targetHabit.isCompleted
-
-    queryClient.setQueryData<Habit[]>(
+    toggleHabitMutation.mutate({
       queryKey,
-      previous.map((item) =>
-        item.id === habitId
-          ? {
-              ...item,
-              isCompleted: nextCompleted,
-            }
-          : item,
-      ),
-    )
-
-    try {
-      await toggleHabitMutation.mutateAsync({ habitId, nextCompleted })
-      await queryClient.invalidateQueries({
-        queryKey: streaksQueryKey(
-          userId,
-          localDate,
-          previous.map((habit) => habit.id),
-        ),
-      })
-    } catch (error) {
-      queryClient.setQueryData(queryKey, previous)
-
-      const message =
-        error instanceof Error ? error.message : 'Unable to update completion'
-      throw new Error(message)
-    }
+      previous,
+      habitId,
+      nextCompleted: !targetHabit.isCompleted,
+      userId,
+      streakHabitIds: previous.map((habit) => habit.id),
+    })
   }
 
   const handleDeleteHabit = async (habitId: string) => {
@@ -265,18 +292,15 @@ export function App() {
 
     const queryKey = habitsQueryKey(userId, localDate)
     const previous = queryClient.getQueryData<Habit[]>(queryKey) ?? []
-    queryClient.setQueryData(
-      queryKey,
-      previous.filter((habit) => habit.id !== habitId),
-    )
 
-    try {
-      await deleteHabitMutation.mutateAsync(habitId)
-    } catch (error) {
-      queryClient.setQueryData(queryKey, previous)
-      throw error
-    }
+    await deleteHabitMutation.mutateAsync({ queryKey, previous, habitId })
   }
+
+  const habitActionError =
+    reorderHabitMutation.error?.message ??
+    toggleHabitMutation.error?.message ??
+    deleteHabitMutation.error?.message ??
+    null
 
   if (isPending || (session?.user && habitsQuery.isLoading)) {
     return <LoadingScreen />
@@ -296,6 +320,7 @@ export function App() {
       userDisplayName={userDisplayName}
       habits={habits}
       habitStreaks={habitStreaks}
+      habitActionError={habitActionError}
       onHabitReorder={handleHabitReorder}
       onToggleHabit={handleToggleHabit}
       onDeleteHabit={handleDeleteHabit}

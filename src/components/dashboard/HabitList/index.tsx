@@ -10,14 +10,16 @@ import { useHabitHistory } from '@/hooks/useHabitHistory'
 type HabitListProps = {
   habits: Habit[]
   habitStreaks: Partial<Record<string, { current: number; best: number }>>
-  onHabitReorder: (fromId: string, toId: string) => Promise<void>
-  onToggleHabit: (habitId: string) => Promise<void>
+  actionError: string | null
+  onHabitReorder: (fromId: string, toId: string) => void
+  onToggleHabit: (habitId: string) => void
   onDeleteHabit: (habitId: string) => Promise<void>
 }
 
 export function HabitList({
   habits,
   habitStreaks,
+  actionError,
   onHabitReorder,
   onToggleHabit,
   onDeleteHabit,
@@ -27,7 +29,6 @@ export function HabitList({
   const [confirmDeleteHabitId, setConfirmDeleteHabitId] = useState<
     string | null
   >(null)
-  const [actionError, setActionError] = useState<string | null>(null)
 
   const habitHistory = useHabitHistory({ habits })
   const listItemState = {
@@ -46,14 +47,10 @@ export function HabitList({
       setDraggingHabitId(null)
     },
     onDrop: (habitId: string) => {
-      void handleHabitDrop(habitId)
+      handleHabitDrop(habitId)
     },
     onToggleHabit: (habitId: string) => {
-      void onToggleHabit(habitId).catch((error: unknown) => {
-        const message =
-          error instanceof Error ? error.message : 'Unable to update completion'
-        setActionError(message)
-      })
+      onToggleHabit(habitId)
     },
     onToggleHistory: (habitId: string) => {
       void habitHistory.handleToggleHistory(habitId)
@@ -70,7 +67,7 @@ export function HabitList({
     (habit) => habit.id === confirmDeleteHabitId,
   )
 
-  const handleHabitDrop = async (targetId: string) => {
+  const handleHabitDrop = (targetId: string) => {
     if (!draggingHabitId) {
       return
     }
@@ -78,14 +75,7 @@ export function HabitList({
     const sourceId = draggingHabitId
     setDraggingHabitId(null)
 
-    try {
-      await onHabitReorder(sourceId, targetId)
-      setActionError(null)
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'Unable to reorder habits'
-      setActionError(message)
-    }
+    onHabitReorder(sourceId, targetId)
   }
 
   const handleDeleteHabit = async (habitId: string) => {
@@ -94,14 +84,9 @@ export function HabitList({
     }
 
     setDeletingHabitId(habitId)
-    setActionError(null)
 
     try {
       await onDeleteHabit(habitId)
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'Unable to delete habit'
-      setActionError(message)
     } finally {
       setDeletingHabitId(null)
       setConfirmDeleteHabitId(null)

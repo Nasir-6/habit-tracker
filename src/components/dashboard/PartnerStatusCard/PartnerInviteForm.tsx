@@ -4,7 +4,7 @@ type PartnerInviteFormProps = {
   inviteEmail: string
   isInviteSubmitting: boolean
   onInviteEmailChange: (value: string) => void
-  onInviteSubmit: () => Promise<void>
+  onInviteSubmit: () => void
 }
 
 export function PartnerInviteForm({
@@ -15,7 +15,7 @@ export function PartnerInviteForm({
 }: PartnerInviteFormProps) {
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    void onInviteSubmit()
+    onInviteSubmit()
   }
 
   return (
