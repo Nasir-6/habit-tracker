@@ -283,3 +283,8 @@
 - Decisions: resolve invite target user by email, then check pending invite in reverse direction (target->current user) before insert; reject with explicit conflict message so users accept/reject existing invite instead of creating duplicate pair.
 - Files changed: src/db/schema.ts, src/db/partner-invites.ts, src/lib/api/partner-invites.ts, prd.json, progress.txt.
 - Blockers/notes: npm run test passes with 0 tests but still prints Vitest hanging-process shutdown warning.
+
+- Task completed: Backend / Partnering - Return only active non-deleted habits in partner habit list responses. (PRD Backend / Partnering)
+- Decisions: filter partner habit query to `archived_at IS NULL` so only active habits are exposed; keep hard-deleted behavior unchanged since deleted rows are already excluded.
+- Files changed: src/db/partnerships.ts, prd.json, progress.txt.
+- Blockers/notes: none.

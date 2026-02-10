@@ -674,7 +674,7 @@
       "Fetch partner habit list as user A",
       "Verify deleted habits are excluded and only active habits are returned"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Partnering",

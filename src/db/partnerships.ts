@@ -1,4 +1,4 @@
-import { and, eq, or } from 'drizzle-orm'
+import { and, eq, isNull, or } from 'drizzle-orm'
 
 import { db } from '@/db/index.ts'
 import { habitCompletions, habits, partnerships } from '@/db/schema'
@@ -31,7 +31,7 @@ export const fetchPartnerHabits = async (partnerUserId: string) => {
   return db
     .select({ id: habits.id, name: habits.name, sortOrder: habits.sortOrder })
     .from(habits)
-    .where(eq(habits.userId, partnerUserId))
+    .where(and(eq(habits.userId, partnerUserId), isNull(habits.archivedAt)))
     .orderBy(habits.sortOrder)
 }
 
