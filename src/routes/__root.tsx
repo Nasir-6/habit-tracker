@@ -5,6 +5,7 @@ import {
 } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
+import { useEffect } from 'react'
 
 import Header from '../components/Header'
 
@@ -31,6 +32,10 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         content: 'width=device-width, initial-scale=1',
       },
       {
+        name: 'theme-color',
+        content: '#0f172a',
+      },
+      {
         title: 'Habit Tracker',
       },
     ],
@@ -38,6 +43,14 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       {
         rel: 'stylesheet',
         href: appCss,
+      },
+      {
+        rel: 'manifest',
+        href: '/manifest.json',
+      },
+      {
+        rel: 'apple-touch-icon',
+        href: '/logo192.png',
       },
     ],
   }),
@@ -54,6 +67,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body>
         <Header />
         <LocalDateProvider>{children}</LocalDateProvider>
+        <PwaRegistration />
         <TanStackDevtools
           config={{
             position: 'bottom-right',
@@ -70,4 +84,18 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </body>
     </html>
   )
+}
+
+function PwaRegistration() {
+  useEffect(() => {
+    if (!('serviceWorker' in navigator)) {
+      return
+    }
+
+    void navigator.serviceWorker.register('/sw.js').catch((error) => {
+      console.error('Failed to register service worker', error)
+    })
+  }, [])
+
+  return null
 }

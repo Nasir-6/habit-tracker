@@ -794,7 +794,7 @@
       "Verify install prompt or installability criteria are satisfied",
       "Install app and confirm it opens in standalone mode"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Backend / Notifications",

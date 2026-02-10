@@ -318,3 +318,8 @@
 - Decisions: include inviter email in pending invite payload via user join; derive display name from email local-part for label format `Invite from Name (email)`; keep user-id fallback only when email is unavailable.
 - Files changed: src/db/partner-invites.ts, src/types/dashboard/partner.ts, src/components/dashboard/PartnerStatusCard/partnerStatusUtils.ts, src/components/dashboard/PartnerStatusCard/PartnerPendingInvites.tsx, prd.json, progress.txt.
 - Blockers/notes: none.
+
+- Task completed: PWA / Platform - Configure the app as an installable PWA with service worker and web app manifest. (PRD PWA / Platform)
+- Decisions: selected PWA baseline first as highest-priority architecture dependency for notification delivery; register `/sw.js` from root route so all screens run under one worker scope; keep service worker minimal (`install`/`activate`) for installability without adding cache policy risk.
+- Files changed: src/routes/__root.tsx, public/manifest.json, public/sw.js, eslint.config.js, prd.json, progress.txt.
+- Blockers/notes: `npm run test` exits 0 with no tests but still logs Vitest hanging-process shutdown warning.

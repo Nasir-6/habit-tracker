@@ -5,7 +5,12 @@ import typescriptEslint from '@typescript-eslint/eslint-plugin'
 
 export default [
   {
-    ignores: ['**/*.config.js', 'eslint.config.js', 'prettier.config.js'],
+    ignores: [
+      '**/*.config.js',
+      'eslint.config.js',
+      'prettier.config.js',
+      'public/sw.js',
+    ],
   },
   ...tanstackConfig,
   {
