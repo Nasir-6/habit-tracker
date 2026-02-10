@@ -79,6 +79,15 @@ export const partnerships = pgTable(
   }),
 )
 
+export const partnerNudges = pgTable('partner_nudges', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  senderUserId: text('sender_user_id').notNull(),
+  receiverUserId: text('receiver_user_id').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+})
+
 export const users = pgTable('user', {
   id: text('id').primaryKey(),
   email: text('email').notNull(),

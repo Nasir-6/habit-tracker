@@ -293,3 +293,8 @@
 - Decisions: enforce self-invite rejection by resolved target user id (not only email string compare), so validation still holds if session email is missing/non-normalized; keep existing error copy.
 - Files changed: src/lib/api/partner-invites.ts, prd.json, progress.txt.
 - Blockers/notes: none.
+
+- Task completed: Backend / Partnering - Create and persist partner nudge events for active partnerships only. (PRD Backend / Partnering)
+- Decisions: added POST /api/nudges that derives receiver from active partnership only (no client-provided target); persist nudge row with sender/receiver/timestamp for later cooldown/notification work.
+- Files changed: src/db/schema.ts, src/db/nudges.ts, src/lib/api/nudges.ts, src/routes/api/nudges.ts, src/routeTree.gen.ts, drizzle/0006_create_partner_nudges.sql, drizzle/meta/_journal.json, prd.json, progress.txt.
+- Blockers/notes: rate limits + push delivery still pending in later nudge/notification PRD items.

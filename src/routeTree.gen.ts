@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiStreaksRouteImport } from './routes/api/streaks'
 import { Route as ApiPartnershipsRouteImport } from './routes/api/partnerships'
 import { Route as ApiPartnerInvitesRouteImport } from './routes/api/partner-invites'
+import { Route as ApiNudgesRouteImport } from './routes/api/nudges'
 import { Route as ApiHistoryRouteImport } from './routes/api/history'
 import { Route as ApiHabitsRouteImport } from './routes/api/habits'
 import { Route as ApiCompletionsRouteImport } from './routes/api/completions'
@@ -37,6 +38,11 @@ const ApiPartnershipsRoute = ApiPartnershipsRouteImport.update({
 const ApiPartnerInvitesRoute = ApiPartnerInvitesRouteImport.update({
   id: '/api/partner-invites',
   path: '/api/partner-invites',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiNudgesRoute = ApiNudgesRouteImport.update({
+  id: '/api/nudges',
+  path: '/api/nudges',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiHistoryRoute = ApiHistoryRouteImport.update({
@@ -71,6 +77,7 @@ export interface FileRoutesByFullPath {
   '/api/completions': typeof ApiCompletionsRoute
   '/api/habits': typeof ApiHabitsRoute
   '/api/history': typeof ApiHistoryRoute
+  '/api/nudges': typeof ApiNudgesRoute
   '/api/partner-invites': typeof ApiPartnerInvitesRoute
   '/api/partnerships': typeof ApiPartnershipsRoute
   '/api/streaks': typeof ApiStreaksRoute
@@ -82,6 +89,7 @@ export interface FileRoutesByTo {
   '/api/completions': typeof ApiCompletionsRoute
   '/api/habits': typeof ApiHabitsRoute
   '/api/history': typeof ApiHistoryRoute
+  '/api/nudges': typeof ApiNudgesRoute
   '/api/partner-invites': typeof ApiPartnerInvitesRoute
   '/api/partnerships': typeof ApiPartnershipsRoute
   '/api/streaks': typeof ApiStreaksRoute
@@ -94,6 +102,7 @@ export interface FileRoutesById {
   '/api/completions': typeof ApiCompletionsRoute
   '/api/habits': typeof ApiHabitsRoute
   '/api/history': typeof ApiHistoryRoute
+  '/api/nudges': typeof ApiNudgesRoute
   '/api/partner-invites': typeof ApiPartnerInvitesRoute
   '/api/partnerships': typeof ApiPartnershipsRoute
   '/api/streaks': typeof ApiStreaksRoute
@@ -107,6 +116,7 @@ export interface FileRouteTypes {
     | '/api/completions'
     | '/api/habits'
     | '/api/history'
+    | '/api/nudges'
     | '/api/partner-invites'
     | '/api/partnerships'
     | '/api/streaks'
@@ -118,6 +128,7 @@ export interface FileRouteTypes {
     | '/api/completions'
     | '/api/habits'
     | '/api/history'
+    | '/api/nudges'
     | '/api/partner-invites'
     | '/api/partnerships'
     | '/api/streaks'
@@ -129,6 +140,7 @@ export interface FileRouteTypes {
     | '/api/completions'
     | '/api/habits'
     | '/api/history'
+    | '/api/nudges'
     | '/api/partner-invites'
     | '/api/partnerships'
     | '/api/streaks'
@@ -141,6 +153,7 @@ export interface RootRouteChildren {
   ApiCompletionsRoute: typeof ApiCompletionsRoute
   ApiHabitsRoute: typeof ApiHabitsRoute
   ApiHistoryRoute: typeof ApiHistoryRoute
+  ApiNudgesRoute: typeof ApiNudgesRoute
   ApiPartnerInvitesRoute: typeof ApiPartnerInvitesRoute
   ApiPartnershipsRoute: typeof ApiPartnershipsRoute
   ApiStreaksRoute: typeof ApiStreaksRoute
@@ -175,6 +188,13 @@ declare module '@tanstack/react-router' {
       path: '/api/partner-invites'
       fullPath: '/api/partner-invites'
       preLoaderRoute: typeof ApiPartnerInvitesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/nudges': {
+      id: '/api/nudges'
+      path: '/api/nudges'
+      fullPath: '/api/nudges'
+      preLoaderRoute: typeof ApiNudgesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/history': {
@@ -221,6 +241,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiCompletionsRoute: ApiCompletionsRoute,
   ApiHabitsRoute: ApiHabitsRoute,
   ApiHistoryRoute: ApiHistoryRoute,
+  ApiNudgesRoute: ApiNudgesRoute,
   ApiPartnerInvitesRoute: ApiPartnerInvitesRoute,
   ApiPartnershipsRoute: ApiPartnershipsRoute,
   ApiStreaksRoute: ApiStreaksRoute,

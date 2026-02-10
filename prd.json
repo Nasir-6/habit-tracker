@@ -739,7 +739,7 @@
       "Remove the partnership and attempt another nudge",
       "Verify nudge request is rejected when partnership is inactive"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Backend / Partnering",
