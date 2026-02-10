@@ -1,3 +1,5 @@
+import webPush from 'web-push'
+
 import { badRequest, created, json } from '@/lib/api'
 import {
   fetchLatestPartnerNudgeForSender,
@@ -5,9 +7,16 @@ import {
   insertPartnerNudge,
 } from '@/db/nudges'
 import { fetchPartnershipForUser } from '@/db/partnerships'
+import {
+  deactivatePushSubscription,
+  fetchActivePushSubscriptionsForUser,
+} from '@/db/push-subscriptions'
 
 const NUDGE_COOLDOWN_SECONDS = 15 * 60
 const NUDGE_DAILY_LIMIT = 10
+
+let webPushConfigured = false
+let webPushConfigAttempted = false
 
 const getUtcDayStart = (now: Date) => {
   return new Date(
@@ -34,6 +43,107 @@ const formatCooldownMessage = (secondsRemaining: number) => {
   const minutesRemaining = Math.ceil(secondsRemaining / 60)
 
   return `Nudge cooldown active. Try again in ${minutesRemaining}m`
+}
+
+const ensureWebPushConfigured = () => {
+  if (webPushConfigAttempted) {
+    return webPushConfigured
+  }
+
+  webPushConfigAttempted = true
+
+  const vapidPublicKey = process.env.WEB_PUSH_VAPID_PUBLIC_KEY?.trim()
+  const vapidPrivateKey = process.env.WEB_PUSH_VAPID_PRIVATE_KEY?.trim()
+  const vapidSubject = process.env.WEB_PUSH_VAPID_SUBJECT?.trim()
+
+  if (!vapidPublicKey || !vapidPrivateKey || !vapidSubject) {
+    webPushConfigured = false
+    return false
+  }
+
+  try {
+    webPush.setVapidDetails(vapidSubject, vapidPublicKey, vapidPrivateKey)
+    webPushConfigured = true
+  } catch {
+    webPushConfigured = false
+  }
+
+  return webPushConfigured
+}
+
+const getErrorStatusCode = (error: unknown) => {
+  if (!error || typeof error !== 'object') {
+    return null
+  }
+
+  const maybeStatusCode = (error as { statusCode?: unknown }).statusCode
+
+  if (typeof maybeStatusCode !== 'number') {
+    return null
+  }
+
+  return maybeStatusCode
+}
+
+const isStalePushSubscriptionError = (error: unknown) => {
+  const statusCode = getErrorStatusCode(error)
+  return statusCode === 404 || statusCode === 410
+}
+
+const sendPartnerNudgePushNotifications = async (
+  senderUserId: string,
+  receiverUserId: string,
+  nudge: { id: string; createdAt: Date },
+) => {
+  if (!ensureWebPushConfigured()) {
+    return
+  }
+
+  const subscriptions =
+    await fetchActivePushSubscriptionsForUser(receiverUserId)
+
+  if (!subscriptions.length) {
+    return
+  }
+
+  const payload = JSON.stringify({
+    type: 'partner_nudge',
+    nudgeId: nudge.id,
+    senderUserId,
+    createdAt: nudge.createdAt.toISOString(),
+    title: 'Habit nudge',
+    body: 'Your partner sent you a nudge.',
+  })
+
+  const staleEndpoints: string[] = []
+
+  await Promise.all(
+    subscriptions.map(async (subscription) => {
+      try {
+        await webPush.sendNotification(
+          {
+            endpoint: subscription.endpoint,
+            expirationTime: subscription.expirationTime?.getTime() ?? null,
+            keys: {
+              p256dh: subscription.p256dh,
+              auth: subscription.auth,
+            },
+          },
+          payload,
+        )
+      } catch (error) {
+        if (isStalePushSubscriptionError(error)) {
+          staleEndpoints.push(subscription.endpoint)
+        }
+      }
+    }),
+  )
+
+  await Promise.all(
+    staleEndpoints.map((endpoint) =>
+      deactivatePushSubscription(receiverUserId, endpoint),
+    ),
+  )
 }
 
 export const handleNudgesPost = async (userId: string) => {
@@ -85,6 +195,15 @@ export const handleNudgesPost = async (userId: string) => {
 
   if (!nudge) {
     return badRequest('Unable to send nudge')
+  }
+
+  try {
+    await sendPartnerNudgePushNotifications(userId, receiverUserId, {
+      id: nudge.id,
+      createdAt: nudge.createdAt,
+    })
+  } catch {
+    // Ignore push dispatch failures so nudge creation remains successful.
   }
 
   return created({

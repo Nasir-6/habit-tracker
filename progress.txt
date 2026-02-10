@@ -308,3 +308,8 @@
 - Decisions: add dedicated push_subscriptions table with soft-deactivate (`deleted_at`) so unsubscribe is reversible/prunable; use endpoint-unique upsert keyed by endpoint to rebind stale subscriptions to current authenticated user safely; register @typescript-eslint plugin in eslint flat config so repo lint loop can run successfully.
 - Files changed: src/db/schema.ts, src/db/push-subscriptions.ts, src/lib/api/push-subscriptions.ts, src/routes/api/push-subscriptions.ts, src/routeTree.gen.ts, drizzle/0007_create_push_subscriptions.sql, drizzle/meta/_journal.json, eslint.config.js, prd.json, progress.txt.
 - Blockers/notes: none.
+
+- Task completed: Backend / Notifications - Send Web Push notification to partner when a nudge is created. (PRD Backend / Notifications)
+- Decisions: trigger push dispatch in POST /api/nudges after successful nudge insert; treat 404/410 push responses as stale subscriptions and soft-deactivate them; keep nudge API success even if push dispatch fails to avoid blocking sender flow.
+- Files changed: src/lib/api/nudges.ts, package.json, package-lock.json, prd.json, progress.txt.
+- Blockers/notes: `npm run test` exits 0 with no tests but still prints Vitest hanging-process shutdown warning.

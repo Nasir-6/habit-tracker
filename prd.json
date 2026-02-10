@@ -827,7 +827,7 @@
       "Verify backend dispatches push message to user B subscriptions",
       "Verify sender receives success even if one stale subscription is pruned"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "PWA / Notifications",
