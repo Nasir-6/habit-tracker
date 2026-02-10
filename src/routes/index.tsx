@@ -826,12 +826,13 @@ export function App() {
     setErrorMessage(null)
 
     try {
-      const response = await fetch(
-        `/api/habits?habitId=${encodeURIComponent(habitId)}`,
-        {
-          method: 'DELETE',
+      const response = await fetch('/api/habits', {
+        method: 'PATCH',
+        headers: {
+          'content-type': 'application/json',
         },
-      )
+        body: JSON.stringify({ archiveId: habitId }),
+      })
 
       if (!response.ok) {
         const payload = (await response.json()) as { error?: string }
