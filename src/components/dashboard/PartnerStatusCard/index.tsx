@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { PartnerActiveHabits } from './PartnerActiveHabits'
 import { PartnerInviteForm } from './PartnerInviteForm'
 import { PartnerPendingInvites } from './PartnerPendingInvites'
+import { PartnerSentInvites } from './PartnerSentInvites'
 import { PartnerStatusHeader } from './PartnerStatusHeader'
 import { ConfirmModal } from '@/components/dashboard/ConfirmModal'
 
@@ -17,12 +18,15 @@ export function PartnerStatusCard() {
     habits,
     startedOn,
     pendingInvites,
+    sentInvites,
+    deletingInviteId,
     pendingInvitesError,
     isPendingInvitesLoading,
     acceptingInviteId,
     acceptInviteError,
     acceptInviteNotice,
     inviteEmail,
+    canSendInvite,
     inviteError,
     inviteNotice,
     isInviteSubmitting,
@@ -32,6 +36,7 @@ export function PartnerStatusCard() {
     handleInviteAccept,
     handleInviteEmailChange,
     handleInviteSubmit,
+    handleInviteDelete,
     handleRemovePartner,
   } = usePartnerStatus()
 
@@ -61,16 +66,31 @@ export function PartnerStatusCard() {
               />
             )}
 
+            <PartnerSentInvites
+              sentInvites={sentInvites}
+              deletingInviteId={deletingInviteId}
+              onInviteDelete={(inviteId) => {
+                handleInviteDelete(inviteId)
+              }}
+            />
+
             <p className="text-sm text-slate-500">
               No partner yet. Invite someone to see shared progress here.
             </p>
 
-            <PartnerInviteForm
-              inviteEmail={inviteEmail}
-              isInviteSubmitting={isInviteSubmitting}
-              onInviteEmailChange={handleInviteEmailChange}
-              onInviteSubmit={handleInviteSubmit}
-            />
+            {canSendInvite ? (
+              <PartnerInviteForm
+                inviteEmail={inviteEmail}
+                isInviteSubmitting={isInviteSubmitting}
+                onInviteEmailChange={handleInviteEmailChange}
+                onInviteSubmit={handleInviteSubmit}
+              />
+            ) : (
+              <p className="text-xs text-slate-500">
+                You already have a pending invite. Wait for a response before
+                sending a new one.
+              </p>
+            )}
 
             {acceptInviteError ? (
               <p className="text-sm text-rose-500">{acceptInviteError}</p>

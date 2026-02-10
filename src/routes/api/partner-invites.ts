@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { handleApi, withAuth } from '@/lib/api'
 import {
+  handlePartnerInvitesDelete,
   handlePartnerInvitesGet,
   handlePartnerInvitesPatch,
   handlePartnerInvitesPost,
@@ -19,6 +20,11 @@ export const Route = createFileRoute('/api/partner-invites')({
       PATCH: handleApi(
         withAuth(({ request, user }) =>
           handlePartnerInvitesPatch(request, user),
+        ),
+      ),
+      DELETE: handleApi(
+        withAuth(({ request, user }) =>
+          handlePartnerInvitesDelete(request, user),
         ),
       ),
     },

@@ -48,7 +48,79 @@ export const fetchPendingInvitesForEmail = async (inviteeEmail: string) => {
         eq(partnerInvites.status, 'pending'),
       ),
     )
- }
+}
+
+export const fetchPendingInvitesForInviter = async (inviterUserId: string) => {
+  return db
+    .select({
+      id: partnerInvites.id,
+      inviteeEmail: partnerInvites.inviteeEmail,
+      status: partnerInvites.status,
+      createdAt: partnerInvites.createdAt,
+    })
+    .from(partnerInvites)
+    .where(
+      and(
+        eq(partnerInvites.inviterUserId, inviterUserId),
+        eq(partnerInvites.status, 'pending'),
+      ),
+    )
+}
+
+export const fetchAcceptedInviteForPair = async (
+  inviterUserId: string,
+  inviteeEmail: string,
+) => {
+  return db
+    .select({
+      id: partnerInvites.id,
+      inviterUserId: partnerInvites.inviterUserId,
+      inviteeEmail: partnerInvites.inviteeEmail,
+      status: partnerInvites.status,
+    })
+    .from(partnerInvites)
+    .where(
+      and(
+        eq(partnerInvites.inviterUserId, inviterUserId),
+        eq(partnerInvites.inviteeEmail, inviteeEmail),
+        eq(partnerInvites.status, 'accepted'),
+      ),
+    )
+    .then((rows) => rows.at(0))
+}
+
+export const deleteAcceptedInviteForPair = async (
+  inviterUserId: string,
+  inviteeEmail: string,
+) => {
+  return db
+    .delete(partnerInvites)
+    .where(
+      and(
+        eq(partnerInvites.inviterUserId, inviterUserId),
+        eq(partnerInvites.inviteeEmail, inviteeEmail),
+        eq(partnerInvites.status, 'accepted'),
+      ),
+    )
+    .returning({ id: partnerInvites.id })
+}
+
+export const deletePendingInviteForInviter = async (
+  inviteId: string,
+  inviterUserId: string,
+) => {
+  return db
+    .delete(partnerInvites)
+    .where(
+      and(
+        eq(partnerInvites.id, inviteId),
+        eq(partnerInvites.inviterUserId, inviterUserId),
+        eq(partnerInvites.status, 'pending'),
+      ),
+    )
+    .returning({ id: partnerInvites.id })
+    .then((rows) => rows.at(0))
+}
 
 export const acceptPartnerInvite = async (
   inviteId: string,

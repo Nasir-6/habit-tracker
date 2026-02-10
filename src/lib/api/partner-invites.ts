@@ -1,10 +1,15 @@
 import { badRequest, created, ok, parseJson } from '@/lib/api'
 import {
   acceptPartnerInvite,
+  deleteAcceptedInviteForPair,
+  deletePendingInviteForInviter,
+  fetchAcceptedInviteForPair,
   fetchPartnerInvite,
   fetchPendingInvitesForEmail,
+  fetchPendingInvitesForInviter,
   insertPartnerInvite,
 } from '@/db/partner-invites'
+import { fetchPartnershipForUser } from '@/db/partnerships'
 
 type InviteCreatePayload = {
   email?: unknown
@@ -12,6 +17,7 @@ type InviteCreatePayload = {
 
 type InviteAcceptPayload = {
   inviteId?: unknown
+  action?: unknown
 }
 
 type InviteUser = {
@@ -70,6 +76,20 @@ const getInviteId = (payload: unknown) => {
   return trimmed
 }
 
+const getInviteAction = (payload: unknown) => {
+  if (!payload || typeof payload !== 'object') {
+    return 'accept' as const
+  }
+
+  const { action } = payload as InviteAcceptPayload
+
+  if (action === 'delete') {
+    return 'delete' as const
+  }
+
+  return 'accept' as const
+}
+
 export const handlePartnerInvitesPost = async (
   request: Request,
   user: InviteUser,
@@ -88,6 +108,24 @@ export const handlePartnerInvitesPost = async (
     }
   }
 
+  const existingPartnership = await fetchPartnershipForUser(user.id)
+
+  if (existingPartnership) {
+    return badRequest('You already have a partner')
+  }
+
+  const pendingSentInvites = await fetchPendingInvitesForInviter(user.id)
+
+  if (pendingSentInvites.length > 0) {
+    return badRequest('You already have a pending invite')
+  }
+
+  const acceptedInvite = await fetchAcceptedInviteForPair(user.id, inviteEmail)
+
+  if (acceptedInvite) {
+    await deleteAcceptedInviteForPair(user.id, inviteEmail)
+  }
+
   const inserted = await insertPartnerInvite(user.id, inviteEmail)
 
   if (!inserted) {
@@ -99,18 +137,25 @@ export const handlePartnerInvitesPost = async (
 
 export const handlePartnerInvitesGet = async (user: InviteUser) => {
   if (typeof user.email !== 'string') {
-    return ok({ invites: [] })
+    const sentInvites = await fetchPendingInvitesForInviter(user.id)
+
+    return ok({ invites: [], receivedInvites: [], sentInvites })
   }
 
   const inviteeEmail = user.email.trim().toLowerCase()
 
   if (!inviteeEmail) {
-    return ok({ invites: [] })
+    const sentInvites = await fetchPendingInvitesForInviter(user.id)
+
+    return ok({ invites: [], receivedInvites: [], sentInvites })
   }
 
-  const invites = await fetchPendingInvitesForEmail(inviteeEmail)
+  const [receivedInvites, sentInvites] = await Promise.all([
+    fetchPendingInvitesForEmail(inviteeEmail),
+    fetchPendingInvitesForInviter(user.id),
+  ])
 
-  return ok({ invites })
+  return ok({ invites: receivedInvites, receivedInvites, sentInvites })
 }
 
 export const handlePartnerInvitesPatch = async (
@@ -120,9 +165,20 @@ export const handlePartnerInvitesPatch = async (
   const payload = await parseJson(request)
 
   const inviteId = getInviteId(payload)
+  const action = getInviteAction(payload)
 
   if (!inviteId) {
     return badRequest('Invite id is required')
+  }
+
+  if (action === 'delete') {
+    const deleted = await deletePendingInviteForInviter(inviteId, user.id)
+
+    if (!deleted) {
+      return badRequest('Pending invite not found')
+    }
+
+    return ok({ invite: deleted })
   }
 
   const invite = await fetchPartnerInvite(inviteId)
@@ -147,6 +203,15 @@ export const handlePartnerInvitesPatch = async (
     return badRequest('Cannot accept your own invite')
   }
 
+  const acceptedInvite = await fetchAcceptedInviteForPair(
+    invite.inviterUserId,
+    invite.inviteeEmail,
+  )
+
+  if (acceptedInvite) {
+    return badRequest('Invite was already accepted')
+  }
+
   const [userAId, userBId] = [invite.inviterUserId, user.id].sort()
 
   const partnership = await acceptPartnerInvite(invite.id, userAId, userBId)
@@ -156,4 +221,26 @@ export const handlePartnerInvitesPatch = async (
   }
 
   return ok({ partnership })
+}
+
+export const handlePartnerInvitesDelete = async (
+  request: Request,
+  user: InviteUser,
+) => {
+  const requestUrl = new URL(request.url)
+  const inviteId = getInviteId({
+    inviteId: requestUrl.searchParams.get('inviteId'),
+  })
+
+  if (!inviteId) {
+    return badRequest('Invite id is required')
+  }
+
+  const deleted = await deletePendingInviteForInviter(inviteId, user.id)
+
+  if (!deleted) {
+    return badRequest('Pending invite not found')
+  }
+
+  return ok({ invite: deleted })
 }

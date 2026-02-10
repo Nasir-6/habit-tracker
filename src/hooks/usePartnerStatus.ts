@@ -1,7 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 
-import type { PartnerHabit, PendingPartnerInvite } from '@/types/dashboard'
+import type {
+  PartnerHabit,
+  PendingPartnerInvite,
+  SentPartnerInvite,
+} from '@/types/dashboard'
 
 import { useLocalDate } from '@/context/local-date'
 import { requestApi } from '@/lib/client-api'
@@ -9,6 +13,12 @@ import { requestApi } from '@/lib/client-api'
 const partnerStatusQueryKey = (localDate: string) =>
   ['partner-status', localDate] as const
 const pendingInvitesQueryKey = ['partner-pending-invites'] as const
+
+type PendingInvitesPayload = {
+  invites?: PendingPartnerInvite[]
+  receivedInvites?: PendingPartnerInvite[]
+  sentInvites?: SentPartnerInvite[]
+}
 
 export function usePartnerStatus() {
   const localDate = useLocalDate()
@@ -71,13 +81,23 @@ export function usePartnerStatus() {
   const pendingInvitesQuery = useQuery({
     queryKey: pendingInvitesQueryKey,
     queryFn: async () => {
-      const payload = await requestApi<{ invites?: PendingPartnerInvite[] }>(
+      const payload = await requestApi<PendingInvitesPayload>(
         '/api/partner-invites',
         undefined,
         'Unable to load partner invites',
       )
 
-      return Array.isArray(payload.invites) ? payload.invites : []
+      const receivedInvites = Array.isArray(payload.receivedInvites)
+        ? payload.receivedInvites
+        : Array.isArray(payload.invites)
+          ? payload.invites
+          : []
+
+      const sentInvites = Array.isArray(payload.sentInvites)
+        ? payload.sentInvites
+        : []
+
+      return { receivedInvites, sentInvites }
     },
   })
 
@@ -101,13 +121,55 @@ export function usePartnerStatus() {
       setInviteNotice(null)
       setAcceptInviteNotice(null)
     },
-    onSuccess: (_data, email) => {
+    onSuccess: async (_data, email) => {
       setInviteEmail('')
       setInviteNotice(`Invite sent to ${email}`)
+
+      await queryClient.invalidateQueries({
+        queryKey: pendingInvitesQueryKey,
+      })
     },
     onError: (error) => {
       setInviteRequestError(
         error instanceof Error ? error.message : 'Unable to send invite',
+      )
+    },
+  })
+
+  const deleteInviteMutation = useMutation({
+    mutationFn: async (inviteId: string) => {
+      const payload = await requestApi<{ invite?: { id?: string } }>(
+        '/api/partner-invites',
+        {
+          method: 'PATCH',
+          headers: {
+            'content-type': 'application/json',
+          },
+          body: JSON.stringify({ inviteId, action: 'delete' }),
+        },
+        'Unable to delete invite',
+      )
+
+      if (typeof payload?.invite?.id !== 'string') {
+        throw new Error('Unable to delete invite')
+      }
+    },
+    onMutate: () => {
+      setInviteValidationError(null)
+      setInviteRequestError(null)
+      setInviteNotice(null)
+      setAcceptInviteNotice(null)
+    },
+    onSuccess: async () => {
+      setInviteNotice('Pending invite deleted')
+
+      await queryClient.invalidateQueries({
+        queryKey: pendingInvitesQueryKey,
+      })
+    },
+    onError: (error) => {
+      setInviteRequestError(
+        error instanceof Error ? error.message : 'Unable to delete invite',
       )
     },
   })
@@ -199,6 +261,13 @@ export function usePartnerStatus() {
       return
     }
 
+    const sentInvites = pendingInvitesQuery.data?.sentInvites ?? []
+
+    if (sentInvites.length > 0) {
+      setInviteValidationError('You already have a pending invite')
+      return
+    }
+
     const email = inviteEmail.trim()
 
     if (!email) {
@@ -225,6 +294,14 @@ export function usePartnerStatus() {
     removePartnerMutation.mutate()
   }
 
+  const handleInviteDelete = (inviteId: string) => {
+    if (deleteInviteMutation.isPending) {
+      return
+    }
+
+    deleteInviteMutation.mutate(inviteId)
+  }
+
   return {
     habits: partnerStatusQuery.data?.habits ?? [],
     startedOn: partnerStatusQuery.data?.startedOn ?? null,
@@ -235,7 +312,12 @@ export function usePartnerStatus() {
     inviteError: inviteValidationError ?? inviteRequestError,
     inviteNotice,
     isInviteSubmitting: inviteMutation.isPending,
-    pendingInvites: pendingInvitesQuery.data ?? [],
+    pendingInvites: pendingInvitesQuery.data?.receivedInvites ?? [],
+    sentInvites: pendingInvitesQuery.data?.sentInvites ?? [],
+    canSendInvite: (pendingInvitesQuery.data?.sentInvites?.length ?? 0) === 0,
+    deletingInviteId: deleteInviteMutation.isPending
+      ? deleteInviteMutation.variables
+      : null,
     pendingInvitesError: pendingInvitesQuery.error?.message ?? null,
     isPendingInvitesLoading: pendingInvitesQuery.isLoading,
     acceptingInviteId: acceptInviteMutation.isPending
@@ -248,6 +330,7 @@ export function usePartnerStatus() {
     removePartnerNotice,
     handleInviteEmailChange,
     handleInviteSubmit,
+    handleInviteDelete,
     handleInviteAccept,
     handleRemovePartner,
   }
