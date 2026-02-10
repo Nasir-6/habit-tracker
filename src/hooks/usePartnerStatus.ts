@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 
 import type {
+  IncomingPartnerNudge,
   PartnerHabit,
   PendingPartnerInvite,
   SentPartnerInvite,
@@ -142,6 +143,7 @@ export function usePartnerStatus() {
           startedOn: null,
           partnerEmail: null,
           habits: [] as PartnerHabit[],
+          latestIncomingNudgeAt: null,
         }
       }
 
@@ -149,6 +151,7 @@ export function usePartnerStatus() {
         error?: string
         partner?: { startedOn?: string; email?: string | null }
         habits?: PartnerHabit[]
+        latestIncomingNudge?: IncomingPartnerNudge | null
       }
 
       if (!response.ok) {
@@ -163,6 +166,11 @@ export function usePartnerStatus() {
             ? payload.partner.email
             : null,
         habits: Array.isArray(payload.habits) ? payload.habits : [],
+        latestIncomingNudgeAt:
+          payload.latestIncomingNudge &&
+          typeof payload.latestIncomingNudge.createdAt === 'string'
+            ? payload.latestIncomingNudge.createdAt
+            : null,
       }
     },
   })
@@ -392,6 +400,7 @@ export function usePartnerStatus() {
         startedOn: null,
         partnerEmail: null,
         habits: [] as PartnerHabit[],
+        latestIncomingNudgeAt: null,
       })
 
       await queryClient.invalidateQueries({
@@ -592,6 +601,8 @@ export function usePartnerStatus() {
     habits: partnerStatusQuery.data?.habits ?? [],
     startedOn: partnerStatusQuery.data?.startedOn ?? null,
     partnerEmail: partnerStatusQuery.data?.partnerEmail ?? null,
+    latestIncomingNudgeAt:
+      partnerStatusQuery.data?.latestIncomingNudgeAt ?? null,
     errorMessage: partnerStatusQuery.error?.message ?? null,
     isLoading: partnerStatusQuery.isLoading,
     hasPartner: partnerStatusQuery.data?.hasPartner ?? false,

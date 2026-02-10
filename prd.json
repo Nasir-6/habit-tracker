@@ -772,7 +772,7 @@
       "Verify incoming nudge content includes sender name",
       "Verify relative time is shown (e.g., just now, 2m ago)"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Notifications",

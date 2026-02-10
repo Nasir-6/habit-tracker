@@ -18,3 +18,7 @@ export type SentPartnerInvite = {
   createdAt: string
   status: 'pending' | 'rejected'
 }
+
+export type IncomingPartnerNudge = {
+  createdAt: string
+}

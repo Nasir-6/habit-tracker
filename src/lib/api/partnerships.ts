@@ -1,5 +1,6 @@
 import { badRequest, notFound, ok } from '@/lib/api'
 import { formatUtcDate, parseLocalDateParts } from '@/lib/date'
+import { fetchLatestPartnerNudgeForReceiverFromSender } from '@/db/nudges'
 import {
   deletePartnershipsForUser,
   fetchPartnerCompletionIds,
@@ -45,7 +46,10 @@ export const handlePartnershipsGet = async (
   const startedOn = formatUtcDate(partnership.startedAt)
   const { localDate } = params
 
-  const partnerHabits = await fetchPartnerHabits(partnerUserId)
+  const [partnerHabits, latestIncomingNudge] = await Promise.all([
+    fetchPartnerHabits(partnerUserId),
+    fetchLatestPartnerNudgeForReceiverFromSender(userId, partnerUserId),
+  ])
 
   let completedHabitIds = new Set<string>()
 
@@ -66,6 +70,9 @@ export const handlePartnershipsGet = async (
   return ok({
     partner: { userId: partnerUserId, startedOn, email: partnerEmail },
     habits: habitsWithStatus,
+    latestIncomingNudge: latestIncomingNudge
+      ? { createdAt: latestIncomingNudge.createdAt.toISOString() }
+      : null,
   })
 }
 

@@ -5,7 +5,10 @@ import { PartnerInviteForm } from './PartnerInviteForm'
 import { PartnerPendingInvites } from './PartnerPendingInvites'
 import { PartnerSentInvites } from './PartnerSentInvites'
 import { PartnerStatusHeader } from './PartnerStatusHeader'
-import { getPartnerDisplayName } from './partnerStatusUtils'
+import {
+  formatRelativeTimestamp,
+  getPartnerDisplayName,
+} from './partnerStatusUtils'
 import { ConfirmModal } from '@/components/dashboard/ConfirmModal'
 
 import { usePartnerStatus } from '@/hooks/usePartnerStatus'
@@ -28,6 +31,7 @@ export function PartnerStatusCard() {
     habits,
     startedOn,
     partnerEmail,
+    latestIncomingNudgeAt,
     pendingInvites,
     sentInvites,
     deletingInviteId,
@@ -61,6 +65,10 @@ export function PartnerStatusCard() {
     handleInviteReject,
   } = usePartnerStatus()
   const partnerName = getPartnerDisplayName(partnerEmail)
+  const nudgeSenderName = partnerName ?? 'Your partner'
+  const latestIncomingNudgeLabel = latestIncomingNudgeAt
+    ? `${nudgeSenderName} nudged you ${formatRelativeTimestamp(latestIncomingNudgeAt)}`
+    : null
   let nudgeButtonLabel = 'Send nudge'
 
   if (isSendingNudge) {
@@ -141,6 +149,11 @@ export function PartnerStatusCard() {
           </div>
         ) : (
           <>
+            {latestIncomingNudgeLabel ? (
+              <p className="rounded-xl border border-sky-200 bg-sky-50 px-3 py-2 text-sm text-sky-700">
+                {latestIncomingNudgeLabel}
+              </p>
+            ) : null}
             <PartnerActiveHabits habits={habits} startedOn={startedOn} />
             <button
               className="rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-700 transition hover:bg-indigo-100 disabled:cursor-not-allowed disabled:bg-indigo-50 disabled:text-indigo-300"

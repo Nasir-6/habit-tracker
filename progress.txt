@@ -348,3 +348,8 @@
 - Decisions: prioritize this as highest-risk integration point between backend push payloads and service worker runtime; add push event handler with safe payload parsing/fallback title-body and notificationclick handler to focus existing app window or open `/` when closed.
 - Files changed: public/sw.js, prd.json, progress.txt.
 - Blockers/notes: none.
+
+- Task completed: Frontend / Partnering - Display incoming nudges in-app with sender name and relative timestamp. (PRD Frontend / Partnering)
+- Decisions: prioritized as integration point between nudge events and partner UI; reused existing partner-status fetch to include latest incoming nudge timestamp (no extra client polling endpoint); sender name derived from active partner email display-name convention to avoid profile schema changes.
+- Files changed: src/db/nudges.ts, src/lib/api/partnerships.ts, src/hooks/usePartnerStatus.ts, src/components/dashboard/PartnerStatusCard/index.tsx, src/components/dashboard/PartnerStatusCard/partnerStatusUtils.ts, src/types/dashboard/partner.ts, src/types/dashboard/index.ts, prd.json, progress.txt.
+- Blockers/notes: none.

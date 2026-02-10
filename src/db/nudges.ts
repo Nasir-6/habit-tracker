@@ -44,3 +44,20 @@ export const fetchPartnerNudgesSentSince = async (
       ),
     )
 }
+
+export const fetchLatestPartnerNudgeForReceiverFromSender = async (
+  receiverUserId: string,
+  senderUserId: string,
+) => {
+  return db
+    .select({ createdAt: partnerNudges.createdAt })
+    .from(partnerNudges)
+    .where(
+      and(
+        eq(partnerNudges.receiverUserId, receiverUserId),
+        eq(partnerNudges.senderUserId, senderUserId),
+      ),
+    )
+    .orderBy(desc(partnerNudges.createdAt))
+    .then((rows) => rows.at(0) ?? null)
+}
