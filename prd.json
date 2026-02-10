@@ -805,7 +805,7 @@
       "Verify subscription is persisted server-side for user A",
       "Unsubscribe and verify subscription is removed or deactivated"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Notifications",

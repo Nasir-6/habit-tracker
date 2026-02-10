@@ -1,6 +1,7 @@
 //  @ts-check
 
 import { tanstackConfig } from '@tanstack/eslint-config'
+import typescriptEslint from '@typescript-eslint/eslint-plugin'
 
 export default [
   {
@@ -8,6 +9,9 @@ export default [
   },
   ...tanstackConfig,
   {
+    plugins: {
+      '@typescript-eslint': typescriptEslint,
+    },
     rules: {
       '@typescript-eslint/array-type': [
         'error',

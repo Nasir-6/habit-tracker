@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiStreaksRouteImport } from './routes/api/streaks'
+import { Route as ApiPushSubscriptionsRouteImport } from './routes/api/push-subscriptions'
 import { Route as ApiPartnershipsRouteImport } from './routes/api/partnerships'
 import { Route as ApiPartnerInvitesRouteImport } from './routes/api/partner-invites'
 import { Route as ApiNudgesRouteImport } from './routes/api/nudges'
@@ -28,6 +29,11 @@ const IndexRoute = IndexRouteImport.update({
 const ApiStreaksRoute = ApiStreaksRouteImport.update({
   id: '/api/streaks',
   path: '/api/streaks',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPushSubscriptionsRoute = ApiPushSubscriptionsRouteImport.update({
+  id: '/api/push-subscriptions',
+  path: '/api/push-subscriptions',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPartnershipsRoute = ApiPartnershipsRouteImport.update({
@@ -80,6 +86,7 @@ export interface FileRoutesByFullPath {
   '/api/nudges': typeof ApiNudgesRoute
   '/api/partner-invites': typeof ApiPartnerInvitesRoute
   '/api/partnerships': typeof ApiPartnershipsRoute
+  '/api/push-subscriptions': typeof ApiPushSubscriptionsRoute
   '/api/streaks': typeof ApiStreaksRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
@@ -92,6 +99,7 @@ export interface FileRoutesByTo {
   '/api/nudges': typeof ApiNudgesRoute
   '/api/partner-invites': typeof ApiPartnerInvitesRoute
   '/api/partnerships': typeof ApiPartnershipsRoute
+  '/api/push-subscriptions': typeof ApiPushSubscriptionsRoute
   '/api/streaks': typeof ApiStreaksRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
@@ -105,6 +113,7 @@ export interface FileRoutesById {
   '/api/nudges': typeof ApiNudgesRoute
   '/api/partner-invites': typeof ApiPartnerInvitesRoute
   '/api/partnerships': typeof ApiPartnershipsRoute
+  '/api/push-subscriptions': typeof ApiPushSubscriptionsRoute
   '/api/streaks': typeof ApiStreaksRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
@@ -119,6 +128,7 @@ export interface FileRouteTypes {
     | '/api/nudges'
     | '/api/partner-invites'
     | '/api/partnerships'
+    | '/api/push-subscriptions'
     | '/api/streaks'
     | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
@@ -131,6 +141,7 @@ export interface FileRouteTypes {
     | '/api/nudges'
     | '/api/partner-invites'
     | '/api/partnerships'
+    | '/api/push-subscriptions'
     | '/api/streaks'
     | '/api/auth/$'
   id:
@@ -143,6 +154,7 @@ export interface FileRouteTypes {
     | '/api/nudges'
     | '/api/partner-invites'
     | '/api/partnerships'
+    | '/api/push-subscriptions'
     | '/api/streaks'
     | '/api/auth/$'
   fileRoutesById: FileRoutesById
@@ -156,6 +168,7 @@ export interface RootRouteChildren {
   ApiNudgesRoute: typeof ApiNudgesRoute
   ApiPartnerInvitesRoute: typeof ApiPartnerInvitesRoute
   ApiPartnershipsRoute: typeof ApiPartnershipsRoute
+  ApiPushSubscriptionsRoute: typeof ApiPushSubscriptionsRoute
   ApiStreaksRoute: typeof ApiStreaksRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
@@ -174,6 +187,13 @@ declare module '@tanstack/react-router' {
       path: '/api/streaks'
       fullPath: '/api/streaks'
       preLoaderRoute: typeof ApiStreaksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/push-subscriptions': {
+      id: '/api/push-subscriptions'
+      path: '/api/push-subscriptions'
+      fullPath: '/api/push-subscriptions'
+      preLoaderRoute: typeof ApiPushSubscriptionsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/partnerships': {
@@ -244,6 +264,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiNudgesRoute: ApiNudgesRoute,
   ApiPartnerInvitesRoute: ApiPartnerInvitesRoute,
   ApiPartnershipsRoute: ApiPartnershipsRoute,
+  ApiPushSubscriptionsRoute: ApiPushSubscriptionsRoute,
   ApiStreaksRoute: ApiStreaksRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }

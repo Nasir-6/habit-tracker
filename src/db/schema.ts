@@ -88,6 +88,30 @@ export const partnerNudges = pgTable('partner_nudges', {
     .notNull(),
 })
 
+export const pushSubscriptions = pgTable(
+  'push_subscriptions',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: text('user_id').notNull(),
+    endpoint: text('endpoint').notNull(),
+    p256dh: text('p256dh').notNull(),
+    auth: text('auth').notNull(),
+    expirationTime: timestamp('expiration_time', { withTimezone: true }),
+    deletedAt: timestamp('deleted_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => ({
+    uniqueEndpoint: uniqueIndex('push_subscriptions_endpoint_unique').on(
+      table.endpoint,
+    ),
+  }),
+)
+
 export const users = pgTable('user', {
   id: text('id').primaryKey(),
   email: text('email').notNull(),

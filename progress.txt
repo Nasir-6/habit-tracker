@@ -303,3 +303,8 @@
 - Decisions: enforce limits server-side in POST /api/nudges before insert; use 15m cooldown + 10/day UTC cap; return 429 with explicit code/message + retry metadata so UI can lock/retry predictably.
 - Files changed: src/lib/api/nudges.ts, src/db/nudges.ts, prd.json, progress.txt.
 - Blockers/notes: vitest still prints hanging-process shutdown warning though command exits 0.
+
+- Task completed: Backend / Notifications - Store and manage Web Push subscriptions per authenticated user. (PRD Backend / Notifications)
+- Decisions: add dedicated push_subscriptions table with soft-deactivate (`deleted_at`) so unsubscribe is reversible/prunable; use endpoint-unique upsert keyed by endpoint to rebind stale subscriptions to current authenticated user safely; register @typescript-eslint plugin in eslint flat config so repo lint loop can run successfully.
+- Files changed: src/db/schema.ts, src/db/push-subscriptions.ts, src/lib/api/push-subscriptions.ts, src/routes/api/push-subscriptions.ts, src/routeTree.gen.ts, drizzle/0007_create_push_subscriptions.sql, drizzle/meta/_journal.json, eslint.config.js, prd.json, progress.txt.
+- Blockers/notes: none.

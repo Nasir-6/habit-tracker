@@ -50,6 +50,13 @@
       "when": 1770700000000,
       "tag": "0006_create_partner_nudges",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1770786400000,
+      "tag": "0007_create_push_subscriptions",
+      "breakpoints": true
     }
   ]
 }
