@@ -252,6 +252,17 @@
     "passes": true
   },
   {
+    "category": "Frontend / Partnering",
+    "description": "Display incoming invite labels using inviter name and email instead of raw user ID.",
+    "steps_to_verify": [
+      "Sign in as user A (e.g., Bob with bob@gmail.com) and send a partner invite to user B",
+      "Sign in as user B and open the Partner section",
+      "Verify the invite label reads like 'Invite from Bob (bob@gmail.com)'",
+      "Verify the label does not show a raw user ID format such as 'Invite from user <ID>'"
+    ],
+    "passes": false
+  },
+  {
     "category": "Backend / Partnering",
     "description": "Restrict partner visibility to post-partnership data only.",
     "steps_to_verify": [
@@ -620,5 +631,213 @@
       "Verify active partnerships remain unchanged"
     ],
     "passes": true
+  },
+  {
+    "category": "Backend / Partnering",
+    "description": "Prevent duplicate cross-invites when opposite-direction pending invite already exists.",
+    "steps_to_verify": [
+      "Send invite from user A to user B",
+      "While A->B invite is pending, attempt to send invite from user B to user A",
+      "Verify request is rejected with a clear duplicate or conflict message",
+      "Verify only one pending invite exists between the two users"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Partnering",
+    "description": "Show explicit in-app feedback to inviters when sent invites are accepted, rejected, or cancelled.",
+    "steps_to_verify": [
+      "Send invite from user A to user B",
+      "As user B, accept, reject, or cancel the invite in separate test runs",
+      "Return to user A and open the Partner section",
+      "Verify user A sees a clear status message for the resulting invite outcome"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Partnering",
+    "description": "Display the active partner name in the partner habits heading instead of a generic Partner label.",
+    "steps_to_verify": [
+      "Sign in as user A and establish an active partnership with user B (e.g., Bob)",
+      "Open the Partner section as user A",
+      "Verify the heading reads Bob's Habits or equivalent partner-name-based text",
+      "Verify a generic Partner heading is not shown for the active partnership"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Backend / Partnering",
+    "description": "Return only active non-deleted habits in partner habit list responses.",
+    "steps_to_verify": [
+      "Create multiple habits for user B and establish active partnership with user A",
+      "Delete one of user B's habits",
+      "Fetch partner habit list as user A",
+      "Verify deleted habits are excluded and only active habits are returned"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Partnering",
+    "description": "Show a clear empty state when an active partner has no active habits.",
+    "steps_to_verify": [
+      "Establish an active partnership between user A and user B",
+      "Ensure user B has no active habits",
+      "Open the Partner section as user A",
+      "Verify a clear empty-state message is shown instead of a blank habit list"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Partnering",
+    "description": "Display a last-updated timestamp for partner habit status data to indicate freshness.",
+    "steps_to_verify": [
+      "Establish an active partnership and open the Partner section",
+      "Verify a visible last-updated or synced timestamp is shown for partner status data",
+      "Trigger a partner habit status change",
+      "Verify the timestamp refreshes to reflect the latest update"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Partnering",
+    "description": "Show a clear in-app state when a partner removes the current user.",
+    "steps_to_verify": [
+      "Establish an active partnership between user A and user B",
+      "As user B, remove the partner",
+      "Return to user A and open the Partner section",
+      "Verify user A sees a clear message that the partnership ended and can invite a new partner"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Backend / Partnering",
+    "description": "Reject partner invites where the target email matches the inviter email.",
+    "steps_to_verify": [
+      "Sign in as a user and attempt to send a partner invite to the same account email",
+      "Verify the request is rejected",
+      "Verify the response includes a clear self-invite validation message"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Partnering",
+    "description": "Allow users to send a generic nudge to an active partner from the Partner section.",
+    "steps_to_verify": [
+      "Establish an active partnership between user A and user B",
+      "Open the Partner section as user A",
+      "Click the nudge action",
+      "Verify user A sees a clear nudge-sent confirmation"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Backend / Partnering",
+    "description": "Create and persist partner nudge events for active partnerships only.",
+    "steps_to_verify": [
+      "Send a nudge from user A to user B while partnership is active",
+      "Verify the nudge event is stored with sender, receiver, and timestamp",
+      "Remove the partnership and attempt another nudge",
+      "Verify nudge request is rejected when partnership is inactive"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Backend / Partnering",
+    "description": "Enforce nudge cooldown and daily rate limits with clear API error messages.",
+    "steps_to_verify": [
+      "Send a nudge successfully",
+      "Immediately attempt to send another nudge",
+      "Verify request is rejected with cooldown message",
+      "Exceed daily cap and verify request is rejected with limit message"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Partnering",
+    "description": "Show nudge cooldown state in UI and prevent repeated nudge taps during cooldown.",
+    "steps_to_verify": [
+      "Send a nudge from user A",
+      "Verify nudge button enters disabled or cooldown state",
+      "Attempt to tap nudge during cooldown",
+      "Verify duplicate send is prevented and feedback is shown"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Partnering",
+    "description": "Display incoming nudges in-app with sender name and relative timestamp.",
+    "steps_to_verify": [
+      "Send a nudge from user A to user B",
+      "Open Partner section as user B",
+      "Verify incoming nudge content includes sender name",
+      "Verify relative time is shown (e.g., just now, 2m ago)"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Notifications",
+    "description": "Show in-app nudge banner when the app is currently visible and focused.",
+    "steps_to_verify": [
+      "Open app as user B in a visible active tab",
+      "Send a nudge from user A to user B",
+      "Verify user B sees in-app nudge banner",
+      "Verify no duplicate system notification is shown while visible"
+    ],
+    "passes": false
+  },
+  {
+    "category": "PWA / Platform",
+    "description": "Configure the app as an installable PWA with service worker and web app manifest.",
+    "steps_to_verify": [
+      "Run app in production-like mode",
+      "Verify manifest and service worker are registered",
+      "Verify install prompt or installability criteria are satisfied",
+      "Install app and confirm it opens in standalone mode"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Backend / Notifications",
+    "description": "Store and manage Web Push subscriptions per authenticated user.",
+    "steps_to_verify": [
+      "Grant notification permission as user A",
+      "Register push subscription from user A client",
+      "Verify subscription is persisted server-side for user A",
+      "Unsubscribe and verify subscription is removed or deactivated"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Notifications",
+    "description": "Request notification permission and register Web Push subscription for signed-in users.",
+    "steps_to_verify": [
+      "Sign in as a user in a supported browser",
+      "Trigger notification enable flow",
+      "Grant permission and verify subscription registration succeeds",
+      "Verify clear error state is shown when permission is denied"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Backend / Notifications",
+    "description": "Send Web Push notification to partner when a nudge is created.",
+    "steps_to_verify": [
+      "Ensure receiver has an active push subscription",
+      "Send nudge from user A to user B",
+      "Verify backend dispatches push message to user B subscriptions",
+      "Verify sender receives success even if one stale subscription is pruned"
+    ],
+    "passes": false
+  },
+  {
+    "category": "PWA / Notifications",
+    "description": "Show system notification for nudges when app is hidden, in another tab, minimized, or closed.",
+    "steps_to_verify": [
+      "Keep user B app open but hidden in background and send nudge from user A",
+      "Verify user B receives system notification",
+      "Close user B app and send another nudge",
+      "Verify user B still receives system notification and can open app from notification click"
+    ],
+    "passes": false
   }
 ]
