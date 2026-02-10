@@ -1,4 +1,4 @@
-import { and, eq } from 'drizzle-orm'
+import { and, eq, inArray } from 'drizzle-orm'
 
 import { db } from '@/db/index.ts'
 import { partnerInvites, partnerships } from '@/db/schema'
@@ -63,6 +63,23 @@ export const fetchPendingInvitesForInviter = async (inviterUserId: string) => {
       and(
         eq(partnerInvites.inviterUserId, inviterUserId),
         eq(partnerInvites.status, 'pending'),
+      ),
+    )
+}
+
+export const fetchSentInvitesForInviter = async (inviterUserId: string) => {
+  return db
+    .select({
+      id: partnerInvites.id,
+      inviteeEmail: partnerInvites.inviteeEmail,
+      status: partnerInvites.status,
+      createdAt: partnerInvites.createdAt,
+    })
+    .from(partnerInvites)
+    .where(
+      and(
+        eq(partnerInvites.inviterUserId, inviterUserId),
+        inArray(partnerInvites.status, ['pending', 'rejected']),
       ),
     )
 }

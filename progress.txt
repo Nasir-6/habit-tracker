@@ -248,3 +248,8 @@
 - Decisions: add PATCH action `reject` in existing partner-invites endpoint to avoid new route; enforce invitee ownership via existing email/id checks before status update; update invite row status to `rejected` (not delete) so later inviter-facing flows can read outcome.
 - Files changed: src/lib/api/partner-invites.ts, src/db/partner-invites.ts, src/hooks/usePartnerStatus.ts, prd.json, progress.txt.
 - Blockers/notes: none.
+
+- Task completed: Backend / Partnering - Include rejected sent invites in inviter-facing invite responses. (PRD Backend / Partnering)
+- Decisions: keep pending-only query for create-flow guardrails; add separate inviter sent-invites query including pending + rejected so response contract expands without weakening one-pending limit.
+- Files changed: src/db/partner-invites.ts, src/lib/api/partner-invites.ts, src/types/dashboard/partner.ts, prd.json, progress.txt.
+- Blockers/notes: none.

@@ -15,5 +15,5 @@ export type SentPartnerInvite = {
   id: string
   inviteeEmail: string
   createdAt: string
-  status: 'pending'
+  status: 'pending' | 'rejected'
 }

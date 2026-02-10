@@ -586,7 +586,7 @@
       "Fetch inviter invite list",
       "Verify rejected invite is returned with rejected status"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Partnering",

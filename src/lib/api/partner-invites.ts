@@ -7,6 +7,7 @@ import {
   fetchPartnerInvite,
   fetchPendingInvitesForEmail,
   fetchPendingInvitesForInviter,
+  fetchSentInvitesForInviter,
   insertPartnerInvite,
   rejectPendingInviteForInvitee,
 } from '@/db/partner-invites'
@@ -142,7 +143,7 @@ export const handlePartnerInvitesPost = async (
 
 export const handlePartnerInvitesGet = async (user: InviteUser) => {
   if (typeof user.email !== 'string') {
-    const sentInvites = await fetchPendingInvitesForInviter(user.id)
+    const sentInvites = await fetchSentInvitesForInviter(user.id)
 
     return ok({ invites: [], receivedInvites: [], sentInvites })
   }
@@ -150,14 +151,14 @@ export const handlePartnerInvitesGet = async (user: InviteUser) => {
   const inviteeEmail = user.email.trim().toLowerCase()
 
   if (!inviteeEmail) {
-    const sentInvites = await fetchPendingInvitesForInviter(user.id)
+    const sentInvites = await fetchSentInvitesForInviter(user.id)
 
     return ok({ invites: [], receivedInvites: [], sentInvites })
   }
 
   const [receivedInvites, sentInvites] = await Promise.all([
     fetchPendingInvitesForEmail(inviteeEmail),
-    fetchPendingInvitesForInviter(user.id),
+    fetchSentInvitesForInviter(user.id),
   ])
 
   return ok({ invites: receivedInvites, receivedInvites, sentInvites })
