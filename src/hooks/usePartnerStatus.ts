@@ -20,6 +20,11 @@ type PendingInvitesPayload = {
   sentInvites?: SentPartnerInvite[]
 }
 
+type ResendInvitePayload = {
+  id: string
+  email: string
+}
+
 export function usePartnerStatus() {
   const localDate = useLocalDate()
   const queryClient = useQueryClient()
@@ -170,6 +175,40 @@ export function usePartnerStatus() {
     onError: (error) => {
       setInviteRequestError(
         error instanceof Error ? error.message : 'Unable to delete invite',
+      )
+    },
+  })
+
+  const resendInviteMutation = useMutation({
+    mutationFn: async ({ email }: ResendInvitePayload) => {
+      await requestApi(
+        '/api/partner-invites',
+        {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+          },
+          body: JSON.stringify({ email }),
+        },
+        'Unable to resend invite',
+      )
+    },
+    onMutate: () => {
+      setInviteValidationError(null)
+      setInviteRequestError(null)
+      setInviteNotice(null)
+      setAcceptInviteNotice(null)
+    },
+    onSuccess: async (_data, variables) => {
+      setInviteNotice(`Invite resent to ${variables.email}`)
+
+      await queryClient.invalidateQueries({
+        queryKey: pendingInvitesQueryKey,
+      })
+    },
+    onError: (error) => {
+      setInviteRequestError(
+        error instanceof Error ? error.message : 'Unable to resend invite',
       )
     },
   })
@@ -342,6 +381,26 @@ export function usePartnerStatus() {
     deleteInviteMutation.mutate(inviteId)
   }
 
+  const handleInviteResend = (inviteId: string) => {
+    if (resendInviteMutation.isPending) {
+      return
+    }
+
+    const rejectedInvite = (pendingInvitesQuery.data?.sentInvites ?? []).find(
+      (invite) => invite.id === inviteId && invite.status === 'rejected',
+    )
+
+    if (!rejectedInvite) {
+      setInviteRequestError('Invite not found')
+      return
+    }
+
+    resendInviteMutation.mutate({
+      id: rejectedInvite.id,
+      email: rejectedInvite.inviteeEmail,
+    })
+  }
+
   return {
     habits: partnerStatusQuery.data?.habits ?? [],
     startedOn: partnerStatusQuery.data?.startedOn ?? null,
@@ -357,6 +416,9 @@ export function usePartnerStatus() {
     canSendInvite: (pendingInvitesQuery.data?.sentInvites.length ?? 0) === 0,
     deletingInviteId: deleteInviteMutation.isPending
       ? deleteInviteMutation.variables
+      : null,
+    resendingInviteId: resendInviteMutation.isPending
+      ? resendInviteMutation.variables.id
       : null,
     pendingInvitesError: pendingInvitesQuery.error?.message ?? null,
     isPendingInvitesLoading: pendingInvitesQuery.isLoading,
@@ -374,6 +436,7 @@ export function usePartnerStatus() {
     handleInviteEmailChange,
     handleInviteSubmit,
     handleInviteDelete,
+    handleInviteResend,
     handleInviteAccept,
     handleInviteReject,
     handleRemovePartner,

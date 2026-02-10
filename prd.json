@@ -597,7 +597,7 @@
       "Sign in as user A and click Resend on rejected invite",
       "Verify invite becomes pending again"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Partnering",

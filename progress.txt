@@ -268,3 +268,8 @@
 - Decisions: add explicit Reject action beside Accept on pending invite rows; reuse existing PATCH /api/partner-invites action=reject path to avoid new endpoint/state shape; disable both actions while either mutation runs to prevent duplicate submits.
 - Files changed: src/components/dashboard/PartnerStatusCard/PartnerPendingInvites.tsx, src/components/dashboard/PartnerStatusCard/index.tsx, src/hooks/usePartnerStatus.ts, prd.json, progress.txt.
 - Blockers/notes: none.
+
+- Task completed: Frontend / Partnering - Allow inviters to resend a rejected invite from the sent invites list. (PRD Frontend / Partnering)
+- Decisions: add resend action only on rejected sent invites; reuse existing POST /api/partner-invites with invitee email from selected rejected invite; track per-row resending state to prevent duplicate submit and keep delete disabled during resend.
+- Files changed: src/components/dashboard/PartnerStatusCard/PartnerSentInvites.tsx, src/components/dashboard/PartnerStatusCard/index.tsx, src/hooks/usePartnerStatus.ts, prd.json, progress.txt.
+- Blockers/notes: clear-rejected action still pending for next iteration.
