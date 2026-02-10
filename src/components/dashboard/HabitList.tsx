@@ -1,3 +1,4 @@
+import { Check, Circle, History, X } from 'lucide-react'
 import type { DragEvent } from 'react'
 import type { Habit } from '@/components/dashboard/types'
 
@@ -62,7 +63,7 @@ export function HabitList({
             <div key={habit.id} className="grid gap-3">
               <div
                 className={cn(
-                  'flex flex-col gap-4 rounded-2xl border bg-white/90 px-4 py-4 shadow-sm transition sm:flex-row sm:items-center sm:justify-between sm:px-5',
+                  'relative flex flex-col gap-4 rounded-2xl border bg-white/90 px-4 py-4 shadow-sm transition sm:flex-row sm:items-center sm:justify-between sm:px-5',
                   draggingHabitId === habit.id
                     ? 'border-slate-400 bg-slate-50 shadow-md'
                     : 'border-slate-200',
@@ -79,61 +80,76 @@ export function HabitList({
                   onHabitDrop(habit.id)
                 }}
               >
-                <div className="space-y-1">
-                  <p
-                    className={cn(
-                      'text-sm font-semibold',
-                      habit.isCompleted
-                        ? 'text-slate-500 line-through decoration-slate-400'
-                        : 'text-slate-900',
-                    )}
-                  >
-                    {habit.name}
-                  </p>
-                  <p className="text-xs text-slate-500">
-                    {habit.isCompleted
-                      ? 'Completed today.'
-                      : 'Ready for today’s check-in.'}
-                  </p>
-                  <p className="text-xs text-slate-400">
-                    Current {formatStreak(habitStreaks[habit.id]?.current ?? 0)}{' '}
-                    · Best {formatStreak(habitStreaks[habit.id]?.best ?? 0)}
-                  </p>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex min-w-0 items-start gap-3">
+                    <button
+                      className={cn(
+                        'inline-flex h-11 w-11 items-center justify-center rounded-full border text-sm font-semibold transition',
+                        habit.isCompleted
+                          ? 'border-emerald-200 bg-emerald-100 text-emerald-700 hover:bg-emerald-50'
+                          : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50',
+                      )}
+                      type="button"
+                      onClick={() => {
+                        onToggleHabit(habit.id)
+                      }}
+                      aria-label={
+                        habit.isCompleted
+                          ? 'Mark as pending'
+                          : 'Mark as completed'
+                      }
+                    >
+                      {habit.isCompleted ? (
+                        <Check aria-hidden="true" className="h-5 w-5" />
+                      ) : (
+                        <Circle
+                          aria-hidden="true"
+                          className="h-5 w-5"
+                          strokeWidth={1.5}
+                        />
+                      )}
+                    </button>
+                    <div className="min-w-0 space-y-1">
+                      <p
+                        className={cn(
+                          'truncate text-sm font-semibold',
+                          habit.isCompleted
+                            ? 'text-slate-500 line-through decoration-slate-400'
+                            : 'text-slate-900',
+                        )}
+                      >
+                        {habit.name}
+                      </p>
+                      <p className="text-xs text-slate-400">
+                        Current{' '}
+                        {formatStreak(habitStreaks[habit.id]?.current ?? 0)} ·
+                        Best {formatStreak(habitStreaks[habit.id]?.best ?? 0)}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:gap-3">
+                <div className="flex w-full items-center gap-2 sm:w-auto sm:items-center sm:gap-3">
                   <button
-                    className="min-h-[44px] w-full rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:border-slate-300 hover:text-slate-700 sm:w-auto"
+                    className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-sm font-semibold text-slate-600 transition hover:border-slate-300 hover:text-slate-700 sm:h-auto sm:w-auto sm:px-4 sm:py-2.5"
                     type="button"
                     onClick={() => {
                       onToggleHistory(habit.id)
                     }}
-                  >
-                    {historyHabitId === habit.id ? 'Hide history' : 'History'}
-                  </button>
-                  <button
-                    className={cn(
-                      'min-h-[44px] w-full rounded-full border px-4 py-2.5 text-sm font-semibold transition sm:w-auto',
-                      habit.isCompleted
-                        ? 'border-emerald-200 bg-emerald-100 text-emerald-700 hover:bg-emerald-50'
-                        : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50',
-                    )}
-                    type="button"
-                    onClick={() => {
-                      onToggleHabit(habit.id)
-                    }}
                     aria-label={
-                      habit.isCompleted
-                        ? 'Mark as pending'
-                        : 'Mark as completed'
+                      historyHabitId === habit.id
+                        ? 'Hide history'
+                        : 'Show history'
                     }
                   >
-                    {habit.isCompleted ? '✓' : '○'}
+                    <span aria-hidden="true">
+                      <History aria-hidden="true" className="h-5 w-5" />
+                    </span>
                   </button>
                   <button
                     className={cn(
-                      'min-h-[44px] w-full rounded-full border px-4 py-2.5 text-sm font-semibold transition sm:w-auto',
+                      'ml-auto inline-flex h-11 w-11 items-center justify-center rounded-full border text-sm font-semibold transition',
                       deletingHabitId === habit.id
-                        ? 'border-rose-200 bg-rose-50 text-rose-400'
+                        ? 'border-rose-200 bg-rose-50 text-rose-300'
                         : 'border-rose-200 bg-white text-rose-700 hover:bg-rose-50',
                     )}
                     disabled={deletingHabitId === habit.id}
@@ -141,8 +157,14 @@ export function HabitList({
                     onClick={() => {
                       onDeleteHabit(habit.id)
                     }}
+                    aria-label={
+                      deletingHabitId === habit.id ? 'Deleting' : 'Delete'
+                    }
                   >
-                    {deletingHabitId === habit.id ? 'Deleting…' : 'Delete'}
+                    <span className="sr-only">
+                      {deletingHabitId === habit.id ? 'Deleting' : 'Delete'}
+                    </span>
+                    <X aria-hidden="true" className="h-4 w-4" />
                   </button>
                 </div>
               </div>
