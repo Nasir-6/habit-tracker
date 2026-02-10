@@ -761,7 +761,7 @@
       "Attempt to tap nudge during cooldown",
       "Verify duplicate send is prevented and feedback is shown"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Partnering",

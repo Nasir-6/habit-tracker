@@ -29,6 +29,11 @@
 - Files changed: src/routes/api/calendar.ts, src/routeTree.gen.ts, prd.json, progress.txt.
 - Blockers/notes: none.
 
+- Task completed: Frontend / Partnering - Show nudge cooldown state in UI and prevent repeated nudge taps during cooldown. (PRD Frontend / Partnering)
+- Decisions: prioritized as integration point between nudge rate-limit API and partner UI; switched nudge mutation to parse cooldown metadata (`retryAfterSeconds` / `limits.cooldownSeconds`) so UI can lock button on both success and 429 cooldown; countdown kept client-side with 1s interval to avoid extra polling.
+- Files changed: src/hooks/usePartnerStatus.ts, src/components/dashboard/PartnerStatusCard/index.tsx, prd.json, progress.txt.
+- Blockers/notes: none.
+
 - Task completed: Frontend / Partnering - Display the active partner name in the partner habits heading instead of a generic Partner label. (PRD Frontend / Partnering)
 - Decisions: prioritized as cross-module integration (partner API payload + UI heading) over polish-only items; derive display name from partner email local-part to avoid schema migration for profile names.
 - Files changed: src/db/partnerships.ts, src/lib/api/partnerships.ts, src/hooks/usePartnerStatus.ts, src/components/dashboard/PartnerStatusCard/partnerStatusUtils.ts, src/components/dashboard/PartnerStatusCard/PartnerStatusHeader.tsx, src/components/dashboard/PartnerStatusCard/index.tsx, prd.json, progress.txt.

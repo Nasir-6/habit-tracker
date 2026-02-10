@@ -10,6 +10,15 @@ import { ConfirmModal } from '@/components/dashboard/ConfirmModal'
 
 import { usePartnerStatus } from '@/hooks/usePartnerStatus'
 
+const formatCooldownTime = (secondsRemaining: number) => {
+  if (secondsRemaining < 60) {
+    return `${secondsRemaining}s`
+  }
+
+  const minutesRemaining = Math.ceil(secondsRemaining / 60)
+  return `${minutesRemaining}m`
+}
+
 export function PartnerStatusCard() {
   const [isRemoveConfirmOpen, setIsRemoveConfirmOpen] = useState(false)
   const {
@@ -31,6 +40,8 @@ export function PartnerStatusCard() {
     acceptInviteNotice,
     nudgeError,
     nudgeNotice,
+    nudgeCooldownSecondsRemaining,
+    isNudgeOnCooldown,
     inviteEmail,
     canSendInvite,
     inviteError,
@@ -50,6 +61,13 @@ export function PartnerStatusCard() {
     handleInviteReject,
   } = usePartnerStatus()
   const partnerName = getPartnerDisplayName(partnerEmail)
+  let nudgeButtonLabel = 'Send nudge'
+
+  if (isSendingNudge) {
+    nudgeButtonLabel = 'Sending nudge...'
+  } else if (isNudgeOnCooldown) {
+    nudgeButtonLabel = `Nudge cooldown (${formatCooldownTime(nudgeCooldownSecondsRemaining)})`
+  }
 
   return (
     <div className="rounded-3xl border border-slate-200 bg-white/70 p-8 shadow-sm">
@@ -126,18 +144,23 @@ export function PartnerStatusCard() {
             <PartnerActiveHabits habits={habits} startedOn={startedOn} />
             <button
               className="rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-700 transition hover:bg-indigo-100 disabled:cursor-not-allowed disabled:bg-indigo-50 disabled:text-indigo-300"
-              disabled={isSendingNudge}
+              disabled={isSendingNudge || isNudgeOnCooldown}
               onClick={() => {
                 handleSendNudge()
               }}
               type="button"
             >
-              {isSendingNudge ? 'Sending nudge...' : 'Send nudge'}
+              {nudgeButtonLabel}
             </button>
             {nudgeError ? (
               <p className="text-sm text-rose-500">{nudgeError}</p>
             ) : nudgeNotice ? (
               <p className="text-sm text-emerald-600">{nudgeNotice}</p>
+            ) : isNudgeOnCooldown ? (
+              <p className="text-sm text-amber-700">
+                Nudge cooldown active. Try again in{' '}
+                {formatCooldownTime(nudgeCooldownSecondsRemaining)}.
+              </p>
             ) : null}
             <button
               className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:bg-rose-50 disabled:text-rose-300"

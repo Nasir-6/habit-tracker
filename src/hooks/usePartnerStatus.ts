@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import type {
   PartnerHabit,
@@ -30,6 +30,45 @@ type DeleteInvitePayload = {
   status: 'pending' | 'rejected'
 }
 
+type NudgeMutationPayload = {
+  limits?: {
+    cooldownSeconds?: number
+  }
+}
+
+type NudgeErrorPayload = {
+  error?: string
+  code?: string
+  retryAfterSeconds?: number
+}
+
+type NudgeRequestError = Error & {
+  retryAfterSeconds?: number
+}
+
+const parseJsonPayload = async (response: Response) => {
+  const body = await response.text()
+
+  if (!body) {
+    return null
+  }
+
+  try {
+    return JSON.parse(body) as unknown
+  } catch {
+    return null
+  }
+}
+
+const formatNudgeCooldown = (secondsRemaining: number) => {
+  if (secondsRemaining < 60) {
+    return `${secondsRemaining}s`
+  }
+
+  const minutesRemaining = Math.ceil(secondsRemaining / 60)
+  return `${minutesRemaining}m`
+}
+
 export function usePartnerStatus() {
   const localDate = useLocalDate()
   const queryClient = useQueryClient()
@@ -56,6 +95,39 @@ export function usePartnerStatus() {
   )
   const [nudgeError, setNudgeError] = useState<string | null>(null)
   const [nudgeNotice, setNudgeNotice] = useState<string | null>(null)
+  const [nudgeCooldownEndsAt, setNudgeCooldownEndsAt] = useState<number | null>(
+    null,
+  )
+  const [nudgeCooldownSecondsRemaining, setNudgeCooldownSecondsRemaining] =
+    useState(0)
+
+  useEffect(() => {
+    if (!nudgeCooldownEndsAt) {
+      setNudgeCooldownSecondsRemaining(0)
+      return
+    }
+
+    const updateRemaining = () => {
+      const nextRemaining = Math.max(
+        Math.ceil((nudgeCooldownEndsAt - Date.now()) / 1000),
+        0,
+      )
+
+      setNudgeCooldownSecondsRemaining(nextRemaining)
+
+      if (nextRemaining === 0) {
+        setNudgeCooldownEndsAt(null)
+      }
+    }
+
+    updateRemaining()
+
+    const intervalId = window.setInterval(updateRemaining, 1000)
+
+    return () => {
+      window.clearInterval(intervalId)
+    }
+  }, [nudgeCooldownEndsAt])
 
   const partnerStatusQuery = useQuery({
     queryKey: partnerStatusQueryKey(localDate),
@@ -337,22 +409,68 @@ export function usePartnerStatus() {
 
   const sendNudgeMutation = useMutation({
     mutationFn: async () => {
-      await requestApi(
-        '/api/nudges',
-        {
-          method: 'POST',
-        },
-        'Unable to send nudge',
-      )
+      const response = await fetch('/api/nudges', {
+        method: 'POST',
+      })
+      const payload = (await parseJsonPayload(response)) as
+        | NudgeMutationPayload
+        | NudgeErrorPayload
+        | null
+
+      if (!response.ok) {
+        const errorMessage =
+          payload &&
+          typeof payload === 'object' &&
+          'error' in payload &&
+          typeof payload.error === 'string' &&
+          payload.error.trim().length > 0
+            ? payload.error
+            : 'Unable to send nudge'
+
+        const mutationError = new Error(errorMessage) as NudgeRequestError
+
+        if (
+          payload &&
+          typeof payload === 'object' &&
+          'code' in payload &&
+          payload.code === 'NUDGE_COOLDOWN' &&
+          'retryAfterSeconds' in payload &&
+          typeof payload.retryAfterSeconds === 'number' &&
+          payload.retryAfterSeconds > 0
+        ) {
+          mutationError.retryAfterSeconds = payload.retryAfterSeconds
+        }
+
+        throw mutationError
+      }
+
+      return payload as NudgeMutationPayload | null
     },
     onMutate: () => {
       setNudgeError(null)
       setNudgeNotice(null)
     },
-    onSuccess: () => {
+    onSuccess: (payload) => {
+      const cooldownSeconds = payload?.limits?.cooldownSeconds
+
+      if (typeof cooldownSeconds === 'number' && cooldownSeconds > 0) {
+        setNudgeCooldownEndsAt(Date.now() + cooldownSeconds * 1000)
+      }
+
       setNudgeNotice('Nudge sent')
     },
     onError: (error) => {
+      const mutationError = error as NudgeRequestError
+
+      if (
+        typeof mutationError.retryAfterSeconds === 'number' &&
+        mutationError.retryAfterSeconds > 0
+      ) {
+        setNudgeCooldownEndsAt(
+          Date.now() + mutationError.retryAfterSeconds * 1000,
+        )
+      }
+
       setNudgeError(
         error instanceof Error ? error.message : 'Unable to send nudge',
       )
@@ -401,7 +519,13 @@ export function usePartnerStatus() {
   }
 
   const handleSendNudge = () => {
-    if (sendNudgeMutation.isPending) {
+    if (sendNudgeMutation.isPending || nudgeCooldownSecondsRemaining > 0) {
+      if (nudgeCooldownSecondsRemaining > 0) {
+        setNudgeError(
+          `Nudge cooldown active. Try again in ${formatNudgeCooldown(nudgeCooldownSecondsRemaining)}`,
+        )
+      }
+
       return
     }
 
@@ -496,6 +620,8 @@ export function usePartnerStatus() {
     acceptInviteNotice,
     nudgeError,
     nudgeNotice,
+    nudgeCooldownSecondsRemaining,
+    isNudgeOnCooldown: nudgeCooldownSecondsRemaining > 0,
     isSendingNudge: sendNudgeMutation.isPending,
     isRemovingPartner: removePartnerMutation.isPending,
     removePartnerError,
