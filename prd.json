@@ -750,7 +750,7 @@
       "Verify request is rejected with cooldown message",
       "Exceed daily cap and verify request is rejected with limit message"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Partnering",

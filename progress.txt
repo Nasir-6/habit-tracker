@@ -298,3 +298,8 @@
 - Decisions: added POST /api/nudges that derives receiver from active partnership only (no client-provided target); persist nudge row with sender/receiver/timestamp for later cooldown/notification work.
 - Files changed: src/db/schema.ts, src/db/nudges.ts, src/lib/api/nudges.ts, src/routes/api/nudges.ts, src/routeTree.gen.ts, drizzle/0006_create_partner_nudges.sql, drizzle/meta/_journal.json, prd.json, progress.txt.
 - Blockers/notes: rate limits + push delivery still pending in later nudge/notification PRD items.
+
+- Task completed: Backend / Partnering - Enforce nudge cooldown and daily rate limits with clear API error messages. (PRD Backend / Partnering)
+- Decisions: enforce limits server-side in POST /api/nudges before insert; use 15m cooldown + 10/day UTC cap; return 429 with explicit code/message + retry metadata so UI can lock/retry predictably.
+- Files changed: src/lib/api/nudges.ts, src/db/nudges.ts, prd.json, progress.txt.
+- Blockers/notes: vitest still prints hanging-process shutdown warning though command exits 0.
