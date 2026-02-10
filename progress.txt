@@ -323,3 +323,8 @@
 - Decisions: selected PWA baseline first as highest-priority architecture dependency for notification delivery; register `/sw.js` from root route so all screens run under one worker scope; keep service worker minimal (`install`/`activate`) for installability without adding cache policy risk.
 - Files changed: src/routes/__root.tsx, public/manifest.json, public/sw.js, eslint.config.js, prd.json, progress.txt.
 - Blockers/notes: `npm run test` exits 0 with no tests but still logs Vitest hanging-process shutdown warning.
+
+- Task completed: Frontend / Notifications - Request notification permission and register Web Push subscription for signed-in users. (PRD Frontend / Notifications)
+- Decisions: prioritize this next as highest-value integration point between PWA service worker, push-subscription backend, and upcoming nudge notification UX; add one-click enable flow with permission request -> VAPID config fetch -> push subscribe -> POST register; show explicit blocked/unsupported/error states for denied permission loop.
+- Files changed: src/components/dashboard/NotificationPermissionCard.tsx, src/components/dashboard/Dashboard.tsx, src/lib/api/push-subscriptions.ts, src/routes/api/push-subscriptions.ts, prd.json, progress.txt.
+- Blockers/notes: `npm run test` exits 0 (no tests) but still prints Vitest hanging-process shutdown warning.

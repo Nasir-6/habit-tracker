@@ -816,7 +816,7 @@
       "Grant permission and verify subscription registration succeeds",
       "Verify clear error state is shown when permission is denied"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Backend / Notifications",

@@ -92,6 +92,16 @@ export const handlePushSubscriptionsPost = async (
   return created({ subscription: stored })
 }
 
+export const handlePushSubscriptionsGet = () => {
+  const vapidPublicKey = process.env.WEB_PUSH_VAPID_PUBLIC_KEY?.trim()
+
+  if (!vapidPublicKey) {
+    return badRequest('Push notifications are not configured')
+  }
+
+  return ok({ vapidPublicKey })
+}
+
 export const handlePushSubscriptionsDelete = async (
   request: Request,
   userId: string,
