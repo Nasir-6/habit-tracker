@@ -55,6 +55,7 @@ export function PartnerStatusCard() {
     isRemovingPartner,
     removePartnerError,
     removePartnerNotice,
+    partnerEndedNotice,
     handleInviteAccept,
     handleInviteEmailChange,
     handleInviteSubmit,
@@ -122,6 +123,10 @@ export function PartnerStatusCard() {
             <p className="text-sm text-slate-500">
               No partner yet. Invite someone to see shared progress here.
             </p>
+
+            {partnerEndedNotice ? (
+              <p className="text-sm text-sky-700">{partnerEndedNotice}</p>
+            ) : null}
 
             {canSendInvite ? (
               <PartnerInviteForm

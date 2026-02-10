@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import type {
   IncomingPartnerNudge,
@@ -94,6 +94,9 @@ export function usePartnerStatus() {
   const [removePartnerNotice, setRemovePartnerNotice] = useState<string | null>(
     null,
   )
+  const [partnerEndedNotice, setPartnerEndedNotice] = useState<string | null>(
+    null,
+  )
   const [nudgeError, setNudgeError] = useState<string | null>(null)
   const [nudgeNotice, setNudgeNotice] = useState<string | null>(null)
   const [nudgeCooldownEndsAt, setNudgeCooldownEndsAt] = useState<number | null>(
@@ -174,6 +177,31 @@ export function usePartnerStatus() {
       }
     },
   })
+
+  const previousHasPartnerRef = useRef<boolean | null>(null)
+
+  useEffect(() => {
+    if (!partnerStatusQuery.isSuccess) {
+      return
+    }
+
+    const hasPartner = partnerStatusQuery.data.hasPartner
+    const previousHasPartner = previousHasPartnerRef.current
+
+    if (hasPartner) {
+      setPartnerEndedNotice(null)
+    } else if (previousHasPartner && !removePartnerNotice) {
+      setPartnerEndedNotice(
+        'Your partner ended the partnership. Invite a new partner to continue sharing progress.',
+      )
+    }
+
+    previousHasPartnerRef.current = hasPartner
+  }, [
+    partnerStatusQuery.data?.hasPartner,
+    partnerStatusQuery.isSuccess,
+    removePartnerNotice,
+  ])
 
   const pendingInvitesQuery = useQuery({
     queryKey: pendingInvitesQueryKey,
@@ -494,6 +522,7 @@ export function usePartnerStatus() {
     setAcceptInviteNotice(null)
     setNudgeError(null)
     setNudgeNotice(null)
+    setPartnerEndedNotice(null)
     setInviteEmail(value)
   }
 
@@ -637,6 +666,7 @@ export function usePartnerStatus() {
     isRemovingPartner: removePartnerMutation.isPending,
     removePartnerError,
     removePartnerNotice,
+    partnerEndedNotice,
     handleInviteEmailChange,
     handleInviteSubmit,
     handleInviteDelete,

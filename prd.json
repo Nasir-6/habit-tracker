@@ -707,7 +707,7 @@
       "Return to user A and open the Partner section",
       "Verify user A sees a clear message that the partnership ended and can invite a new partner"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Backend / Partnering",

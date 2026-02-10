@@ -358,3 +358,8 @@
 - Decisions: prioritized as integration point between nudge events and partner UI; reused existing partner-status fetch to include latest incoming nudge timestamp (no extra client polling endpoint); sender name derived from active partner email display-name convention to avoid profile schema changes.
 - Files changed: src/db/nudges.ts, src/lib/api/partnerships.ts, src/hooks/usePartnerStatus.ts, src/components/dashboard/PartnerStatusCard/index.tsx, src/components/dashboard/PartnerStatusCard/partnerStatusUtils.ts, src/types/dashboard/partner.ts, src/types/dashboard/index.ts, prd.json, progress.txt.
 - Blockers/notes: none.
+
+- Task completed: Frontend / Partnering - Show a clear in-app state when a partner removes the current user. (PRD Frontend / Partnering)
+- Decisions: prioritized as partner-state integration risk; detect `hasPartner` transition true->false after successful partner-status refetch and show explicit ended-partnership guidance; suppress this notice for self-removal path by honoring existing remove-partner confirmation notice.
+- Files changed: src/hooks/usePartnerStatus.ts, src/components/dashboard/PartnerStatusCard/index.tsx, prd.json, progress.txt.
+- Blockers/notes: none.
