@@ -619,6 +619,6 @@
       "Verify rejected invite is deleted",
       "Verify active partnerships remain unchanged"
     ],
-    "passes": false
+    "passes": true
   }
 ]

@@ -181,7 +181,7 @@ export const handlePartnerInvitesPatch = async (
     const deleted = await deletePendingInviteForInviter(inviteId, user.id)
 
     if (!deleted) {
-      return badRequest('Pending invite not found')
+      return badRequest('Invite not found')
     }
 
     return ok({ invite: deleted })
@@ -255,7 +255,7 @@ export const handlePartnerInvitesDelete = async (
   const deleted = await deletePendingInviteForInviter(inviteId, user.id)
 
   if (!deleted) {
-    return badRequest('Pending invite not found')
+    return badRequest('Invite not found')
   }
 
   return ok({ invite: deleted })

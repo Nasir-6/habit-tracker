@@ -132,7 +132,7 @@ export const deletePendingInviteForInviter = async (
       and(
         eq(partnerInvites.id, inviteId),
         eq(partnerInvites.inviterUserId, inviterUserId),
-        eq(partnerInvites.status, 'pending'),
+        inArray(partnerInvites.status, ['pending', 'rejected']),
       ),
     )
     .returning({ id: partnerInvites.id })

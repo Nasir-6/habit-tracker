@@ -29,6 +29,11 @@
 - Files changed: src/routes/api/calendar.ts, src/routeTree.gen.ts, prd.json, progress.txt.
 - Blockers/notes: none.
 
+- Task completed: Backend / Partnering - Allow inviters to clear rejected invites without affecting active partnerships. (PRD Backend / Partnering)
+- Decisions: widened inviter delete filter to allow pending+rejected statuses only; kept accepted/partnership records untouched to avoid side effects.
+- Files changed: src/db/partner-invites.ts, src/lib/api/partner-invites.ts, prd.json, progress.txt.
+- Blockers/notes: none.
+
 - Task completed: Frontend / Auth - Persist session across refresh when the user is signed in. (PRD Frontend / Auth)
 - Decisions: force one client-side session refetch on app mount; avoids stale SSR-null auth snapshot after hard refresh; keeps existing auth flow unchanged.
 - Files changed: src/routes/index.tsx, prd.json, progress.txt.
