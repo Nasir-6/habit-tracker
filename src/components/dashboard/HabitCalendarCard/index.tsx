@@ -3,7 +3,7 @@ import { HabitCalendarHeader } from './HabitCalendarHeader'
 import { HabitCalendarStatus } from './HabitCalendarStatus'
 import { HabitCalendarStreaks } from './HabitCalendarStreaks'
 
-import type { Habit } from '@/components/dashboard/types'
+import type { Habit } from '@/types/dashboard'
 
 import { useHabitCalendar } from '@/hooks/useHabitCalendar'
 

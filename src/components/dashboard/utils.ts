@@ -1,4 +1,4 @@
-import type { Habit } from '@/components/dashboard/types'
+import type { Habit } from '@/types/dashboard'
 
 export const moveHabit = (items: Habit[], fromId: string, toId: string) => {
   if (fromId === toId) {
@@ -17,19 +17,4 @@ export const moveHabit = (items: Habit[], fromId: string, toId: string) => {
 
   updated.splice(toIndex, 0, moved)
   return updated
-}
-
-export const persistHabitOrder = async (orderedIds: string[]) => {
-  const response = await fetch('/api/habits', {
-    method: 'PATCH',
-    headers: {
-      'content-type': 'application/json',
-    },
-    body: JSON.stringify({ orderedIds }),
-  })
-
-  if (!response.ok) {
-    const payload = (await response.json()) as { error?: string }
-    throw new Error(payload.error || 'Unable to update habit order')
-  }
 }

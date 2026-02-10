@@ -1,12 +1,14 @@
+import { useQuery } from '@tanstack/react-query'
 import { useEffect, useMemo, useState } from 'react'
 
-import type { Habit } from '@/components/dashboard/types'
+import type { Habit } from '@/types/dashboard'
 
 import {
   buildCalendarDays,
   formatLocalDate,
   padNumber,
 } from '@/components/dashboard/HabitCalendarCard/habitCalendarUtils'
+import { requestApi } from '@/lib/client-api'
 
 type HabitStreak = { current: number; best: number }
 
@@ -23,20 +25,12 @@ export const useHabitCalendar = ({
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(
     habits[0]?.id ?? null,
   )
-  const [completedDates, setCompletedDates] = useState<Set<string>>(
-    () => new Set(),
-  )
-  const [calendarError, setCalendarError] = useState<string | null>(null)
-  const [isCalendarLoading, setIsCalendarLoading] = useState(false)
 
   useEffect(() => {
     if (habits.length === 0) {
       if (selectedHabitId !== null) {
         setSelectedHabitId(null)
       }
-      setCompletedDates(new Set())
-      setCalendarError(null)
-      setIsCalendarLoading(false)
       return
     }
 
@@ -80,62 +74,33 @@ export const useHabitCalendar = ({
     )
   }
 
-  useEffect(() => {
-    if (!selectedHabit) {
-      setCompletedDates(new Set())
-      setCalendarError(null)
-      setIsCalendarLoading(false)
-      return
-    }
+  const calendarQuery = useQuery({
+    queryKey: [
+      'habit-calendar',
+      selectedHabit?.id ?? null,
+      monthKey,
+      tzOffsetMinutes,
+    ],
+    queryFn: async () => {
+      return requestApi<{ dates?: string[] }>(
+        `/api/calendar?habitId=${encodeURIComponent(
+          selectedHabit?.id ?? '',
+        )}&month=${monthKey}&tzOffsetMinutes=${tzOffsetMinutes}`,
+        undefined,
+        'Unable to load calendar data',
+      )
+    },
+    enabled: Boolean(selectedHabit),
+  })
 
-    let isActive = true
-
-    const loadCalendar = async () => {
-      setIsCalendarLoading(true)
-      setCalendarError(null)
-
-      try {
-        const response = await fetch(
-          `/api/calendar?habitId=${encodeURIComponent(
-            selectedHabit.id,
-          )}&month=${monthKey}&tzOffsetMinutes=${tzOffsetMinutes}`,
-        )
-
-        if (!response.ok) {
-          const payload = (await response.json()) as { error?: string }
-          throw new Error(payload.error || 'Unable to load calendar data')
-        }
-
-        const payload = (await response.json()) as { dates?: string[] }
-        const next = new Set(Array.isArray(payload.dates) ? payload.dates : [])
-
-        if (isActive) {
-          setCompletedDates(next)
-        }
-      } catch (error) {
-        if (!isActive) {
-          return
-        }
-
-        const message =
-          error instanceof Error
-            ? error.message
-            : 'Unable to load calendar data'
-        setCalendarError(message)
-        setCompletedDates(new Set())
-      } finally {
-        if (isActive) {
-          setIsCalendarLoading(false)
-        }
-      }
-    }
-
-    void loadCalendar()
-
-    return () => {
-      isActive = false
-    }
-  }, [monthKey, selectedHabit, tzOffsetMinutes])
+  const completedDates = useMemo(() => {
+    const dates = Array.isArray(calendarQuery.data?.dates)
+      ? calendarQuery.data.dates
+      : []
+    return new Set(dates)
+  }, [calendarQuery.data?.dates])
+  const calendarError = calendarQuery.error?.message ?? null
+  const isCalendarLoading = calendarQuery.isLoading
 
   return {
     calendar,

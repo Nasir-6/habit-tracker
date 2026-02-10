@@ -1,122 +1,107 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
-import { useEffect, useRef, useState } from 'react'
-import type { DragEvent, FormEvent } from 'react'
-import type { AuthMode, Habit } from '@/components/dashboard/types'
+import { useEffect, useRef } from 'react'
+import type { Habit } from '@/types/dashboard'
 
-import { authClient } from '@/lib/auth-client'
 import { AuthScreen } from '@/components/dashboard/AuthScreen'
 import { Dashboard } from '@/components/dashboard/Dashboard'
 import { LoadingScreen } from '@/components/dashboard/LoadingScreen'
-import { moveHabit, persistHabitOrder } from '@/components/dashboard/utils'
+import { moveHabit } from '@/components/dashboard/utils'
+import { authClient } from '@/lib/auth-client'
+import { requestApi } from '@/lib/client-api'
+import { useLocalDate } from '@/context/local-date'
 
 export const Route = createFileRoute('/')({ component: App })
 
-type PartnerHabit = {
-  id: string
-  name: string
-  completedToday: boolean
+const habitsQueryKey = (userId: string, localDate: string) =>
+  ['dashboard-habits', userId, localDate] as const
+
+const streaksQueryKey = (
+  userId: string,
+  localDate: string,
+  habitIds: string[],
+) => ['dashboard-streaks', userId, localDate, habitIds] as const
+
+const mapHabitsPayload = (
+  habitsPayload: { habits?: { id?: string; name?: string }[] },
+  completionsPayload: { habitIds?: string[] },
+) => {
+  const habits = Array.isArray(habitsPayload.habits) ? habitsPayload.habits : []
+  const completedIds = new Set(
+    Array.isArray(completionsPayload.habitIds)
+      ? completionsPayload.habitIds
+      : [],
+  )
+
+  return habits.map((habit) => ({
+    id: habit.id ?? crypto.randomUUID(),
+    name: habit.name ?? 'Untitled habit',
+    isCompleted: completedIds.has(habit.id ?? ''),
+  }))
 }
 
-type PendingPartnerInvite = {
-  id: string
-  inviterUserId: string
-  inviteeEmail: string
-  createdAt: string
+const fetchHabits = async (localDate: string) => {
+  const [habitsResponse, completionsResponse] = await Promise.all([
+    requestApi<{ habits?: { id?: string; name?: string }[] }>(
+      '/api/habits',
+      undefined,
+      'Unable to load habits',
+    ),
+    requestApi<{ habitIds?: string[] }>(
+      `/api/completions?localDate=${encodeURIComponent(localDate)}`,
+      undefined,
+      'Unable to load completions',
+    ),
+  ])
+
+  return mapHabitsPayload(habitsResponse, completionsResponse)
 }
 
-const formatLocalDate = (value: Date) => {
-  const year = value.getFullYear()
-  const month = String(value.getMonth() + 1).padStart(2, '0')
-  const day = String(value.getDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
-}
+const fetchStreaks = async (habits: Habit[], localDate: string) => {
+  const results = await Promise.all(
+    habits.map(async (habit) => {
+      try {
+        const payload = await requestApi<{
+          currentStreak?: number
+          bestStreak?: number
+        }>(
+          `/api/streaks?habitId=${encodeURIComponent(
+            habit.id,
+          )}&localDate=${localDate}`,
+          undefined,
+          'Unable to load streaks',
+        )
 
-const resolveAuthErrorMessage = (
-  authMode: AuthMode,
-  error: unknown,
-): string => {
-  if (error instanceof Error && error.message.trim()) {
-    return error.message
-  }
+        return {
+          id: habit.id,
+          current: payload.currentStreak ?? 0,
+          best: payload.bestStreak ?? 0,
+        }
+      } catch {
+        return { id: habit.id, current: 0, best: 0 }
+      }
+    }),
+  )
 
-  return authMode === 'sign-in'
-    ? 'Sign in failed. Check your credentials and try again.'
-    : 'Sign up failed. Check your details and try again.'
+  const next: Record<string, { current: number; best: number }> = {}
+
+  results.forEach((result) => {
+    next[result.id] = { current: result.current, best: result.best }
+  })
+
+  return next
 }
 
 export function App() {
+  const queryClient = useQueryClient()
   const {
     data: session,
     isPending,
     refetch: refetchSession,
   } = authClient.useSession()
   const hasRefetchedSessionRef = useRef(false)
-  const [authMode, setAuthMode] = useState<AuthMode>('sign-in')
-  const [authName, setAuthName] = useState('')
-  const [authEmail, setAuthEmail] = useState('')
-  const [authPassword, setAuthPassword] = useState('')
-  const [authError, setAuthError] = useState<string | null>(null)
-  const [isAuthSubmitting, setIsAuthSubmitting] = useState(false)
-  const [signOutError, setSignOutError] = useState<string | null>(null)
-  const [isSigningOut, setIsSigningOut] = useState(false)
-  const [habitName, setHabitName] = useState('')
-  const [habits, setHabits] = useState<Habit[]>([])
-  const [habitStreaks, setHabitStreaks] = useState<
-    Partial<Record<string, { current: number; best: number }>>
-  >({})
-  const [historyHabitId, setHistoryHabitId] = useState<string | null>(null)
-  const [historyDates, setHistoryDates] = useState<string[]>([])
-  const [historyError, setHistoryError] = useState<string | null>(null)
-  const [isHistoryLoading, setIsHistoryLoading] = useState(false)
-  const historyRequestIdRef = useRef(0)
-  const [partnerHabits, setPartnerHabits] = useState<PartnerHabit[]>([])
-  const [partnerStartedOn, setPartnerStartedOn] = useState<string | null>(null)
-  const [partnerError, setPartnerError] = useState<string | null>(null)
-  const [isPartnerLoading, setIsPartnerLoading] = useState(false)
-  const [hasPartner, setHasPartner] = useState(false)
-  const [partnerInviteEmail, setPartnerInviteEmail] = useState('')
-  const [partnerInviteError, setPartnerInviteError] = useState<string | null>(
-    null,
-  )
-  const [partnerInviteNotice, setPartnerInviteNotice] = useState<string | null>(
-    null,
-  )
-  const [isPartnerInviteSubmitting, setIsPartnerInviteSubmitting] =
-    useState(false)
-  const [pendingPartnerInvites, setPendingPartnerInvites] = useState<
-    PendingPartnerInvite[]
-  >([])
-  const [pendingPartnerInvitesError, setPendingPartnerInvitesError] = useState<
-    string | null
-  >(null)
-  const [isPendingPartnerInvitesLoading, setIsPendingPartnerInvitesLoading] =
-    useState(false)
-  const [acceptingPartnerInviteId, setAcceptingPartnerInviteId] = useState<
-    string | null
-  >(null)
-  const [acceptPartnerInviteError, setAcceptPartnerInviteError] = useState<
-    string | null
-  >(null)
-  const [acceptPartnerInviteNotice, setAcceptPartnerInviteNotice] = useState<
-    string | null
-  >(null)
-  const [isRemovingPartner, setIsRemovingPartner] = useState(false)
-  const [removePartnerError, setRemovePartnerError] = useState<string | null>(
-    null,
-  )
-  const [removePartnerNotice, setRemovePartnerNotice] = useState<string | null>(
-    null,
-  )
-  const [partnerStatusRefreshToken, setPartnerStatusRefreshToken] = useState(0)
-  const [pendingInvitesRefreshToken, setPendingInvitesRefreshToken] =
-    useState(0)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [draggingHabitId, setDraggingHabitId] = useState<string | null>(null)
-  const [deletingHabitId, setDeletingHabitId] = useState<string | null>(null)
-  const trimmedHabitName = habitName.trim()
-  const isSaveDisabled = trimmedHabitName.length === 0 || isSubmitting
-  const localDate = formatLocalDate(new Date())
+  const localDate = useLocalDate()
+  const userId = session?.user.id ?? null
 
   useEffect(() => {
     if (hasRefetchedSessionRef.current) {
@@ -127,582 +112,115 @@ export function App() {
     void refetchSession()
   }, [refetchSession])
 
-  useEffect(() => {
-    if (!session?.user) {
-      setHabits([])
-      setPartnerHabits([])
-      setPartnerStartedOn(null)
-      setPartnerError(null)
-      setIsPartnerLoading(false)
-      setHasPartner(false)
-      setPartnerInviteEmail('')
-      setPartnerInviteError(null)
-      setPartnerInviteNotice(null)
-      setIsPartnerInviteSubmitting(false)
-      setPendingPartnerInvites([])
-      setPendingPartnerInvitesError(null)
-      setIsPendingPartnerInvitesLoading(false)
-      setAcceptingPartnerInviteId(null)
-      setAcceptPartnerInviteError(null)
-      setAcceptPartnerInviteNotice(null)
-      setIsRemovingPartner(false)
-      setRemovePartnerError(null)
-      setRemovePartnerNotice(null)
-      setSignOutError(null)
-      setIsSigningOut(false)
-      setDeletingHabitId(null)
-      return
-    }
-
-    let isActive = true
-
-    const loadPartnerStatus = async () => {
-      setIsPartnerLoading(true)
-      setPartnerError(null)
-
-      try {
-        const response = await fetch(
-          `/api/partnerships?localDate=${encodeURIComponent(localDate)}`,
-        )
-
-        if (response.status === 404) {
-          if (!isActive) {
-            return
-          }
-
-          setHasPartner(false)
-          setPartnerHabits([])
-          setPartnerStartedOn(null)
-          return
-        }
-
-        if (!response.ok) {
-          const payload = (await response.json()) as { error?: string }
-          throw new Error(payload.error || 'Unable to load partner status')
-        }
-
-        const payload = (await response.json()) as {
-          partner?: { startedOn?: string }
-          habits?: PartnerHabit[]
-        }
-
-        if (!isActive) {
-          return
-        }
-
-        setHasPartner(true)
-        setPartnerStartedOn(payload.partner?.startedOn ?? null)
-        setPartnerHabits(Array.isArray(payload.habits) ? payload.habits : [])
-      } catch (error) {
-        if (!isActive) {
-          return
-        }
-
-        const message =
-          error instanceof Error
-            ? error.message
-            : 'Unable to load partner status'
-        setPartnerError(message)
-        setHasPartner(false)
-        setPartnerHabits([])
-        setPartnerStartedOn(null)
-      } finally {
-        if (isActive) {
-          setIsPartnerLoading(false)
-        }
-      }
-    }
-
-    void loadPartnerStatus()
-
-    return () => {
-      isActive = false
-    }
-  }, [localDate, partnerStatusRefreshToken, session?.user.id])
-
-  useEffect(() => {
-    if (!session?.user) {
-      return
-    }
-
-    let isActive = true
-
-    const loadPendingInvites = async () => {
-      setIsPendingPartnerInvitesLoading(true)
-      setPendingPartnerInvitesError(null)
-
-      try {
-        const response = await fetch('/api/partner-invites')
-
-        if (!response.ok) {
-          const payload = (await response.json()) as { error?: string }
-          throw new Error(payload.error || 'Unable to load partner invites')
-        }
-
-        const payload = (await response.json()) as {
-          invites?: PendingPartnerInvite[]
-        }
-
-        if (!isActive) {
-          return
-        }
-
-        setPendingPartnerInvites(
-          Array.isArray(payload.invites) ? payload.invites : [],
-        )
-      } catch (error) {
-        if (!isActive) {
-          return
-        }
-
-        const message =
-          error instanceof Error
-            ? error.message
-            : 'Unable to load partner invites'
-        setPendingPartnerInvitesError(message)
-        setPendingPartnerInvites([])
-      } finally {
-        if (isActive) {
-          setIsPendingPartnerInvitesLoading(false)
-        }
-      }
-    }
-
-    void loadPendingInvites()
-
-    return () => {
-      isActive = false
-    }
-  }, [pendingInvitesRefreshToken, session?.user.id])
-
-  useEffect(() => {
-    if (!session?.user) {
-      return
-    }
-
-    let isActive = true
-
-    const loadHabits = async () => {
-      setErrorMessage(null)
-
-      try {
-        const [habitsResponse, completionsResponse] = await Promise.all([
-          fetch('/api/habits'),
-          fetch(`/api/completions?localDate=${encodeURIComponent(localDate)}`),
-        ])
-
-        if (!habitsResponse.ok) {
-          const payload = (await habitsResponse.json()) as { error?: string }
-          throw new Error(payload.error || 'Unable to load habits')
-        }
-
-        if (!completionsResponse.ok) {
-          const payload = (await completionsResponse.json()) as {
-            error?: string
-          }
-          throw new Error(payload.error || 'Unable to load completions')
-        }
-
-        const habitsPayload = (await habitsResponse.json()) as {
-          habits?: { id?: string; name?: string }[]
-        }
-        const completionsPayload = (await completionsResponse.json()) as {
-          habitIds?: string[]
-        }
-
-        if (!isActive) {
-          return
-        }
-
-        const next = Array.isArray(habitsPayload.habits)
-          ? habitsPayload.habits
-          : []
-        const completedIds = new Set(
-          Array.isArray(completionsPayload.habitIds)
-            ? completionsPayload.habitIds
-            : [],
-        )
-
-        setHabits(
-          next.map((habit) => ({
-            id: habit.id ?? crypto.randomUUID(),
-            name: habit.name ?? 'Untitled habit',
-            isCompleted: completedIds.has(habit.id ?? ''),
-          })),
-        )
-      } catch (error) {
-        if (!isActive) {
-          return
-        }
-
-        const message =
-          error instanceof Error ? error.message : 'Unable to load habits'
-        setErrorMessage(message)
-        setHabits([])
-      }
-    }
-
-    void loadHabits()
-
-    return () => {
-      isActive = false
-    }
-  }, [localDate, session?.user.id])
-
-  useEffect(() => {
-    if (habits.length === 0) {
-      setHabitStreaks({})
-      return
-    }
-
-    let isActive = true
-
-    const loadStreaks = async () => {
-      const results = await Promise.all(
-        habits.map(async (habit) => {
-          try {
-            const response = await fetch(
-              `/api/streaks?habitId=${encodeURIComponent(
-                habit.id,
-              )}&localDate=${localDate}`,
-            )
-
-            if (!response.ok) {
-              return { id: habit.id, current: 0, best: 0 }
-            }
-
-            const payload = (await response.json()) as {
-              currentStreak?: number
-              bestStreak?: number
-            }
-
-            return {
-              id: habit.id,
-              current: payload.currentStreak ?? 0,
-              best: payload.bestStreak ?? 0,
-            }
-          } catch {
-            return { id: habit.id, current: 0, best: 0 }
-          }
-        }),
-      )
-
-      if (!isActive) {
-        return
-      }
-
-      const next: Record<string, { current: number; best: number }> = {}
-
-      results.forEach((result) => {
-        next[result.id] = { current: result.current, best: result.best }
-      })
-
-      setHabitStreaks(next)
-    }
-
-    void loadStreaks()
-
-    return () => {
-      isActive = false
-    }
-  }, [habits, localDate])
-
-  const handleAuthSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-
-    if (isAuthSubmitting) {
-      return
-    }
-
-    const email = authEmail.trim()
-    const password = authPassword
-    const submittingMode = authMode
-
-    if (!email || !password) {
-      setAuthError('Email and password are required')
-      return
-    }
-
-    setIsAuthSubmitting(true)
-    setAuthError(null)
-
-    try {
-      if (submittingMode === 'sign-in') {
-        const result = await authClient.signIn.email({
-          email,
-          password,
-        })
-
-        if (result.error) {
-          throw new Error(result.error.message || 'Unable to sign in')
-        }
-      } else {
-        const name = authName.trim() || email.split('@')[0] || 'Habit Tracker'
-        const result = await authClient.signUp.email({
-          email,
-          password,
-          name,
-        })
-
-        if (result.error) {
-          throw new Error(result.error.message || 'Unable to sign up')
-        }
-
-        const signInResult = await authClient.signIn.email({
-          email,
-          password,
-        })
-
-        if (signInResult.error) {
-          throw new Error(signInResult.error.message || 'Unable to sign in')
-        }
-      }
-    } catch (error) {
-      setAuthError(resolveAuthErrorMessage(submittingMode, error))
-    } finally {
-      setIsAuthSubmitting(false)
-    }
-  }
-
-  const handleSignOut = async () => {
-    if (isSigningOut) {
-      return
-    }
-
-    setIsSigningOut(true)
-    setSignOutError(null)
-
-    try {
-      const result = await authClient.signOut()
-
-      if (result.error) {
-        throw new Error(result.error.message || 'Unable to sign out')
-      }
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'Unable to sign out'
-      setSignOutError(message)
-    } finally {
-      setIsSigningOut(false)
-    }
-  }
-
-  const handleCreateHabitSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-
-    if (isSaveDisabled) {
-      return
-    }
-
-    setIsSubmitting(true)
-    setErrorMessage(null)
-
-    try {
-      const response = await fetch('/api/habits', {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-        },
-        body: JSON.stringify({ name: trimmedHabitName }),
-      })
-
-      if (!response.ok) {
-        const payload = (await response.json()) as {
-          error?: string
-        }
-
-        throw new Error(payload.error || 'Unable to save habit')
-      }
-
-      const payload = (await response.json()) as {
-        habit?: { id?: string; name?: string }
-      }
-      const createdHabit = payload.habit
-      const createdName = createdHabit?.name || trimmedHabitName
-      const createdId = createdHabit?.id || crypto.randomUUID()
-
-      setHabits((current) => [
+  const habitsQuery = useQuery({
+    queryKey: habitsQueryKey(userId ?? 'guest', localDate),
+    queryFn: async () => fetchHabits(localDate),
+    enabled: Boolean(userId),
+  })
+
+  const habits = habitsQuery.data ?? []
+
+  const streaksQuery = useQuery({
+    queryKey: streaksQueryKey(
+      userId ?? 'guest',
+      localDate,
+      habits.map((habit) => habit.id),
+    ),
+    queryFn: async () => fetchStreaks(habits, localDate),
+    enabled: Boolean(userId) && habits.length > 0,
+  })
+
+  const habitStreaks = habits.length === 0 ? {} : (streaksQuery.data ?? {})
+
+  const reorderHabitMutation = useMutation({
+    mutationFn: async (orderedIds: string[]) => {
+      return requestApi<{ success?: boolean }>(
+        '/api/habits',
         {
-          id: createdId,
-          name: createdName,
-          isCompleted: false,
+          method: 'PATCH',
+          headers: {
+            'content-type': 'application/json',
+          },
+          body: JSON.stringify({ orderedIds }),
         },
-        ...current,
-      ])
-      setHabitName('')
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Request failed'
-      setErrorMessage(message)
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
+        'Unable to update habit order',
+      )
+    },
+  })
 
-  const handlePartnerInviteSubmit = async (
-    event: FormEvent<HTMLFormElement>,
-  ) => {
-    event.preventDefault()
-
-    if (isPartnerInviteSubmitting) {
-      return
-    }
-
-    const email = partnerInviteEmail.trim()
-
-    if (!email) {
-      setPartnerInviteError('Partner email is required')
-      setPartnerInviteNotice(null)
-      return
-    }
-
-    setIsPartnerInviteSubmitting(true)
-    setPartnerInviteError(null)
-    setPartnerInviteNotice(null)
-
-    try {
-      const response = await fetch('/api/partner-invites', {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
+  const toggleHabitMutation = useMutation({
+    mutationFn: async ({
+      habitId,
+      nextCompleted,
+    }: {
+      habitId: string
+      nextCompleted: boolean
+    }) => {
+      return requestApi<{ removed?: boolean }>(
+        '/api/completions',
+        {
+          method: nextCompleted ? 'POST' : 'DELETE',
+          headers: {
+            'content-type': 'application/json',
+          },
+          body: JSON.stringify({ habitId, localDate }),
         },
-        body: JSON.stringify({ email }),
-      })
+        'Unable to update completion',
+      )
+    },
+  })
 
-      const payload = (await response.json()) as { error?: string }
-
-      if (!response.ok) {
-        throw new Error(payload.error || 'Unable to send invite')
-      }
-
-      setPartnerInviteEmail('')
-      setPartnerInviteNotice(`Invite sent to ${email}`)
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'Unable to send invite'
-      setPartnerInviteError(message)
-    } finally {
-      setIsPartnerInviteSubmitting(false)
-    }
-  }
-
-  const handlePartnerInviteAccept = async (inviteId: string) => {
-    if (acceptingPartnerInviteId) {
-      return
-    }
-
-    setAcceptingPartnerInviteId(inviteId)
-    setAcceptPartnerInviteError(null)
-    setAcceptPartnerInviteNotice(null)
-
-    try {
-      const response = await fetch('/api/partner-invites', {
-        method: 'PATCH',
-        headers: {
-          'content-type': 'application/json',
+  const deleteHabitMutation = useMutation({
+    mutationFn: async (habitId: string) => {
+      return requestApi<{ archived?: boolean }>(
+        '/api/habits',
+        {
+          method: 'PATCH',
+          headers: {
+            'content-type': 'application/json',
+          },
+          body: JSON.stringify({ archiveId: habitId }),
         },
-        body: JSON.stringify({ inviteId }),
-      })
+        'Unable to delete habit',
+      )
+    },
+  })
 
-      const payload = (await response.json()) as { error?: string }
-
-      if (!response.ok) {
-        throw new Error(payload.error || 'Unable to accept invite')
-      }
-
-      setAcceptPartnerInviteNotice('Partnership activated')
-      setPendingInvitesRefreshToken((value) => value + 1)
-      setPartnerStatusRefreshToken((value) => value + 1)
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'Unable to accept invite'
-      setAcceptPartnerInviteError(message)
-    } finally {
-      setAcceptingPartnerInviteId(null)
-    }
-  }
-
-  const handleRemovePartner = async () => {
-    if (isRemovingPartner) {
+  const handleHabitReorder = async (fromId: string, toId: string) => {
+    if (!userId) {
       return
     }
 
-    const confirmed = window.confirm(
-      'Remove your active partner? Shared visibility ends immediately.',
-    )
+    const queryKey = habitsQueryKey(userId, localDate)
+    const previous = queryClient.getQueryData<Habit[]>(queryKey) ?? []
+    const updated = moveHabit(previous, fromId, toId)
 
-    if (!confirmed) {
+    if (updated === previous) {
       return
     }
 
-    setIsRemovingPartner(true)
-    setRemovePartnerError(null)
-    setRemovePartnerNotice(null)
-
-    try {
-      const response = await fetch('/api/partnerships', {
-        method: 'DELETE',
-      })
-
-      const payload = (await response.json()) as { error?: string }
-
-      if (!response.ok) {
-        throw new Error(payload.error || 'Unable to remove partner')
-      }
-
-      setHasPartner(false)
-      setPartnerHabits([])
-      setPartnerStartedOn(null)
-      setPartnerError(null)
-      setPendingInvitesRefreshToken((value) => value + 1)
-      setRemovePartnerNotice('Partner removed')
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'Unable to remove partner'
-      setRemovePartnerError(message)
-    } finally {
-      setIsRemovingPartner(false)
-    }
-  }
-
-  const handleHabitDragStart = (
-    event: DragEvent<HTMLDivElement>,
-    habitId: string,
-  ) => {
-    event.dataTransfer.effectAllowed = 'move'
-    event.dataTransfer.setData('text/plain', habitId)
-    setDraggingHabitId(habitId)
-  }
-
-  const handleHabitDrop = async (targetId: string) => {
-    if (!draggingHabitId) {
-      return
-    }
-
-    const updated = moveHabit(habits, draggingHabitId, targetId)
-
-    if (updated === habits) {
-      setDraggingHabitId(null)
-      return
-    }
-
-    const previous = habits
     const orderedIds = updated.map((item) => item.id)
-
-    setHabits(updated)
-    setDraggingHabitId(null)
+    queryClient.setQueryData(queryKey, updated)
 
     try {
-      await persistHabitOrder(orderedIds)
+      await reorderHabitMutation.mutateAsync(orderedIds)
     } catch (error) {
+      queryClient.setQueryData(queryKey, previous)
+
       const message =
         error instanceof Error ? error.message : 'Unable to update habit order'
-      setErrorMessage(message)
-      setHabits(previous)
+      throw new Error(message)
     }
   }
 
   const handleToggleHabit = async (habitId: string) => {
-    const targetHabit = habits.find((habit) => habit.id === habitId)
+    if (!userId) {
+      return
+    }
+
+    const queryKey = habitsQueryKey(userId, localDate)
+    const previous = queryClient.getQueryData<Habit[]>(queryKey) ?? []
+    const targetHabit = previous.find((habit) => habit.id === habitId)
 
     if (!targetHabit) {
       return
@@ -710,8 +228,9 @@ export function App() {
 
     const nextCompleted = !targetHabit.isCompleted
 
-    setHabits((current) =>
-      current.map((item) =>
+    queryClient.setQueryData<Habit[]>(
+      queryKey,
+      previous.map((item) =>
         item.id === habitId
           ? {
               ...item,
@@ -722,173 +241,49 @@ export function App() {
     )
 
     try {
-      const response = await fetch('/api/completions', {
-        method: nextCompleted ? 'POST' : 'DELETE',
-        headers: {
-          'content-type': 'application/json',
-        },
-        body: JSON.stringify({ habitId, localDate }),
-      })
-
-      if (!response.ok) {
-        const payload = (await response.json()) as { error?: string }
-        throw new Error(payload.error || 'Unable to update completion')
-      }
-    } catch (error) {
-      setHabits((current) =>
-        current.map((item) =>
-          item.id === habitId
-            ? {
-                ...item,
-                isCompleted: !nextCompleted,
-              }
-            : item,
+      await toggleHabitMutation.mutateAsync({ habitId, nextCompleted })
+      await queryClient.invalidateQueries({
+        queryKey: streaksQueryKey(
+          userId,
+          localDate,
+          previous.map((habit) => habit.id),
         ),
-      )
+      })
+    } catch (error) {
+      queryClient.setQueryData(queryKey, previous)
 
       const message =
         error instanceof Error ? error.message : 'Unable to update completion'
-      setErrorMessage(message)
-    }
-  }
-
-  const handleToggleHistory = async (habitId: string) => {
-    if (historyHabitId === habitId) {
-      historyRequestIdRef.current += 1
-      setHistoryHabitId(null)
-      setHistoryDates([])
-      setHistoryError(null)
-      setIsHistoryLoading(false)
-      return
-    }
-
-    const requestId = historyRequestIdRef.current + 1
-    historyRequestIdRef.current = requestId
-    setHistoryHabitId(habitId)
-    setHistoryDates([])
-    setHistoryError(null)
-    setIsHistoryLoading(true)
-
-    try {
-      const response = await fetch(
-        `/api/history?habitId=${encodeURIComponent(
-          habitId,
-        )}&localDate=${localDate}`,
-      )
-
-      if (!response.ok) {
-        const payload = (await response.json()) as { error?: string }
-        throw new Error(payload.error || 'Unable to load history')
-      }
-
-      const payload = (await response.json()) as { dates?: string[] }
-
-      if (historyRequestIdRef.current !== requestId) {
-        return
-      }
-
-      setHistoryDates(Array.isArray(payload.dates) ? payload.dates : [])
-    } catch (error) {
-      if (historyRequestIdRef.current !== requestId) {
-        return
-      }
-
-      const message =
-        error instanceof Error ? error.message : 'Unable to load history'
-      setHistoryError(message)
-    } finally {
-      if (historyRequestIdRef.current === requestId) {
-        setIsHistoryLoading(false)
-      }
+      throw new Error(message)
     }
   }
 
   const handleDeleteHabit = async (habitId: string) => {
-    if (deletingHabitId) {
+    if (!userId) {
       return
     }
 
-    const habit = habits.find((item) => item.id === habitId)
-
-    if (!habit) {
-      return
-    }
-
-    const confirmed = window.confirm(
-      `Delete "${habit.name}"? This cannot be undone.`,
+    const queryKey = habitsQueryKey(userId, localDate)
+    const previous = queryClient.getQueryData<Habit[]>(queryKey) ?? []
+    queryClient.setQueryData(
+      queryKey,
+      previous.filter((habit) => habit.id !== habitId),
     )
 
-    if (!confirmed) {
-      return
-    }
-
-    setDeletingHabitId(habitId)
-    setErrorMessage(null)
-
     try {
-      const response = await fetch('/api/habits', {
-        method: 'PATCH',
-        headers: {
-          'content-type': 'application/json',
-        },
-        body: JSON.stringify({ archiveId: habitId }),
-      })
-
-      if (!response.ok) {
-        const payload = (await response.json()) as { error?: string }
-        throw new Error(payload.error || 'Unable to delete habit')
-      }
-
-      setHabits((current) => current.filter((item) => item.id !== habitId))
-
-      if (historyHabitId === habitId) {
-        historyRequestIdRef.current += 1
-        setHistoryHabitId(null)
-        setHistoryDates([])
-        setHistoryError(null)
-        setIsHistoryLoading(false)
-      }
+      await deleteHabitMutation.mutateAsync(habitId)
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'Unable to delete habit'
-      setErrorMessage(message)
-    } finally {
-      setDeletingHabitId(null)
+      queryClient.setQueryData(queryKey, previous)
+      throw error
     }
   }
 
-  if (isPending) {
+  if (isPending || (session?.user && habitsQuery.isLoading)) {
     return <LoadingScreen />
   }
 
   if (!session?.user) {
-    return (
-      <AuthScreen
-        authEmail={authEmail}
-        authError={authError}
-        authMode={authMode}
-        authName={authName}
-        authPassword={authPassword}
-        isAuthSubmitting={isAuthSubmitting}
-        onAuthEmailChange={(event) => {
-          setAuthError(null)
-          setAuthEmail(event.target.value)
-        }}
-        onAuthNameChange={(event) => {
-          setAuthError(null)
-          setAuthName(event.target.value)
-        }}
-        onAuthPasswordChange={(event) => {
-          setAuthError(null)
-          setAuthPassword(event.target.value)
-        }}
-        onSubmit={handleAuthSubmit}
-        onToggleMode={() => {
-          setAuthError(null)
-          setAuthMode((mode) => (mode === 'sign-in' ? 'sign-up' : 'sign-in'))
-        }}
-      />
-    )
+    return <AuthScreen />
   }
 
   const userDisplayName =
@@ -899,57 +294,11 @@ export function App() {
   return (
     <Dashboard
       userDisplayName={userDisplayName}
-      draggingHabitId={draggingHabitId}
-      deletingHabitId={deletingHabitId}
-      errorMessage={errorMessage}
-      habitName={habitName}
       habits={habits}
-      hasPartner={hasPartner}
-      partnerInviteEmail={partnerInviteEmail}
-      partnerInviteError={partnerInviteError}
-      partnerInviteNotice={partnerInviteNotice}
-      isPartnerInviteSubmitting={isPartnerInviteSubmitting}
-      pendingPartnerInvites={pendingPartnerInvites}
-      pendingPartnerInvitesError={pendingPartnerInvitesError}
-      isPendingPartnerInvitesLoading={isPendingPartnerInvitesLoading}
-      acceptingPartnerInviteId={acceptingPartnerInviteId}
-      acceptPartnerInviteError={acceptPartnerInviteError}
-      acceptPartnerInviteNotice={acceptPartnerInviteNotice}
-      isRemovingPartner={isRemovingPartner}
-      removePartnerError={removePartnerError}
-      removePartnerNotice={removePartnerNotice}
-      historyDates={historyDates}
-      historyError={historyError}
-      historyHabitId={historyHabitId}
-      isHistoryLoading={isHistoryLoading}
-      isPartnerLoading={isPartnerLoading}
-      isSigningOut={isSigningOut}
       habitStreaks={habitStreaks}
-      isSaveDisabled={isSaveDisabled}
-      isSubmitting={isSubmitting}
-      partnerError={partnerError}
-      partnerHabits={partnerHabits}
-      partnerStartedOn={partnerStartedOn}
-      signOutError={signOutError}
-      onCreateHabit={handleCreateHabitSubmit}
-      onHabitDragEnd={() => {
-        setDraggingHabitId(null)
-      }}
-      onHabitDragStart={handleHabitDragStart}
-      onHabitDrop={handleHabitDrop}
-      onHabitNameChange={setHabitName}
-      onDeleteHabit={handleDeleteHabit}
+      onHabitReorder={handleHabitReorder}
       onToggleHabit={handleToggleHabit}
-      onToggleHistory={handleToggleHistory}
-      onSignOut={handleSignOut}
-      onPartnerInvite={handlePartnerInviteSubmit}
-      onPartnerInviteAccept={handlePartnerInviteAccept}
-      onRemovePartner={handleRemovePartner}
-      onPartnerInviteEmailChange={(value) => {
-        setPartnerInviteError(null)
-        setPartnerInviteNotice(null)
-        setPartnerInviteEmail(value)
-      }}
+      onDeleteHabit={handleDeleteHabit}
     />
   )
 }

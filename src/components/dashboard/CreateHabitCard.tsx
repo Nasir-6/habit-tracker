@@ -1,31 +1,66 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
 import type { FormEvent } from 'react'
 
+import { requestApi } from '@/lib/client-api'
 import { cn } from '@/lib/utils'
 
-type CreateHabitCardProps = {
-  habitName: string
-  isSaveDisabled: boolean
-  isSubmitting: boolean
-  errorMessage: string | null
-  onHabitNameChange: (value: string) => void
-  onCreateHabit: (event: FormEvent<HTMLFormElement>) => void
-}
+export function CreateHabitCard() {
+  const queryClient = useQueryClient()
+  const [habitName, setHabitName] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
-export function CreateHabitCard({
-  habitName,
-  isSaveDisabled,
-  isSubmitting,
-  errorMessage,
-  onHabitNameChange,
-  onCreateHabit,
-}: CreateHabitCardProps) {
+  const createHabitMutation = useMutation({
+    mutationFn: async (name: string) => {
+      return requestApi<{ habit?: { id?: string; name?: string } }>(
+        '/api/habits',
+        {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+          },
+          body: JSON.stringify({ name }),
+        },
+        'Unable to save habit',
+      )
+    },
+  })
+
+  const trimmedHabitName = habitName.trim()
+  const isSaveDisabled = trimmedHabitName.length === 0 || isSubmitting
+
+  const handleCreateHabit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+
+    if (isSaveDisabled) {
+      return
+    }
+
+    setIsSubmitting(true)
+    setErrorMessage(null)
+
+    try {
+      await createHabitMutation.mutateAsync(trimmedHabitName)
+      await queryClient.invalidateQueries({
+        queryKey: ['dashboard-habits'],
+      })
+      setHabitName('')
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Request failed'
+      setErrorMessage(message)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   return (
     <div className="rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-sm sm:p-8">
       <h2 className="text-lg font-semibold text-slate-900">Create a habit</h2>
       <p className="mt-2 text-sm text-slate-500">
         Give it a short, action-focused name. You can always edit it later.
       </p>
-      <form className="mt-6 flex flex-col gap-4" onSubmit={onCreateHabit}>
+      <form className="mt-6 flex flex-col gap-4" onSubmit={handleCreateHabit}>
         <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
           Habit name
           <input
@@ -35,7 +70,8 @@ export function CreateHabitCard({
             type="text"
             value={habitName}
             onChange={(event) => {
-              onHabitNameChange(event.target.value)
+              setErrorMessage(null)
+              setHabitName(event.target.value)
             }}
           />
         </label>

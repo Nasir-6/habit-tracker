@@ -1,16 +1,38 @@
+import { useState } from 'react'
+
+import { authClient } from '@/lib/auth-client'
+
 type DashboardHeaderProps = {
   userDisplayName: string
-  isSigningOut: boolean
-  signOutError: string | null
-  onSignOut: () => void
 }
 
-export function DashboardHeader({
-  userDisplayName,
-  isSigningOut,
-  signOutError,
-  onSignOut,
-}: DashboardHeaderProps) {
+export function DashboardHeader({ userDisplayName }: DashboardHeaderProps) {
+  const [isSigningOut, setIsSigningOut] = useState(false)
+  const [signOutError, setSignOutError] = useState<string | null>(null)
+
+  const handleSignOut = async () => {
+    if (isSigningOut) {
+      return
+    }
+
+    setIsSigningOut(true)
+    setSignOutError(null)
+
+    try {
+      const result = await authClient.signOut()
+
+      if (result.error) {
+        throw new Error(result.error.message || 'Unable to sign out')
+      }
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Unable to sign out'
+      setSignOutError(message)
+    } finally {
+      setIsSigningOut(false)
+    }
+  }
+
   return (
     <div className="flex items-center justify-between flex-wrap gap-6">
       <div>
@@ -37,7 +59,7 @@ export function DashboardHeader({
           }
           disabled={isSigningOut}
           type="button"
-          onClick={onSignOut}
+          onClick={handleSignOut}
         >
           {isSigningOut ? 'Signing out…' : 'Sign out'}
         </button>

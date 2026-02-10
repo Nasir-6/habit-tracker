@@ -1,4 +1,4 @@
-import type { Habit } from '@/components/dashboard/types'
+import type { Habit } from '@/types/dashboard'
 
 type HabitCalendarHeaderProps = {
   habits: Habit[]

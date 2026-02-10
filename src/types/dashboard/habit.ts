@@ -3,5 +3,3 @@ export type Habit = {
   name: string
   isCompleted: boolean
 }
-
-export type AuthMode = 'sign-in' | 'sign-up'
