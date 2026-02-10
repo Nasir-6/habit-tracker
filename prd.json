@@ -553,7 +553,7 @@
       "Reject the invite",
       "Verify the invite is removed from user B pending invites"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Backend / Partnering",

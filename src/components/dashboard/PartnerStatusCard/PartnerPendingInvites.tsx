@@ -8,13 +8,17 @@ type PartnerPendingInvitesProps = {
     createdAt: string
   }[]
   acceptingInviteId: string | null
+  rejectingInviteId: string | null
   onInviteAccept: (inviteId: string) => void
+  onInviteReject: (inviteId: string) => void
 }
 
 export function PartnerPendingInvites({
   pendingInvites,
   acceptingInviteId,
+  rejectingInviteId,
   onInviteAccept,
+  onInviteReject,
 }: PartnerPendingInvitesProps) {
   if (pendingInvites.length === 0) {
     return null
@@ -27,6 +31,8 @@ export function PartnerPendingInvites({
       </p>
       {pendingInvites.map((invite) => {
         const isAccepting = acceptingInviteId === invite.id
+        const isRejecting = rejectingInviteId === invite.id
+        const isMutating = isAccepting || isRejecting
 
         return (
           <div
@@ -41,16 +47,28 @@ export function PartnerPendingInvites({
                 Sent {formatInviteDate(invite.createdAt)}
               </p>
             </div>
-            <button
-              className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:bg-emerald-300"
-              disabled={isAccepting}
-              onClick={() => {
-                onInviteAccept(invite.id)
-              }}
-              type="button"
-            >
-              {isAccepting ? 'Accepting...' : 'Accept'}
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:text-slate-300"
+                disabled={isMutating}
+                onClick={() => {
+                  onInviteReject(invite.id)
+                }}
+                type="button"
+              >
+                {isRejecting ? 'Rejecting...' : 'Reject'}
+              </button>
+              <button
+                className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:bg-emerald-300"
+                disabled={isMutating}
+                onClick={() => {
+                  onInviteAccept(invite.id)
+                }}
+                type="button"
+              >
+                {isAccepting ? 'Accepting...' : 'Accept'}
+              </button>
+            </div>
           </div>
         )
       })}

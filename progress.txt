@@ -253,3 +253,8 @@
 - Decisions: keep pending-only query for create-flow guardrails; add separate inviter sent-invites query including pending + rejected so response contract expands without weakening one-pending limit.
 - Files changed: src/db/partner-invites.ts, src/lib/api/partner-invites.ts, src/types/dashboard/partner.ts, prd.json, progress.txt.
 - Blockers/notes: none.
+
+- Task completed: Frontend / Partnering - Allow invited users to reject a pending partner invite from the UI. (PRD Frontend / Partnering)
+- Decisions: add explicit Reject action beside Accept on pending invite rows; reuse existing PATCH /api/partner-invites action=reject path to avoid new endpoint/state shape; disable both actions while either mutation runs to prevent duplicate submits.
+- Files changed: src/components/dashboard/PartnerStatusCard/PartnerPendingInvites.tsx, src/components/dashboard/PartnerStatusCard/index.tsx, src/hooks/usePartnerStatus.ts, prd.json, progress.txt.
+- Blockers/notes: none.

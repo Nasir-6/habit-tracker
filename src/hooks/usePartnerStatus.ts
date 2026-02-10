@@ -211,6 +211,38 @@ export function usePartnerStatus() {
     },
   })
 
+  const rejectInviteMutation = useMutation({
+    mutationFn: async (inviteId: string) => {
+      await requestApi(
+        '/api/partner-invites',
+        {
+          method: 'PATCH',
+          headers: {
+            'content-type': 'application/json',
+          },
+          body: JSON.stringify({ inviteId, action: 'reject' }),
+        },
+        'Unable to reject invite',
+      )
+    },
+    onMutate: () => {
+      setAcceptInviteError(null)
+      setAcceptInviteNotice(null)
+      setInviteNotice(null)
+    },
+    onSuccess: async () => {
+      setAcceptInviteNotice('Invite rejected')
+      await queryClient.invalidateQueries({
+        queryKey: pendingInvitesQueryKey,
+      })
+    },
+    onError: (error) => {
+      setAcceptInviteError(
+        error instanceof Error ? error.message : 'Unable to reject invite',
+      )
+    },
+  })
+
   const removePartnerMutation = useMutation({
     mutationFn: async () => {
       await requestApi(
@@ -294,6 +326,14 @@ export function usePartnerStatus() {
     removePartnerMutation.mutate()
   }
 
+  const handleInviteReject = (inviteId: string) => {
+    if (rejectInviteMutation.isPending) {
+      return
+    }
+
+    rejectInviteMutation.mutate(inviteId)
+  }
+
   const handleInviteDelete = (inviteId: string) => {
     if (deleteInviteMutation.isPending) {
       return
@@ -323,6 +363,9 @@ export function usePartnerStatus() {
     acceptingInviteId: acceptInviteMutation.isPending
       ? acceptInviteMutation.variables
       : null,
+    rejectingInviteId: rejectInviteMutation.isPending
+      ? rejectInviteMutation.variables
+      : null,
     acceptInviteError,
     acceptInviteNotice,
     isRemovingPartner: removePartnerMutation.isPending,
@@ -332,6 +375,7 @@ export function usePartnerStatus() {
     handleInviteSubmit,
     handleInviteDelete,
     handleInviteAccept,
+    handleInviteReject,
     handleRemovePartner,
   }
 }

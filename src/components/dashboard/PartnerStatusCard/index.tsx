@@ -23,6 +23,7 @@ export function PartnerStatusCard() {
     pendingInvitesError,
     isPendingInvitesLoading,
     acceptingInviteId,
+    rejectingInviteId,
     acceptInviteError,
     acceptInviteNotice,
     inviteEmail,
@@ -38,6 +39,7 @@ export function PartnerStatusCard() {
     handleInviteSubmit,
     handleInviteDelete,
     handleRemovePartner,
+    handleInviteReject,
   } = usePartnerStatus()
 
   return (
@@ -60,8 +62,12 @@ export function PartnerStatusCard() {
               <PartnerPendingInvites
                 pendingInvites={pendingInvites}
                 acceptingInviteId={acceptingInviteId}
+                rejectingInviteId={rejectingInviteId}
                 onInviteAccept={(inviteId) => {
                   void handleInviteAccept(inviteId)
+                }}
+                onInviteReject={(inviteId) => {
+                  void handleInviteReject(inviteId)
                 }}
               />
             )}
