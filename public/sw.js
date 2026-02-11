@@ -45,12 +45,14 @@ self.addEventListener('push', (event) => {
     self.clients
       .matchAll({ type: 'window', includeUncontrolled: true })
       .then((clients) => {
-        const activeClient = clients.find(
-          (client) => client.visibilityState === 'visible' && client.focused,
+        const hasVisibleClient = clients.some(
+          (client) => client.visibilityState === 'visible',
         )
 
-        if (activeClient) {
-          activeClient.postMessage(bannerPayload)
+        if (hasVisibleClient) {
+          clients.forEach((client) => {
+            client.postMessage(bannerPayload)
+          })
           return undefined
         }
 
