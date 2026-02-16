@@ -1186,6 +1186,6 @@
       "Verify only archived habits are listed and active habits are excluded",
       "Trigger restore or view-history actions from the modal and verify behavior matches existing functionality"
     ],
-    "passes": false
+    "passes": true
   }
 ]
