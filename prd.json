@@ -1042,6 +1042,6 @@
       "Mark one habit incomplete and complete it again",
       "Verify confetti plays again when 100% is re-reached"
     ],
-    "passes": false
+    "passes": true
   }
 ]

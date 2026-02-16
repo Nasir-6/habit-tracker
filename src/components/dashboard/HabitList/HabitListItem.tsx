@@ -30,6 +30,10 @@ type HabitListItemProps = {
   habitStreak: { current: number; best: number } | undefined
   itemState: HabitListItemUiState
   handlers: HabitListItemHandlers
+  onCompletionButtonRef: (
+    habitId: string,
+    element: HTMLButtonElement | null,
+  ) => void
 }
 
 export function HabitListItem({
@@ -37,6 +41,7 @@ export function HabitListItem({
   habitStreak,
   itemState,
   handlers,
+  onCompletionButtonRef,
 }: HabitListItemProps) {
   const [reminderInput, setReminderInput] = useState(habit.reminderTime ?? '')
   const {
@@ -79,6 +84,9 @@ export function HabitListItem({
         <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 items-start gap-3">
             <button
+              ref={(element) => {
+                onCompletionButtonRef(habit.id, element)
+              }}
               className={cn(
                 'inline-flex h-11 w-11 items-center justify-center rounded-full border text-sm font-semibold transition',
                 habit.isCompleted

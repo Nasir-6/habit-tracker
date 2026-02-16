@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { CompletionConfetti } from './CompletionConfetti'
 import { DailyProgressBar } from './DailyProgressBar'
 import { HabitHistoryDialog } from './HabitHistoryDialog'
 import { HabitListItem } from './HabitListItem'
@@ -49,6 +50,17 @@ export function HabitList({
   const [confirmHardDeleteHabitId, setConfirmHardDeleteHabitId] = useState<
     string | null
   >(null)
+  const completionButtonByHabitIdRef = useRef<
+    Record<string, HTMLButtonElement | null>
+  >({})
+  const [confettiSourceElement, setConfettiSourceElement] =
+    useState<HTMLElement | null>(null)
+  const [lastToggledHabitId, setLastToggledHabitId] = useState<string | null>(
+    null,
+  )
+  const [confettiRun, setConfettiRun] = useState(0)
+  const hasInitializedProgressRef = useRef(false)
+  const previousCompletionPercentRef = useRef(0)
 
   const habitHistory = useHabitHistory({ habits: allHabits })
   const listItemState = {
@@ -71,6 +83,7 @@ export function HabitList({
       handleHabitDrop(habitId)
     },
     onToggleHabit: (habitId: string) => {
+      setLastToggledHabitId(habitId)
       onToggleHabit(habitId)
     },
     onToggleHistory: (habitId: string) => {
@@ -96,6 +109,8 @@ export function HabitList({
   )
   const completedCount = habits.filter((habit) => habit.isCompleted).length
   const totalCount = habits.length
+  const completionPercent =
+    totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0
   const deleteFlowHabit = orderedHabits.find(
     (habit) => habit.id === deleteFlowHabitId,
   )
@@ -178,8 +193,46 @@ export function HabitList({
     }
   }
 
+  const handleCompletionButtonRef = (
+    habitId: string,
+    element: HTMLButtonElement | null,
+  ) => {
+    completionButtonByHabitIdRef.current[habitId] = element
+  }
+
+  useEffect(() => {
+    if (!hasInitializedProgressRef.current) {
+      hasInitializedProgressRef.current = true
+      previousCompletionPercentRef.current = completionPercent
+      return
+    }
+
+    const reachedComplete = totalCount > 0 && completionPercent === 100
+    const crossedFromBelow = previousCompletionPercentRef.current < 100
+
+    if (reachedComplete && crossedFromBelow) {
+      if (lastToggledHabitId) {
+        const nextSourceElement =
+          completionButtonByHabitIdRef.current[lastToggledHabitId]
+
+        if (nextSourceElement) {
+          setConfettiSourceElement(nextSourceElement)
+          setConfettiRun((value) => value + 1)
+        }
+      }
+    }
+
+    previousCompletionPercentRef.current = completionPercent
+  }, [completionPercent, lastToggledHabitId, totalCount])
+
   return (
     <div className="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm sm:p-8">
+      {confettiRun > 0 && confettiSourceElement ? (
+        <CompletionConfetti
+          runKey={confettiRun}
+          sourceElement={confettiSourceElement}
+        />
+      ) : null}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-lg font-semibold text-slate-900">Today</h2>
       </div>
@@ -213,6 +266,7 @@ export function HabitList({
               habitStreak={habitStreaks[habit.id]}
               itemState={listItemState}
               handlers={listItemHandlers}
+              onCompletionButtonRef={handleCompletionButtonRef}
             />
           ))
         )}
