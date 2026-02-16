@@ -685,7 +685,7 @@
       "Open the Partner section as user A",
       "Verify a clear empty-state message is shown instead of a blank habit list"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Partnering",

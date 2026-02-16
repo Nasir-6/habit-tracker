@@ -13,8 +13,13 @@ export function PartnerActiveHabits({
 }: PartnerActiveHabitsProps) {
   if (habits.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/80 p-4 text-sm text-slate-500">
-        Your partner has not added any habits yet.
+      <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/80 p-4">
+        <p className="text-sm font-semibold text-slate-700">
+          No active partner habits yet.
+        </p>
+        <p className="mt-1 text-sm text-slate-500">
+          Your partner can add or restore a habit to show progress here.
+        </p>
       </div>
     )
   }
