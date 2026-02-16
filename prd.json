@@ -1010,7 +1010,7 @@
       "Complete and uncomplete habits",
       "Verify bar width and percentage update immediately"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Daily Check-in",

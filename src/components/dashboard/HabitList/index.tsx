@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { DailyProgressBar } from './DailyProgressBar'
 import { HabitHistoryDialog } from './HabitHistoryDialog'
 import { HabitListItem } from './HabitListItem'
 import type { DragEvent } from 'react'
@@ -93,6 +94,8 @@ export function HabitList({
   const orderedHabits = [...habits].sort(
     (left, right) => Number(left.isCompleted) - Number(right.isCompleted),
   )
+  const completedCount = habits.filter((habit) => habit.isCompleted).length
+  const totalCount = habits.length
   const deleteFlowHabit = orderedHabits.find(
     (habit) => habit.id === deleteFlowHabitId,
   )
@@ -181,6 +184,10 @@ export function HabitList({
         <h2 className="text-lg font-semibold text-slate-900">Today</h2>
       </div>
       <div className="mt-6 grid gap-4">
+        <DailyProgressBar
+          completedCount={completedCount}
+          totalCount={totalCount}
+        />
         {actionError ? (
           <p className="text-sm text-rose-500" role="status">
             {actionError}
