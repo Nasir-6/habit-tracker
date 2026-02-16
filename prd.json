@@ -989,7 +989,7 @@
       "Verify archived habit is not selected for dispatch",
       "Verify active due habits are still selected normally"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "PWA / Notifications",
