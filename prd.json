@@ -1020,7 +1020,7 @@
       "Set completion in medium range and verify bar is orange",
       "Set completion above 50% and verify bar is green"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Daily Check-in",

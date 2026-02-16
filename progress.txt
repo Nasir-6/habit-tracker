@@ -458,3 +458,8 @@
 - Decisions: prioritized as highest remaining integration point (active partnership state + partner habits list); tightened empty-state copy to explicitly call out no active habits and guide next action (add/restore).
 - Files changed: src/components/dashboard/PartnerStatusCard/PartnerActiveHabits.tsx, prd.json, progress.txt.
 - Blockers/notes: none.
+
+- Task completed: Frontend / Daily Check-in - Color the daily progress bar by completion percentage using red for low, orange for medium, and green above halfway. (PRD Frontend / Daily Check-in)
+- Decisions: prioritized as highest remaining daily-checkin integration before zero-state/confetti polish; kept thresholds simple and deterministic (`<=25` red, `26-50` orange, `>50` green) using computed percent only.
+- Files changed: src/components/dashboard/HabitList/DailyProgressBar.tsx, prd.json, progress.txt.
+- Blockers/notes: feedback loops pass (`npm run typecheck`, `npm run test`, `npm run lint`); Vitest still logs hanging-process shutdown warning with 0 tests.

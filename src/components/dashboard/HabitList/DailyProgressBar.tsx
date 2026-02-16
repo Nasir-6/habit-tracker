@@ -12,6 +12,12 @@ export function DailyProgressBar({
   }
 
   const completionPercent = Math.round((completedCount / totalCount) * 100)
+  const progressColorClass =
+    completionPercent > 50
+      ? 'bg-emerald-500'
+      : completionPercent > 25
+        ? 'bg-amber-500'
+        : 'bg-rose-500'
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
@@ -24,7 +30,7 @@ export function DailyProgressBar({
         role="presentation"
       >
         <div
-          className="h-full rounded-full bg-slate-700 transition-[width] duration-300 ease-out"
+          className={`h-full rounded-full transition-[width] duration-300 ease-out ${progressColorClass}`}
           style={{ width: `${completionPercent}%` }}
         />
       </div>
