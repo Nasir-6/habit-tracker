@@ -29,6 +29,11 @@
 - Files changed: src/routes/api/calendar.ts, src/routeTree.gen.ts, prd.json, progress.txt.
 - Blockers/notes: none.
 
+- Task completed: Frontend / Notifications - Allow users to configure per-habit smart reminders (enable/disable and time) and remove a reminder from a habit. (PRD Frontend / Notifications)
+- Decisions: prioritized as highest remaining integration point between completed reminder backend actions and habit UI; reused existing PATCH /api/habits actions (`setReminder`/`clearReminder`) to avoid new routes; optimistic query-cache update keeps reminder time feedback immediate.
+- Files changed: src/types/dashboard/habit.ts, src/routes/index.tsx, src/components/dashboard/Dashboard.tsx, src/components/dashboard/HabitList/index.tsx, src/components/dashboard/HabitList/HabitListItem.tsx, prd.json, progress.txt.
+- Blockers/notes: `npm run test` passes (0 tests) but still prints Vitest hanging-process shutdown warning.
+
 - Task completed: Frontend / Partnering - Display a last-updated timestamp for partner habit status data to indicate freshness. (PRD Frontend / Partnering)
 - Decisions: prioritized as integration signal between partner-status query freshness and Partner UI; expose TanStack query `dataUpdatedAt` from hook and poll partner status every 60s so timestamp can refresh without manual reload.
 - Files changed: src/hooks/usePartnerStatus.ts, src/components/dashboard/PartnerStatusCard/index.tsx, src/components/dashboard/PartnerStatusCard/partnerStatusUtils.ts, prd.json, progress.txt.

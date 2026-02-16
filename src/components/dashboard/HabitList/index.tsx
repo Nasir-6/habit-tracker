@@ -14,6 +14,8 @@ type HabitListProps = {
   onHabitReorder: (fromId: string, toId: string) => void
   onToggleHabit: (habitId: string) => void
   onDeleteHabit: (habitId: string) => Promise<void>
+  onSetHabitReminder: (habitId: string, reminderTime: string) => Promise<void>
+  onClearHabitReminder: (habitId: string) => Promise<void>
 }
 
 export function HabitList({
@@ -23,9 +25,14 @@ export function HabitList({
   onHabitReorder,
   onToggleHabit,
   onDeleteHabit,
+  onSetHabitReminder,
+  onClearHabitReminder,
 }: HabitListProps) {
   const [draggingHabitId, setDraggingHabitId] = useState<string | null>(null)
   const [deletingHabitId, setDeletingHabitId] = useState<string | null>(null)
+  const [savingReminderHabitId, setSavingReminderHabitId] = useState<
+    string | null
+  >(null)
   const [confirmDeleteHabitId, setConfirmDeleteHabitId] = useState<
     string | null
   >(null)
@@ -34,6 +41,7 @@ export function HabitList({
   const listItemState = {
     draggingHabitId,
     deletingHabitId,
+    savingReminderHabitId,
     historyHabitId: habitHistory.historyHabitId,
   }
 
@@ -57,6 +65,12 @@ export function HabitList({
     },
     onDeleteHabit: (habitId: string) => {
       setConfirmDeleteHabitId(habitId)
+    },
+    onSetHabitReminder: (habitId: string, reminderTime: string) => {
+      void handleSetHabitReminder(habitId, reminderTime)
+    },
+    onClearHabitReminder: (habitId: string) => {
+      void handleClearHabitReminder(habitId)
     },
   }
 
@@ -90,6 +104,37 @@ export function HabitList({
     } finally {
       setDeletingHabitId(null)
       setConfirmDeleteHabitId(null)
+    }
+  }
+
+  const handleSetHabitReminder = async (
+    habitId: string,
+    reminderTime: string,
+  ) => {
+    if (savingReminderHabitId) {
+      return
+    }
+
+    setSavingReminderHabitId(habitId)
+
+    try {
+      await onSetHabitReminder(habitId, reminderTime)
+    } finally {
+      setSavingReminderHabitId(null)
+    }
+  }
+
+  const handleClearHabitReminder = async (habitId: string) => {
+    if (savingReminderHabitId) {
+      return
+    }
+
+    setSavingReminderHabitId(habitId)
+
+    try {
+      await onClearHabitReminder(habitId)
+    } finally {
+      setSavingReminderHabitId(null)
     }
   }
 

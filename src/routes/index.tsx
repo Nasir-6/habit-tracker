@@ -46,8 +46,17 @@ type DeleteHabitVariables = {
   habitId: string
 }
 
+type ReminderHabitVariables = {
+  queryKey: HabitQueryKey
+  previous: Habit[]
+  habitId: string
+  reminderTime: string | null
+}
+
 const mapHabitsPayload = (
-  habitsPayload: { habits?: { id?: string; name?: string }[] },
+  habitsPayload: {
+    habits?: { id?: string; name?: string; reminderTime?: unknown }[]
+  },
   completionsPayload: { habitIds?: string[] },
 ) => {
   const habits = Array.isArray(habitsPayload.habits) ? habitsPayload.habits : []
@@ -61,16 +70,16 @@ const mapHabitsPayload = (
     id: habit.id ?? crypto.randomUUID(),
     name: habit.name ?? 'Untitled habit',
     isCompleted: completedIds.has(habit.id ?? ''),
+    reminderTime:
+      typeof habit.reminderTime === 'string' ? habit.reminderTime : null,
   }))
 }
 
 const fetchHabits = async (localDate: string) => {
   const [habitsResponse, completionsResponse] = await Promise.all([
-    requestApi<{ habits?: { id?: string; name?: string }[] }>(
-      '/api/habits',
-      undefined,
-      'Unable to load habits',
-    ),
+    requestApi<{
+      habits?: { id?: string; name?: string; reminderTime?: unknown }[]
+    }>('/api/habits', undefined, 'Unable to load habits'),
     requestApi<{ habitIds?: string[] }>(
       `/api/completions?localDate=${encodeURIComponent(localDate)}`,
       undefined,
@@ -241,6 +250,41 @@ export function App() {
     },
   })
 
+  const reminderMutation = useMutation({
+    mutationFn: async ({ habitId, reminderTime }: ReminderHabitVariables) => {
+      return requestApi<{ operation?: string; reminderTime?: string | null }>(
+        '/api/habits',
+        {
+          method: 'PATCH',
+          headers: {
+            'content-type': 'application/json',
+          },
+          body: JSON.stringify(
+            reminderTime
+              ? { action: 'setReminder', habitId, reminderTime }
+              : { action: 'clearReminder', habitId },
+          ),
+        },
+        'Unable to update reminder',
+      )
+    },
+    onMutate: ({ queryKey, habitId, reminderTime }: ReminderHabitVariables) => {
+      queryClient.setQueryData<Habit[]>(queryKey, (current = []) =>
+        current.map((habit) =>
+          habit.id === habitId
+            ? {
+                ...habit,
+                reminderTime,
+              }
+            : habit,
+        ),
+      )
+    },
+    onError: (_error, { queryKey, previous }: ReminderHabitVariables) => {
+      queryClient.setQueryData(queryKey, previous)
+    },
+  })
+
   const handleHabitReorder = (fromId: string, toId: string) => {
     if (!userId) {
       return
@@ -296,10 +340,46 @@ export function App() {
     await deleteHabitMutation.mutateAsync({ queryKey, previous, habitId })
   }
 
+  const handleSetHabitReminder = async (
+    habitId: string,
+    reminderTime: string,
+  ) => {
+    if (!userId) {
+      return
+    }
+
+    const queryKey = habitsQueryKey(userId, localDate)
+    const previous = queryClient.getQueryData<Habit[]>(queryKey) ?? []
+
+    await reminderMutation.mutateAsync({
+      queryKey,
+      previous,
+      habitId,
+      reminderTime,
+    })
+  }
+
+  const handleClearHabitReminder = async (habitId: string) => {
+    if (!userId) {
+      return
+    }
+
+    const queryKey = habitsQueryKey(userId, localDate)
+    const previous = queryClient.getQueryData<Habit[]>(queryKey) ?? []
+
+    await reminderMutation.mutateAsync({
+      queryKey,
+      previous,
+      habitId,
+      reminderTime: null,
+    })
+  }
+
   const habitActionError =
     reorderHabitMutation.error?.message ??
     toggleHabitMutation.error?.message ??
     deleteHabitMutation.error?.message ??
+    reminderMutation.error?.message ??
     null
 
   if (isPending || (session?.user && habitsQuery.isLoading)) {
@@ -324,6 +404,8 @@ export function App() {
       onHabitReorder={handleHabitReorder}
       onToggleHabit={handleToggleHabit}
       onDeleteHabit={handleDeleteHabit}
+      onSetHabitReminder={handleSetHabitReminder}
+      onClearHabitReminder={handleClearHabitReminder}
     />
   )
 }

@@ -1,4 +1,5 @@
 import { Check, Circle, History, X } from 'lucide-react'
+import { useEffect, useState } from 'react'
 
 import { formatStreak } from './habitListUtils'
 import type { Habit } from '@/types/dashboard'
@@ -9,6 +10,7 @@ import { cn } from '@/lib/utils'
 type HabitListItemUiState = {
   draggingHabitId: string | null
   deletingHabitId: string | null
+  savingReminderHabitId: string | null
   historyHabitId: string | null
 }
 
@@ -19,6 +21,8 @@ type HabitListItemHandlers = {
   onToggleHabit: (habitId: string) => void
   onToggleHistory: (habitId: string) => void
   onDeleteHabit: (habitId: string) => void
+  onSetHabitReminder: (habitId: string, reminderTime: string) => void
+  onClearHabitReminder: (habitId: string) => void
 }
 
 type HabitListItemProps = {
@@ -34,7 +38,22 @@ export function HabitListItem({
   itemState,
   handlers,
 }: HabitListItemProps) {
-  const { draggingHabitId, deletingHabitId, historyHabitId } = itemState
+  const [reminderInput, setReminderInput] = useState(habit.reminderTime ?? '')
+  const {
+    draggingHabitId,
+    deletingHabitId,
+    savingReminderHabitId,
+    historyHabitId,
+  } = itemState
+  const isSavingReminder = savingReminderHabitId === habit.id
+  const canSaveReminder =
+    reminderInput.length > 0 &&
+    reminderInput !== (habit.reminderTime ?? '') &&
+    !isSavingReminder
+
+  useEffect(() => {
+    setReminderInput(habit.reminderTime ?? '')
+  }, [habit.reminderTime])
 
   return (
     <div className="grid gap-3">
@@ -99,6 +118,50 @@ export function HabitListItem({
                 Current {formatStreak(habitStreak?.current ?? 0)} · Best{' '}
                 {formatStreak(habitStreak?.best ?? 0)}
               </p>
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <label className="sr-only" htmlFor={`reminder-${habit.id}`}>
+                  Reminder time for {habit.name}
+                </label>
+                <input
+                  id={`reminder-${habit.id}`}
+                  className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-xs text-slate-700 focus:border-slate-400 focus:outline-none"
+                  type="time"
+                  value={reminderInput}
+                  onChange={(event) => {
+                    setReminderInput(event.target.value)
+                  }}
+                  disabled={isSavingReminder}
+                />
+                <button
+                  className={cn(
+                    'inline-flex h-9 items-center justify-center rounded-lg border px-3 text-xs font-semibold transition',
+                    canSaveReminder
+                      ? 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
+                      : 'border-slate-200 bg-slate-100 text-slate-400',
+                  )}
+                  type="button"
+                  onClick={() => {
+                    if (canSaveReminder) {
+                      handlers.onSetHabitReminder(habit.id, reminderInput)
+                    }
+                  }}
+                  disabled={!canSaveReminder}
+                >
+                  Save reminder
+                </button>
+                {habit.reminderTime ? (
+                  <button
+                    className="inline-flex h-9 items-center justify-center rounded-lg border border-rose-200 bg-white px-3 text-xs font-semibold text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:text-rose-300"
+                    type="button"
+                    onClick={() => {
+                      handlers.onClearHabitReminder(habit.id)
+                    }}
+                    disabled={isSavingReminder}
+                  >
+                    Remove reminder
+                  </button>
+                ) : null}
+              </div>
             </div>
           </div>
         </div>

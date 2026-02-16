@@ -17,6 +17,8 @@ type DashboardProps = {
   onHabitReorder: (fromId: string, toId: string) => void
   onToggleHabit: (habitId: string) => void
   onDeleteHabit: (habitId: string) => Promise<void>
+  onSetHabitReminder: (habitId: string, reminderTime: string) => Promise<void>
+  onClearHabitReminder: (habitId: string) => Promise<void>
 }
 
 export function Dashboard({
@@ -27,6 +29,8 @@ export function Dashboard({
   onHabitReorder,
   onToggleHabit,
   onDeleteHabit,
+  onSetHabitReminder,
+  onClearHabitReminder,
 }: DashboardProps) {
   return (
     <PageShell maxWidthClass="max-w-6xl" paddingTopClass="pt-16">
@@ -45,6 +49,8 @@ export function Dashboard({
               onDeleteHabit={onDeleteHabit}
               onHabitReorder={onHabitReorder}
               onToggleHabit={onToggleHabit}
+              onSetHabitReminder={onSetHabitReminder}
+              onClearHabitReminder={onClearHabitReminder}
             />
             <div className="grid gap-6">
               <HabitCalendarCard habitStreaks={habitStreaks} habits={habits} />

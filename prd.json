@@ -935,7 +935,7 @@
       "Disable or remove the reminder",
       "Verify reminder state is cleared for that habit"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Backend / Habit Management",
