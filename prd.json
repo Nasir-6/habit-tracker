@@ -1143,7 +1143,7 @@
       "Verify session UI is cleared and the signed-out view is shown",
       "Verify the header identity control is no longer visible after logout"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Habit Management",

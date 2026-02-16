@@ -483,3 +483,8 @@
 - Decisions: prioritized as highest remaining auth UI abstraction/integration task; moved identity affordance to global header and removed dashboard-level sign-out CTA to avoid duplicated account controls.
 - Files changed: src/components/Header.tsx, src/components/dashboard/DashboardHeader.tsx, prd.json, progress.txt.
 - Blockers/notes: dropdown currently identity-only; avatar/name-email layout + logout action remain for next auth PRD items.
+
+- Task completed: Frontend / Auth - Provide Log out inside the header user dropdown and clear session state on sign out. (PRD Frontend / Auth)
+- Decisions: prioritized as highest auth integration point (session security + header UX); log out runs from header dropdown with pending/error UI and closes menu/reset state when session clears.
+- Files changed: src/components/Header.tsx, prd.json, progress.txt.
+- Blockers/notes: none.

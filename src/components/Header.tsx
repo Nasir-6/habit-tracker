@@ -8,11 +8,23 @@ export default function Header() {
   const { data: session, isPending } = authClient.useSession()
   const shouldShowNotificationBell = !isPending && Boolean(session?.user)
   const [isIdentityMenuOpen, setIsIdentityMenuOpen] = useState(false)
+  const [isSigningOut, setIsSigningOut] = useState(false)
+  const [signOutError, setSignOutError] = useState<string | null>(null)
   const identityMenuRef = useRef<HTMLDivElement | null>(null)
 
   const userName = session?.user.name.trim()
   const fallbackName = session?.user.email.split('@')[0]?.trim()
   const userDisplayName = userName || fallbackName || 'Account'
+
+  useEffect(() => {
+    if (session?.user) {
+      return
+    }
+
+    setIsIdentityMenuOpen(false)
+    setIsSigningOut(false)
+    setSignOutError(null)
+  }, [session?.user])
 
   useEffect(() => {
     if (!isIdentityMenuOpen) {
@@ -45,6 +57,33 @@ export default function Header() {
       document.removeEventListener('keydown', handleEscape)
     }
   }, [isIdentityMenuOpen])
+
+  const handleSignOut = async () => {
+    if (isSigningOut) {
+      return
+    }
+
+    setSignOutError(null)
+    setIsSigningOut(true)
+
+    try {
+      const result = await authClient.signOut()
+
+      if (result.error) {
+        throw new Error(result.error.message || 'Unable to log out')
+      }
+
+      setIsIdentityMenuOpen(false)
+    } catch (error) {
+      setSignOutError(
+        error instanceof Error && error.message.trim()
+          ? error.message
+          : 'Unable to log out. Please try again.',
+      )
+    } finally {
+      setIsSigningOut(false)
+    }
+  }
 
   return (
     <header className="px-6 py-5 border-b border-slate-200/70 bg-white/70 backdrop-blur">
@@ -98,6 +137,22 @@ export default function Header() {
                   <p className="mt-1 text-sm font-semibold text-slate-900">
                     {userDisplayName}
                   </p>
+                  <button
+                    className="mt-3 inline-flex w-full items-center justify-center rounded-xl border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-400 hover:text-slate-900 disabled:cursor-not-allowed disabled:border-slate-200 disabled:text-slate-400"
+                    disabled={isSigningOut}
+                    role="menuitem"
+                    type="button"
+                    onClick={() => {
+                      void handleSignOut()
+                    }}
+                  >
+                    {isSigningOut ? 'Logging out...' : 'Log out'}
+                  </button>
+                  {signOutError ? (
+                    <p className="mt-2 text-xs text-rose-600" role="alert">
+                      {signOutError}
+                    </p>
+                  ) : null}
                 </div>
               ) : null}
             </div>
