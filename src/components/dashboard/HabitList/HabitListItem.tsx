@@ -1,4 +1,4 @@
-import { Check, Circle, History, X } from 'lucide-react'
+import { AlarmClock, Check, Circle, History, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 import { formatStreak } from './habitListUtils'
@@ -36,6 +36,55 @@ type HabitListItemProps = {
   ) => void
 }
 
+const MINUTES_PER_HOUR = 60
+const MINUTES_PER_DAY = 24 * MINUTES_PER_HOUR
+
+const parseReminderMinutes = (reminderTime: string) => {
+  const [hoursText, minutesText] = reminderTime.split(':')
+  const hours = Number.parseInt(hoursText, 10)
+  const minutes = Number.parseInt(minutesText, 10)
+
+  if (
+    Number.isNaN(hours) ||
+    Number.isNaN(minutes) ||
+    hours < 0 ||
+    hours > 23 ||
+    minutes < 0 ||
+    minutes > 59
+  ) {
+    return null
+  }
+
+  return hours * MINUTES_PER_HOUR + minutes
+}
+
+const formatReminderCountdown = (reminderTime: string, now: Date) => {
+  const reminderMinutes = parseReminderMinutes(reminderTime)
+
+  if (reminderMinutes === null) {
+    return null
+  }
+
+  const nowMinutes = now.getHours() * MINUTES_PER_HOUR + now.getMinutes()
+  const minutesRemaining =
+    reminderMinutes >= nowMinutes
+      ? reminderMinutes - nowMinutes
+      : MINUTES_PER_DAY - nowMinutes + reminderMinutes
+
+  if (minutesRemaining < MINUTES_PER_HOUR) {
+    return `in ${minutesRemaining}m`
+  }
+
+  const hours = Math.floor(minutesRemaining / MINUTES_PER_HOUR)
+  const minutes = minutesRemaining % MINUTES_PER_HOUR
+
+  if (minutes === 0) {
+    return `in ${hours}h`
+  }
+
+  return `in ${hours}h ${minutes}m`
+}
+
 export function HabitListItem({
   habit,
   habitStreak,
@@ -44,6 +93,8 @@ export function HabitListItem({
   onCompletionButtonRef,
 }: HabitListItemProps) {
   const [reminderInput, setReminderInput] = useState(habit.reminderTime ?? '')
+  const [isReminderModalOpen, setIsReminderModalOpen] = useState(false)
+  const [now, setNow] = useState(() => new Date())
   const {
     draggingHabitId,
     deletingHabitId,
@@ -55,10 +106,23 @@ export function HabitListItem({
     reminderInput.length > 0 &&
     reminderInput !== (habit.reminderTime ?? '') &&
     !isSavingReminder
+  const reminderCountdown = habit.reminderTime
+    ? formatReminderCountdown(habit.reminderTime, now)
+    : null
 
   useEffect(() => {
     setReminderInput(habit.reminderTime ?? '')
   }, [habit.reminderTime])
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      setNow(new Date())
+    }, 30_000)
+
+    return () => {
+      window.clearInterval(intervalId)
+    }
+  }, [])
 
   return (
     <div className="grid gap-3">
@@ -127,48 +191,24 @@ export function HabitListItem({
                 {formatStreak(habitStreak?.best ?? 0)}
               </p>
               <div className="flex flex-wrap items-center gap-2 pt-1">
-                <label className="sr-only" htmlFor={`reminder-${habit.id}`}>
-                  Reminder time for {habit.name}
-                </label>
-                <input
-                  id={`reminder-${habit.id}`}
-                  className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-xs text-slate-700 focus:border-slate-400 focus:outline-none"
-                  type="time"
-                  value={reminderInput}
-                  onChange={(event) => {
-                    setReminderInput(event.target.value)
-                  }}
-                  disabled={isSavingReminder}
-                />
                 <button
-                  className={cn(
-                    'inline-flex h-9 items-center justify-center rounded-lg border px-3 text-xs font-semibold transition',
-                    canSaveReminder
-                      ? 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
-                      : 'border-slate-200 bg-slate-100 text-slate-400',
-                  )}
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:border-slate-300 hover:text-slate-800"
                   type="button"
+                  aria-label={`Set reminder for ${habit.name}`}
                   onClick={() => {
-                    if (canSaveReminder) {
-                      handlers.onSetHabitReminder(habit.id, reminderInput)
-                    }
+                    setReminderInput(habit.reminderTime ?? '')
+                    setIsReminderModalOpen(true)
                   }}
-                  disabled={!canSaveReminder}
                 >
-                  Save reminder
+                  <AlarmClock aria-hidden="true" className="h-4 w-4" />
                 </button>
-                {habit.reminderTime ? (
-                  <button
-                    className="inline-flex h-9 items-center justify-center rounded-lg border border-rose-200 bg-white px-3 text-xs font-semibold text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:text-rose-300"
-                    type="button"
-                    onClick={() => {
-                      handlers.onClearHabitReminder(habit.id)
-                    }}
-                    disabled={isSavingReminder}
-                  >
-                    Remove reminder
-                  </button>
-                ) : null}
+                {reminderCountdown ? (
+                  <p className="text-xs font-medium text-slate-500">
+                    {reminderCountdown} left
+                  </p>
+                ) : (
+                  <p className="text-xs text-slate-400">No reminder set</p>
+                )}
               </div>
             </div>
           </div>
@@ -209,6 +249,88 @@ export function HabitListItem({
           </button>
         </div>
       </div>
+      {isReminderModalOpen ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/30 p-4 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Reminder for ${habit.name}`}
+          onClick={() => {
+            if (!isSavingReminder) {
+              setIsReminderModalOpen(false)
+            }
+          }}
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-600 shadow-xl"
+            onClick={(event) => {
+              event.stopPropagation()
+            }}
+          >
+            <h3 className="text-base font-semibold text-slate-900">
+              Reminder for {habit.name}
+            </h3>
+            <p className="mt-2 text-sm text-slate-500">
+              Choose a daily reminder time.
+            </p>
+            <label className="mt-4 block text-xs font-medium text-slate-500">
+              Time
+              <input
+                className="mt-2 h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 focus:border-slate-400 focus:outline-none"
+                type="time"
+                value={reminderInput}
+                onChange={(event) => {
+                  setReminderInput(event.target.value)
+                }}
+                disabled={isSavingReminder}
+              />
+            </label>
+            <div className="mt-6 flex flex-wrap justify-end gap-2">
+              {habit.reminderTime ? (
+                <button
+                  className="rounded-xl border border-rose-200 bg-white px-4 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:text-rose-300"
+                  type="button"
+                  onClick={() => {
+                    handlers.onClearHabitReminder(habit.id)
+                    setIsReminderModalOpen(false)
+                  }}
+                  disabled={isSavingReminder}
+                >
+                  Remove
+                </button>
+              ) : null}
+              <button
+                className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-400"
+                type="button"
+                onClick={() => {
+                  setIsReminderModalOpen(false)
+                }}
+                disabled={isSavingReminder}
+              >
+                Cancel
+              </button>
+              <button
+                className={cn(
+                  'rounded-xl px-4 py-2 text-sm font-semibold text-white transition disabled:cursor-not-allowed',
+                  canSaveReminder
+                    ? 'bg-slate-900 hover:bg-slate-800'
+                    : 'bg-slate-300',
+                )}
+                type="button"
+                onClick={() => {
+                  if (canSaveReminder) {
+                    handlers.onSetHabitReminder(habit.id, reminderInput)
+                    setIsReminderModalOpen(false)
+                  }
+                }}
+                disabled={!canSaveReminder}
+              >
+                Save reminder
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   )
 }

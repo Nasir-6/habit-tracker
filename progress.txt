@@ -503,3 +503,8 @@
 - Decisions: prioritized as highest remaining auth header integration point; upgraded identity trigger to two-line profile block (name + email) with avatar at left so account context is visible before opening menu.
 - Files changed: src/components/Header.tsx, prd.json, progress.txt.
 - Blockers/notes: feedback loops pass (`npm run typecheck`, `npm run test`, `npm run lint`); `npm run test` still exits 0 with Vitest hanging-process shutdown warning; next likely auth follow-up is stricter avatar fallback behavior.
+
+- Task completed: Frontend / Notifications - Use an alarm-clock reminder control that opens a modal to set reminder time, and show a live relative countdown once a reminder is set. (PRD Frontend / Notifications)
+- Decisions: prioritized as highest pending reminder UI integration item; replaced inline time/save controls with alarm-clock trigger + modal to keep list compact; derive live relative countdown from saved reminder time and refresh every 30s for visible freshness.
+- Files changed: src/components/dashboard/HabitList/HabitListItem.tsx, prd.json, progress.txt.
+- Blockers/notes: feedback loops pass (`npm run typecheck`, `npm run test`, `npm run lint`); `npm run test` exits 0 with existing Vitest hanging-process shutdown warning.

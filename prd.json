@@ -1099,7 +1099,7 @@
       "Update the reminder time and verify the countdown updates accordingly",
       "Clear the reminder and verify the countdown is removed"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Auth",
