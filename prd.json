@@ -1052,7 +1052,7 @@
       "Sign out and verify the notification bell is not shown",
       "Navigate across app routes while signed in and verify the bell remains visible in the global header"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Notifications",

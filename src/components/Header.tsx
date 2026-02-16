@@ -1,6 +1,12 @@
 import { Link } from '@tanstack/react-router'
+import { Bell } from 'lucide-react'
+
+import { authClient } from '@/lib/auth-client'
 
 export default function Header() {
+  const { data: session, isPending } = authClient.useSession()
+  const shouldShowNotificationBell = !isPending && Boolean(session?.user)
+
   return (
     <header className="px-6 py-5 border-b border-slate-200/70 bg-white/70 backdrop-blur">
       <div className="max-w-6xl mx-auto flex items-center justify-between">
@@ -17,7 +23,18 @@ export default function Header() {
             </span>
           </div>
         </Link>
-        <div className="text-sm text-slate-500">Draft workspace</div>
+        <div className="flex items-center gap-3 text-sm text-slate-500">
+          <span>Draft workspace</span>
+          {shouldShowNotificationBell ? (
+            <button
+              aria-label="Notifications"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700 transition hover:border-slate-400 hover:text-slate-900"
+              type="button"
+            >
+              <Bell className="h-5 w-5" aria-hidden="true" />
+            </button>
+          ) : null}
+        </div>
       </div>
     </header>
   )
