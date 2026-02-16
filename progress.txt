@@ -29,6 +29,11 @@
 - Files changed: src/routes/api/calendar.ts, src/routeTree.gen.ts, prd.json, progress.txt.
 - Blockers/notes: none.
 
+- Task completed: Backend / Habit Management - Support both archive and hard delete operations for habits with clear, separate semantics. (PRD Backend / Habit Management)
+- Decisions: made PATCH /api/habits support explicit mutation actions (`archive` | `hardDelete`) with `habitId`; kept legacy `archiveId` payload path for compatibility; standardized mutation responses with `operation` so archive vs hard delete outcome is unambiguous; ignored generated `.output`/`.netlify` artifacts in ESLint so required feedback loops can run in dirty local builds.
+- Files changed: src/lib/api/habits.ts, eslint.config.js, prd.json, progress.txt.
+- Blockers/notes: none; frontend two-step delete flow can now call action-based API without backend contract changes.
+
 - Task completed: Frontend / Partnering - Show explicit in-app feedback to inviters when sent invites are accepted, rejected, or cancelled. (PRD Frontend / Partnering)
 - Decisions: prioritized this remaining partnering integration item over empty-state/timestamp polish; detect sent-invite outcome transitions client-side from pending->accepted/rejected/cancelled using invite + partner status query changes, no backend schema/API expansion.
 - Files changed: src/hooks/usePartnerStatus.ts, src/components/dashboard/PartnerStatusCard/index.tsx, prd.json, progress.txt.

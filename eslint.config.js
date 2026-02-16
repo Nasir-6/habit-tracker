@@ -10,6 +10,8 @@ export default [
       'eslint.config.js',
       'prettier.config.js',
       'public/sw.js',
+      '.output/**',
+      '.netlify/**',
     ],
   },
   ...tanstackConfig,

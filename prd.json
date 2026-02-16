@@ -892,7 +892,7 @@
       "Hard delete a habit and verify habit row is physically removed",
       "Verify API responses distinguish archive vs hard delete outcomes"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Habit Management",

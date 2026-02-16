@@ -17,6 +17,15 @@ type HabitCreatePayload = {
 type HabitOrderPayload = {
   orderedIds?: unknown
   archiveId?: unknown
+  action?: unknown
+  habitId?: unknown
+}
+
+type HabitMutationAction = 'archive' | 'hardDelete'
+
+type HabitMutationRequest = {
+  action: HabitMutationAction
+  habitId: string
 }
 
 const createdHabit = (habit: { id: string; name: string; sortOrder: number }) =>
@@ -76,6 +85,38 @@ const getArchiveId = (payload: unknown) => {
   return archiveId
 }
 
+const isHabitMutationAction = (
+  action: string,
+): action is HabitMutationAction => {
+  return action === 'archive' || action === 'hardDelete'
+}
+
+const getHabitMutationRequest = (
+  payload: unknown,
+): HabitMutationRequest | null => {
+  if (!payload || typeof payload !== 'object') {
+    return null
+  }
+
+  const legacyArchiveId = getArchiveId(payload)
+
+  if (legacyArchiveId) {
+    return { action: 'archive', habitId: legacyArchiveId }
+  }
+
+  const { action, habitId } = payload as HabitOrderPayload
+
+  if (typeof action !== 'string' || !isHabitMutationAction(action)) {
+    return null
+  }
+
+  if (typeof habitId !== 'string' || habitId.trim().length === 0) {
+    return null
+  }
+
+  return { action, habitId }
+}
+
 const getHabitIdFromQuery = (request: Request) => {
   const url = new URL(request.url)
   const habitId = url.searchParams.get('habitId')
@@ -117,24 +158,34 @@ export const handleHabitsPatch = async (request: Request, userId: string) => {
   const payload = await parseJson(request)
 
   const orderedIds = getOrderedIds(payload)
-  const archiveId = getArchiveId(payload)
+  const mutationRequest = getHabitMutationRequest(payload)
 
-  if (orderedIds && archiveId) {
-    return badRequest('Provide either ordered habit ids or archive id')
+  if (orderedIds && mutationRequest) {
+    return badRequest('Provide either ordered habit ids or a habit action')
   }
 
-  if (archiveId) {
-    const habit = await fetchHabitById(userId, archiveId)
+  if (mutationRequest) {
+    const habit = await fetchHabitById(userId, mutationRequest.habitId)
 
     if (!habit) {
       return badRequest('Habit not found')
     }
 
-    if (!habit.archivedAt) {
-      await archiveHabit(userId, archiveId)
+    if (mutationRequest.action === 'archive') {
+      if (!habit.archivedAt) {
+        await archiveHabit(userId, mutationRequest.habitId)
+      }
+
+      return ok({ operation: 'archive', archived: true })
     }
 
-    return ok({ archived: true })
+    const deleted = await deleteHabitById(userId, mutationRequest.habitId)
+
+    if (!deleted) {
+      return badRequest('Habit not found')
+    }
+
+    return ok({ operation: 'hardDelete', deleted: true })
   }
 
   if (!orderedIds) {
@@ -167,5 +218,5 @@ export const handleHabitsDelete = async (request: Request, userId: string) => {
     return notFound('Habit not found')
   }
 
-  return ok({ deleted: true })
+  return ok({ operation: 'hardDelete', deleted: true })
 }
