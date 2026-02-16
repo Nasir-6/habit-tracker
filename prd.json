@@ -1121,7 +1121,7 @@
       "Verify the signed-in user's name and email are displayed to the right of the avatar",
       "Verify the identity block remains readable on mobile and desktop"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Auth",

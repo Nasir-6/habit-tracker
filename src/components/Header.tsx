@@ -13,8 +13,11 @@ export default function Header() {
   const identityMenuRef = useRef<HTMLDivElement | null>(null)
 
   const userName = session?.user.name.trim()
+  const userEmail = session?.user.email.trim()
   const fallbackName = session?.user.email.split('@')[0]?.trim()
   const userDisplayName = userName || fallbackName || 'Account'
+  const userAvatarFallback =
+    userDisplayName.charAt(0).toUpperCase() || userEmail?.charAt(0) || 'A'
 
   useEffect(() => {
     if (session?.user) {
@@ -117,14 +120,32 @@ export default function Header() {
               <button
                 aria-expanded={isIdentityMenuOpen}
                 aria-haspopup="menu"
-                className="inline-flex h-10 items-center gap-2 rounded-full border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:text-slate-900"
+                className="inline-flex min-h-10 items-center gap-3 rounded-2xl border border-slate-300 bg-white px-3 py-1.5 text-left text-sm text-slate-700 transition hover:border-slate-400 hover:text-slate-900"
                 type="button"
                 onClick={() => {
                   setIsIdentityMenuOpen((current) => !current)
                 }}
               >
-                {userDisplayName}
-                <ChevronDown className="h-4 w-4" aria-hidden="true" />
+                {session.user.image ? (
+                  <img
+                    alt=""
+                    className="h-8 w-8 shrink-0 rounded-full border border-slate-200 object-cover"
+                    src={session.user.image}
+                  />
+                ) : (
+                  <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-900 text-xs font-semibold text-white">
+                    {userAvatarFallback}
+                  </span>
+                )}
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-semibold text-slate-900">
+                    {userDisplayName}
+                  </span>
+                  <span className="block truncate text-xs text-slate-500">
+                    {userEmail}
+                  </span>
+                </span>
+                <ChevronDown className="h-4 w-4 shrink-0" aria-hidden="true" />
               </button>
               {isIdentityMenuOpen ? (
                 <div

@@ -498,3 +498,8 @@
 - Decisions: prioritized as highest remaining archive-flow integration point before icon/polish tasks; added top-right Today Archive CTA in HabitList and wired to dedicated modal state so archived review is reachable without scrolling to inline section.
 - Files changed: src/components/dashboard/HabitList/index.tsx, prd.json, progress.txt.
 - Blockers/notes: none.
+
+- Task completed: Frontend / Auth - Display avatar, user name, and user email together in the global header with name/email positioned to the right of the avatar. (PRD Frontend / Auth)
+- Decisions: prioritized as highest remaining auth header integration point; upgraded identity trigger to two-line profile block (name + email) with avatar at left so account context is visible before opening menu.
+- Files changed: src/components/Header.tsx, prd.json, progress.txt.
+- Blockers/notes: feedback loops pass (`npm run typecheck`, `npm run test`, `npm run lint`); `npm run test` still exits 0 with Vitest hanging-process shutdown warning; next likely auth follow-up is stricter avatar fallback behavior.
