@@ -57,6 +57,13 @@
       "when": 1770786400000,
       "tag": "0007_create_push_subscriptions",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1770872800000,
+      "tag": "0008_add_habit_reminder_time",
+      "breakpoints": true
     }
   ]
 }

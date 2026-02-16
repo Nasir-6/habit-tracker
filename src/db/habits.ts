@@ -5,7 +5,12 @@ import { habits } from '@/db/schema'
 
 export const fetchActiveHabits = async (userId: string) => {
   return db
-    .select({ id: habits.id, name: habits.name, sortOrder: habits.sortOrder })
+    .select({
+      id: habits.id,
+      name: habits.name,
+      sortOrder: habits.sortOrder,
+      reminderTime: habits.reminderTime,
+    })
     .from(habits)
     .where(and(eq(habits.userId, userId), isNull(habits.archivedAt)))
     .orderBy(habits.sortOrder)
@@ -43,11 +48,33 @@ export const fetchHabitById = async (userId: string, habitId: string) => {
       id: habits.id,
       name: habits.name,
       archivedAt: habits.archivedAt,
+      reminderTime: habits.reminderTime,
       createdAt: habits.createdAt,
     })
     .from(habits)
     .where(and(eq(habits.userId, userId), eq(habits.id, habitId)))
     .then((rows) => rows.at(0))
+}
+
+export const updateHabitReminderTime = async (
+  userId: string,
+  habitId: string,
+  reminderTime: string,
+) => {
+  return db
+    .update(habits)
+    .set({ reminderTime })
+    .where(and(eq(habits.userId, userId), eq(habits.id, habitId)))
+}
+
+export const clearHabitReminderTime = async (
+  userId: string,
+  habitId: string,
+) => {
+  return db
+    .update(habits)
+    .set({ reminderTime: null })
+    .where(and(eq(habits.userId, userId), eq(habits.id, habitId)))
 }
 
 export const fetchHabitsByIds = async (userId: string, habitIds: string[]) => {

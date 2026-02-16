@@ -1,12 +1,14 @@
 import { badRequest, created, notFound, ok, parseJson } from '@/lib/api'
 import {
   archiveHabit,
+  clearHabitReminderTime,
   deleteHabitById,
   fetchActiveHabits,
   fetchHabitById,
   fetchHabitsByIds,
   fetchLastHabitSortOrder,
   insertHabit,
+  updateHabitReminderTime,
   updateHabitSortOrder,
 } from '@/db/habits'
 
@@ -19,14 +21,23 @@ type HabitOrderPayload = {
   archiveId?: unknown
   action?: unknown
   habitId?: unknown
+  reminderTime?: unknown
 }
 
-type HabitMutationAction = 'archive' | 'hardDelete'
+type HabitMutationAction =
+  | 'archive'
+  | 'hardDelete'
+  | 'setReminder'
+  | 'clearReminder'
 
 type HabitMutationRequest = {
   action: HabitMutationAction
   habitId: string
+  reminderTime?: string
 }
+
+const isValidReminderTime = (value: string) =>
+  /^([01]\d|2[0-3]):([0-5]\d)$/.test(value)
 
 const createdHabit = (habit: { id: string; name: string; sortOrder: number }) =>
   created({ habit })
@@ -88,7 +99,12 @@ const getArchiveId = (payload: unknown) => {
 const isHabitMutationAction = (
   action: string,
 ): action is HabitMutationAction => {
-  return action === 'archive' || action === 'hardDelete'
+  return (
+    action === 'archive' ||
+    action === 'hardDelete' ||
+    action === 'setReminder' ||
+    action === 'clearReminder'
+  )
 }
 
 const getHabitMutationRequest = (
@@ -112,6 +128,19 @@ const getHabitMutationRequest = (
 
   if (typeof habitId !== 'string' || habitId.trim().length === 0) {
     return null
+  }
+
+  if (action === 'setReminder') {
+    const { reminderTime } = payload as HabitOrderPayload
+
+    if (
+      typeof reminderTime !== 'string' ||
+      !isValidReminderTime(reminderTime)
+    ) {
+      return null
+    }
+
+    return { action, habitId, reminderTime }
   }
 
   return { action, habitId }
@@ -177,6 +206,37 @@ export const handleHabitsPatch = async (request: Request, userId: string) => {
       }
 
       return ok({ operation: 'archive', archived: true })
+    }
+
+    if (mutationRequest.action === 'setReminder') {
+      if (habit.archivedAt) {
+        return badRequest('Cannot update reminder for archived habit')
+      }
+
+      await updateHabitReminderTime(
+        userId,
+        mutationRequest.habitId,
+        mutationRequest.reminderTime ?? '',
+      )
+
+      return ok({
+        operation: 'setReminder',
+        reminderTime: mutationRequest.reminderTime,
+      })
+    }
+
+    if (mutationRequest.action === 'clearReminder') {
+      if (habit.archivedAt) {
+        return badRequest('Cannot update reminder for archived habit')
+      }
+
+      await clearHabitReminderTime(userId, mutationRequest.habitId)
+
+      return ok({
+        operation: 'clearReminder',
+        reminderTime: null,
+        removed: true,
+      })
     }
 
     const deleted = await deleteHabitById(userId, mutationRequest.habitId)
