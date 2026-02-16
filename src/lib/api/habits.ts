@@ -3,8 +3,8 @@ import {
   archiveHabit,
   clearHabitReminderTime,
   deleteHabitById,
-  fetchActiveHabits,
   fetchHabitById,
+  fetchHabits,
   fetchHabitsByIds,
   fetchLastHabitSortOrder,
   insertHabit,
@@ -159,7 +159,7 @@ const getHabitIdFromQuery = (request: Request) => {
 }
 
 export const handleHabitsGet = async (userId: string) => {
-  const rows = await fetchActiveHabits(userId)
+  const rows = await fetchHabits(userId)
   return ok({ habits: rows })
 }
 

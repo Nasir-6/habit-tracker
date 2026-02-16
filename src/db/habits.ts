@@ -16,6 +16,20 @@ export const fetchActiveHabits = async (userId: string) => {
     .orderBy(habits.sortOrder)
 }
 
+export const fetchHabits = async (userId: string) => {
+  return db
+    .select({
+      id: habits.id,
+      name: habits.name,
+      sortOrder: habits.sortOrder,
+      reminderTime: habits.reminderTime,
+      archivedAt: habits.archivedAt,
+    })
+    .from(habits)
+    .where(eq(habits.userId, userId))
+    .orderBy(habits.sortOrder)
+}
+
 export const fetchDueHabitReminders = async (
   userId: string,
   reminderTimeUpperBound: string,

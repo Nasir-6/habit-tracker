@@ -3,4 +3,5 @@ export type Habit = {
   name: string
   isCompleted: boolean
   reminderTime: string | null
+  archivedAt: string | null
 }

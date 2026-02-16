@@ -902,7 +902,7 @@
       "Open Today screen and verify archived habits appear in an Archived section",
       "Verify archived habits are not shown in active Today list"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Habit Management",

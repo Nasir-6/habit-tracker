@@ -56,7 +56,12 @@ type ReminderHabitVariables = {
 
 const mapHabitsPayload = (
   habitsPayload: {
-    habits?: { id?: string; name?: string; reminderTime?: unknown }[]
+    habits?: {
+      id?: string
+      name?: string
+      reminderTime?: unknown
+      archivedAt?: unknown
+    }[]
   },
   completionsPayload: { habitIds?: string[] },
 ) => {
@@ -73,13 +78,19 @@ const mapHabitsPayload = (
     isCompleted: completedIds.has(habit.id ?? ''),
     reminderTime:
       typeof habit.reminderTime === 'string' ? habit.reminderTime : null,
+    archivedAt: typeof habit.archivedAt === 'string' ? habit.archivedAt : null,
   }))
 }
 
 const fetchHabits = async (localDate: string) => {
   const [habitsResponse, completionsResponse] = await Promise.all([
     requestApi<{
-      habits?: { id?: string; name?: string; reminderTime?: unknown }[]
+      habits?: {
+        id?: string
+        name?: string
+        reminderTime?: unknown
+        archivedAt?: unknown
+      }[]
     }>('/api/habits', undefined, 'Unable to load habits'),
     requestApi<{ habitIds?: string[] }>(
       `/api/completions?localDate=${encodeURIComponent(localDate)}`,
@@ -153,18 +164,21 @@ export function App() {
   })
 
   const habits = habitsQuery.data ?? []
+  const activeHabits = habits.filter((habit) => habit.archivedAt === null)
+  const archivedHabits = habits.filter((habit) => habit.archivedAt !== null)
 
   const streaksQuery = useQuery({
     queryKey: streaksQueryKey(
       userId ?? 'guest',
       localDate,
-      habits.map((habit) => habit.id),
+      activeHabits.map((habit) => habit.id),
     ),
-    queryFn: async () => fetchStreaks(habits, localDate),
-    enabled: Boolean(userId) && habits.length > 0,
+    queryFn: async () => fetchStreaks(activeHabits, localDate),
+    enabled: Boolean(userId) && activeHabits.length > 0,
   })
 
-  const habitStreaks = habits.length === 0 ? {} : (streaksQuery.data ?? {})
+  const habitStreaks =
+    activeHabits.length === 0 ? {} : (streaksQuery.data ?? {})
 
   const reorderHabitMutation = useMutation({
     mutationFn: async ({ orderedIds }: ReorderHabitVariables) => {
@@ -243,10 +257,21 @@ export function App() {
           : 'Unable to delete habit forever',
       )
     },
-    onMutate: ({ queryKey, habitId }: DeleteHabitVariables) => {
-      queryClient.setQueryData<Habit[]>(queryKey, (current = []) =>
-        current.filter((habit) => habit.id !== habitId),
-      )
+    onMutate: ({ queryKey, habitId, operation }: DeleteHabitVariables) => {
+      queryClient.setQueryData<Habit[]>(queryKey, (current = []) => {
+        if (operation === 'hardDelete') {
+          return current.filter((habit) => habit.id !== habitId)
+        }
+
+        return current.map((habit) =>
+          habit.id === habitId
+            ? {
+                ...habit,
+                archivedAt: new Date().toISOString(),
+              }
+            : habit,
+        )
+      })
     },
     onError: (_error, { queryKey, previous }: DeleteHabitVariables) => {
       queryClient.setQueryData(queryKey, previous)
@@ -409,7 +434,8 @@ export function App() {
   return (
     <Dashboard
       userDisplayName={userDisplayName}
-      habits={habits}
+      habits={activeHabits}
+      archivedHabits={archivedHabits}
       habitStreaks={habitStreaks}
       habitActionError={habitActionError}
       onHabitReorder={handleHabitReorder}

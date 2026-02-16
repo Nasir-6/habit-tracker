@@ -9,6 +9,7 @@ import { useHabitHistory } from '@/hooks/useHabitHistory'
 
 type HabitListProps = {
   habits: Habit[]
+  archivedHabits: Habit[]
   habitStreaks: Partial<Record<string, { current: number; best: number }>>
   actionError: string | null
   onHabitReorder: (fromId: string, toId: string) => void
@@ -23,6 +24,7 @@ type HabitListProps = {
 
 export function HabitList({
   habits,
+  archivedHabits,
   habitStreaks,
   actionError,
   onHabitReorder,
@@ -184,6 +186,24 @@ export function HabitList({
         {habits.length > 1 ? (
           <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/80 p-6 text-slate-500">
             Drag habits to reorder.
+          </div>
+        ) : null}
+
+        {archivedHabits.length > 0 ? (
+          <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 sm:p-5">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-600">
+              Archived
+            </h3>
+            <ul className="mt-3 grid gap-2">
+              {archivedHabits.map((habit) => (
+                <li
+                  key={habit.id}
+                  className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600"
+                >
+                  {habit.name}
+                </li>
+              ))}
+            </ul>
           </div>
         ) : null}
       </div>

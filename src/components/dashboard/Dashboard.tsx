@@ -12,6 +12,7 @@ import { PartnerStatusCard } from '@/components/dashboard/PartnerStatusCard'
 type DashboardProps = {
   userDisplayName: string
   habits: Habit[]
+  archivedHabits: Habit[]
   habitStreaks: Partial<Record<string, { current: number; best: number }>>
   habitActionError: string | null
   onHabitReorder: (fromId: string, toId: string) => void
@@ -27,6 +28,7 @@ type DashboardProps = {
 export function Dashboard({
   userDisplayName,
   habits,
+  archivedHabits,
   habitStreaks,
   habitActionError,
   onHabitReorder,
@@ -47,6 +49,7 @@ export function Dashboard({
           <div className="grid gap-6 lg:grid-cols-[2fr,1fr]">
             <HabitList
               habits={habits}
+              archivedHabits={archivedHabits}
               habitStreaks={habitStreaks}
               actionError={habitActionError}
               onDeleteHabit={onDeleteHabit}
