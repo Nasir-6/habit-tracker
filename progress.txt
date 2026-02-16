@@ -468,3 +468,8 @@
 - Decisions: prioritized ahead of confetti as core progress-state correctness; render progress card even at 0 habits and force neutral bar color (`bg-slate-300`) to avoid low-progress error red in empty state.
 - Files changed: src/components/dashboard/HabitList/DailyProgressBar.tsx, prd.json, progress.txt.
 - Blockers/notes: none.
+
+- Task completed: Frontend / Daily Check-in - Trigger celebratory confetti each time daily completion reaches 100% from below. (PRD Frontend / Daily Check-in)
+- Decisions: prioritized as highest remaining architectural risk item (state transition behavior); detect progress threshold crossing (`<100 -> 100`) in `DailyProgressBar` and trigger lightweight CSS confetti burst keyed per crossing so confetti retriggers after undo/re-complete.
+- Files changed: src/components/dashboard/HabitList/DailyProgressBar.tsx, prd.json, progress.txt.
+- Blockers/notes: feedback loops pass (`npm run typecheck`, `npm run test`, `npm run lint`); `npm run test` still logs Vitest hanging-process shutdown warning with 0 tests.
