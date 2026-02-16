@@ -15,6 +15,7 @@ import appCss from '../styles.css?url'
 
 import type { QueryClient } from '@tanstack/react-query'
 
+import { Toaster } from '@/components/ui/sonner'
 import { LocalDateProvider } from '@/context/local-date'
 
 interface MyRouterContext {
@@ -67,6 +68,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body>
         <Header />
         <LocalDateProvider>{children}</LocalDateProvider>
+        <Toaster />
         <PwaRegistration />
         <TanStackDevtools
           config={{
