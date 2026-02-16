@@ -29,6 +29,11 @@
 - Files changed: src/routes/api/calendar.ts, src/routeTree.gen.ts, prd.json, progress.txt.
 - Blockers/notes: none.
 
+- Task completed: Frontend / Habit Management - Remove the inline Archived habits section from the Today screen and move archived habits into a dedicated modal. (PRD Frontend / Habit Management)
+- Decisions: prioritized as highest remaining archive-flow integration cleanup so Today list has one source of archived truth (modal-only); removed duplicate inline Archived section while keeping restore/history actions in archive modal unchanged.
+- Files changed: src/components/dashboard/HabitList/index.tsx, prd.json, progress.txt.
+- Blockers/notes: none.
+
 - Task completed: Frontend / Notifications - Show a notification bell in the global header for signed-in users only. (PRD Frontend / Notifications)
 - Decisions: prioritized as highest remaining notification integration point since later bell-state items depend on a shared header control; render bell from root `Header` and gate by auth session (`session?.user`) so signed-out view stays unchanged.
 - Files changed: src/components/Header.tsx, prd.json, progress.txt.

@@ -285,49 +285,6 @@ export function HabitList({
             Drag habits to reorder.
           </div>
         ) : null}
-
-        {archivedHabits.length > 0 ? (
-          <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 sm:p-5">
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-600">
-              Archived
-            </h3>
-            <ul className="mt-3 grid gap-2">
-              {archivedHabits.map((habit) => (
-                <li
-                  key={habit.id}
-                  className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600"
-                >
-                  <span className="min-w-0 truncate">{habit.name}</span>
-                  <div className="flex items-center gap-2">
-                    <button
-                      className="inline-flex h-8 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
-                      type="button"
-                      onClick={() => {
-                        void habitHistory.handleToggleHistory(habit.id)
-                      }}
-                    >
-                      {habitHistory.historyHabitId === habit.id
-                        ? 'Hide history'
-                        : 'View history'}
-                    </button>
-                    <button
-                      className="inline-flex h-8 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-400"
-                      type="button"
-                      onClick={() => {
-                        void handleRestoreHabit(habit.id)
-                      }}
-                      disabled={Boolean(restoringHabitId || deletingHabitId)}
-                    >
-                      {restoringHabitId === habit.id
-                        ? 'Restoring...'
-                        : 'Restore'}
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ) : null}
       </div>
       {habitHistory.historyHabitId && habitHistory.selectedHabit ? (
         <HabitHistoryDialog habitHistory={habitHistory} />

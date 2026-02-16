@@ -1153,7 +1153,7 @@
       "Verify archived habits are not shown inline in the main Today list",
       "Verify archived habits are accessible only through the archive modal"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Habit Management",
