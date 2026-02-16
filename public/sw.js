@@ -56,12 +56,12 @@ self.addEventListener('push', (event) => {
       .matchAll({ type: 'window', includeUncontrolled: true })
       .then((clients) => {
         if (payloadType === 'partner_nudge') {
-          const hasVisibleFocusedClient = clients.some(
-            (client) => client.visibilityState === 'visible' && client.focused,
+          const visibleClients = clients.filter(
+            (client) => client.visibilityState === 'visible',
           )
 
-          if (hasVisibleFocusedClient) {
-            clients.forEach((client) => {
+          if (visibleClients.length > 0) {
+            visibleClients.forEach((client) => {
               client.postMessage(bannerPayload)
             })
             return undefined

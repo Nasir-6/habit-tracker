@@ -35,13 +35,11 @@ export function InAppNudgeBanner() {
     }
 
     const handleMessage = (event: MessageEvent<NudgeBannerMessage>) => {
-      console.log('HANDLE INCOMING MESSAGE', event.data)
       const payload = resolveBannerPayload(event.data)
-      console.log('payload :>> ', payload)
+
       if (!payload) {
         return
       }
-      console.log('Firing toast with payload')
 
       toast(payload.title, {
         description: payload.body,
