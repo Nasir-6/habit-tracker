@@ -7,13 +7,13 @@ export function DailyProgressBar({
   completedCount,
   totalCount,
 }: DailyProgressBarProps) {
-  if (totalCount === 0) {
-    return null
-  }
-
-  const completionPercent = Math.round((completedCount / totalCount) * 100)
-  const progressColorClass =
-    completionPercent > 50
+  const hasHabits = totalCount > 0
+  const completionPercent = hasHabits
+    ? Math.round((completedCount / totalCount) * 100)
+    : 0
+  const progressColorClass = !hasHabits
+    ? 'bg-slate-300'
+    : completionPercent > 50
       ? 'bg-emerald-500'
       : completionPercent > 25
         ? 'bg-amber-500'

@@ -1030,7 +1030,7 @@
       "Verify progress area uses neutral styling",
       "Verify no red/orange/green progress state is shown"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Daily Check-in",
