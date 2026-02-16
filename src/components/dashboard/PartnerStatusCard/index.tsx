@@ -7,6 +7,7 @@ import { PartnerSentInvites } from './PartnerSentInvites'
 import { PartnerStatusHeader } from './PartnerStatusHeader'
 import {
   formatRelativeTimestamp,
+  formatSyncTimestamp,
   getPartnerDisplayName,
 } from './partnerStatusUtils'
 import { ConfirmModal } from '@/components/dashboard/ConfirmModal'
@@ -32,6 +33,7 @@ export function PartnerStatusCard() {
     startedOn,
     partnerEmail,
     latestIncomingNudgeAt,
+    partnerStatusLastUpdatedAt,
     pendingInvites,
     sentInvites,
     deletingInviteId,
@@ -70,6 +72,9 @@ export function PartnerStatusCard() {
   const nudgeSenderName = partnerName ?? 'Your partner'
   const latestIncomingNudgeLabel = latestIncomingNudgeAt
     ? `${nudgeSenderName} nudged you ${formatRelativeTimestamp(latestIncomingNudgeAt)}`
+    : null
+  const partnerStatusLastUpdatedLabel = partnerStatusLastUpdatedAt
+    ? `Last updated ${formatSyncTimestamp(partnerStatusLastUpdatedAt)}`
     : null
   let nudgeButtonLabel = 'Send nudge'
 
@@ -162,6 +167,11 @@ export function PartnerStatusCard() {
             {sentInviteOutcomeNotice ? (
               <p className="rounded-xl border border-sky-200 bg-sky-50 px-3 py-2 text-sm text-sky-700">
                 {sentInviteOutcomeNotice}
+              </p>
+            ) : null}
+            {partnerStatusLastUpdatedLabel ? (
+              <p className="text-xs text-slate-500">
+                {partnerStatusLastUpdatedLabel}
               </p>
             ) : null}
             <PartnerActiveHabits habits={habits} startedOn={startedOn} />

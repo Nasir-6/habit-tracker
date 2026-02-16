@@ -81,3 +81,17 @@ export const formatRelativeTimestamp = (value: string) => {
     day: 'numeric',
   })
 }
+
+export const formatSyncTimestamp = (value: string) => {
+  const parsed = new Date(value)
+
+  if (Number.isNaN(parsed.getTime())) {
+    return 'just now'
+  }
+
+  return parsed.toLocaleTimeString(undefined, {
+    hour: 'numeric',
+    minute: '2-digit',
+    second: '2-digit',
+  })
+}

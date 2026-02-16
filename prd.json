@@ -696,7 +696,7 @@
       "Trigger a partner habit status change",
       "Verify the timestamp refreshes to reflect the latest update"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Partnering",

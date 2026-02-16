@@ -143,6 +143,7 @@ export function usePartnerStatus() {
 
   const partnerStatusQuery = useQuery({
     queryKey: partnerStatusQueryKey(localDate),
+    refetchInterval: 60_000,
     queryFn: async () => {
       const response = await fetch(
         `/api/partnerships?localDate=${encodeURIComponent(localDate)}`,
@@ -715,6 +716,10 @@ export function usePartnerStatus() {
     partnerEmail: partnerStatusQuery.data?.partnerEmail ?? null,
     latestIncomingNudgeAt:
       partnerStatusQuery.data?.latestIncomingNudgeAt ?? null,
+    partnerStatusLastUpdatedAt:
+      partnerStatusQuery.isSuccess && partnerStatusQuery.dataUpdatedAt > 0
+        ? new Date(partnerStatusQuery.dataUpdatedAt).toISOString()
+        : null,
     errorMessage: partnerStatusQuery.error?.message ?? null,
     isLoading: partnerStatusQuery.isLoading,
     hasPartner: partnerStatusQuery.data?.hasPartner ?? false,

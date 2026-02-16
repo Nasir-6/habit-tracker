@@ -29,6 +29,11 @@
 - Files changed: src/routes/api/calendar.ts, src/routeTree.gen.ts, prd.json, progress.txt.
 - Blockers/notes: none.
 
+- Task completed: Frontend / Partnering - Display a last-updated timestamp for partner habit status data to indicate freshness. (PRD Frontend / Partnering)
+- Decisions: prioritized as integration signal between partner-status query freshness and Partner UI; expose TanStack query `dataUpdatedAt` from hook and poll partner status every 60s so timestamp can refresh without manual reload.
+- Files changed: src/hooks/usePartnerStatus.ts, src/components/dashboard/PartnerStatusCard/index.tsx, src/components/dashboard/PartnerStatusCard/partnerStatusUtils.ts, prd.json, progress.txt.
+- Blockers/notes: none.
+
 - Task completed: Backend / Notifications - Ensure reminder dispatch excludes archived habits and only targets active habits. (PRD Backend / Notifications)
 - Decisions: marked complete after verifying reminder dispatcher source query already filters `habits.archived_at IS NULL` and only returns active habits; no code-path expansion to keep change small and avoid duplicate filtering logic.
 - Files changed: prd.json, progress.txt.
