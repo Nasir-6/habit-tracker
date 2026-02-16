@@ -262,13 +262,8 @@ export default function Header() {
           <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-900 text-white text-lg font-semibold">
             H
           </span>
-          <div className="flex flex-col">
-            <span className="text-xs uppercase tracking-[0.2em] text-slate-500">
-              Habit Tracker
-            </span>
-            <span className="text-lg font-semibold text-slate-900">
-              Focused Progress
-            </span>
+          <div className="text-lg font-semibold text-slate-900">
+            Habit Tracker
           </div>
         </Link>
         <div className="flex items-center gap-3 text-sm text-slate-500">
