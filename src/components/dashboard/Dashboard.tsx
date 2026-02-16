@@ -43,12 +43,13 @@ export function Dashboard({
         <InAppNudgeBanner />
 
         <div className="grid gap-6">
-          <CreateHabitCard
-            isModalOpen={isCreateHabitModalOpen}
-            onCloseModal={() => {
-              setIsCreateHabitModalOpen(false)
-            }}
-          />
+          {isCreateHabitModalOpen ? (
+            <CreateHabitCard
+              onCloseModal={() => {
+                setIsCreateHabitModalOpen(false)
+              }}
+            />
+          ) : null}
 
           <div className="grid gap-6 lg:grid-cols-[2fr,1fr]">
             <HabitList
