@@ -29,6 +29,11 @@
 - Files changed: src/routes/api/calendar.ts, src/routeTree.gen.ts, prd.json, progress.txt.
 - Blockers/notes: none.
 
+- Task completed: Frontend / Habit Management - Allow users to restore an archived habit back to the active list. (PRD Frontend / Habit Management)
+- Decisions: prioritized as highest remaining archived-habit integration point before archived-history follow-up; added `restore` as a first-class habit mutation on existing PATCH /api/habits and reused same client mutation path for optimistic archived->active transition.
+- Files changed: src/db/habits.ts, src/lib/api/habits.ts, src/routes/index.tsx, src/components/dashboard/Dashboard.tsx, src/components/dashboard/HabitList/index.tsx, prd.json, progress.txt.
+- Blockers/notes: none.
+
 - Task completed: Frontend / Habit Management - Display an Archived habits list so users can review archived habits separately from active habits. (PRD Frontend / Habit Management)
 - Decisions: prioritized as highest remaining archive-integration item before restore/history follow-ups; expanded habits GET payload to include archived rows and split active vs archived in UI so archived habits render in a dedicated section, not Today list.
 - Files changed: src/db/habits.ts, src/lib/api/habits.ts, src/types/dashboard/habit.ts, src/routes/index.tsx, src/components/dashboard/Dashboard.tsx, src/components/dashboard/HabitList/index.tsx, prd.json, progress.txt.

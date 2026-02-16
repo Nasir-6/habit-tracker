@@ -19,7 +19,7 @@ type DashboardProps = {
   onToggleHabit: (habitId: string) => void
   onDeleteHabit: (
     habitId: string,
-    operation: 'archive' | 'hardDelete',
+    operation: 'archive' | 'restore' | 'hardDelete',
   ) => Promise<void>
   onSetHabitReminder: (habitId: string, reminderTime: string) => Promise<void>
   onClearHabitReminder: (habitId: string) => Promise<void>

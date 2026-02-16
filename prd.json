@@ -913,7 +913,7 @@
       "Verify habit returns to active Today list",
       "Verify habit is removed from Archived section"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / History",

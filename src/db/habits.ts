@@ -132,6 +132,13 @@ export const archiveHabit = async (userId: string, habitId: string) => {
     )
 }
 
+export const restoreHabit = async (userId: string, habitId: string) => {
+  return db
+    .update(habits)
+    .set({ archivedAt: null })
+    .where(and(eq(habits.userId, userId), eq(habits.id, habitId)))
+}
+
 export const updateHabitSortOrder = async (
   userId: string,
   habitId: string,

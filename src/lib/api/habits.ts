@@ -8,6 +8,7 @@ import {
   fetchHabitsByIds,
   fetchLastHabitSortOrder,
   insertHabit,
+  restoreHabit,
   updateHabitReminderTime,
   updateHabitSortOrder,
 } from '@/db/habits'
@@ -27,6 +28,7 @@ type HabitOrderPayload = {
 
 type HabitMutationAction =
   | 'archive'
+  | 'restore'
   | 'hardDelete'
   | 'setReminder'
   | 'clearReminder'
@@ -102,6 +104,7 @@ const isHabitMutationAction = (
 ): action is HabitMutationAction => {
   return (
     action === 'archive' ||
+    action === 'restore' ||
     action === 'hardDelete' ||
     action === 'setReminder' ||
     action === 'clearReminder'
@@ -210,6 +213,16 @@ export const handleHabitsPatch = async (request: Request, userId: string) => {
       await deleteHabitReminderDispatches(userId, mutationRequest.habitId)
 
       return ok({ operation: 'archive', archived: true })
+    }
+
+    if (mutationRequest.action === 'restore') {
+      if (!habit.archivedAt) {
+        return ok({ operation: 'restore', restored: true })
+      }
+
+      await restoreHabit(userId, mutationRequest.habitId)
+
+      return ok({ operation: 'restore', restored: true })
     }
 
     if (mutationRequest.action === 'setReminder') {

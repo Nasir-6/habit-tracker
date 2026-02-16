@@ -16,7 +16,7 @@ type HabitListProps = {
   onToggleHabit: (habitId: string) => void
   onDeleteHabit: (
     habitId: string,
-    operation: 'archive' | 'hardDelete',
+    operation: 'archive' | 'restore' | 'hardDelete',
   ) => Promise<void>
   onSetHabitReminder: (habitId: string, reminderTime: string) => Promise<void>
   onClearHabitReminder: (habitId: string) => Promise<void>
@@ -38,6 +38,7 @@ export function HabitList({
   const [savingReminderHabitId, setSavingReminderHabitId] = useState<
     string | null
   >(null)
+  const [restoringHabitId, setRestoringHabitId] = useState<string | null>(null)
   const [deleteFlowHabitId, setDeleteFlowHabitId] = useState<string | null>(
     null,
   )
@@ -109,7 +110,7 @@ export function HabitList({
 
   const handleDeleteHabit = async (
     habitId: string,
-    operation: 'archive' | 'hardDelete',
+    operation: 'archive' | 'restore' | 'hardDelete',
   ) => {
     if (deletingHabitId) {
       return
@@ -157,6 +158,20 @@ export function HabitList({
     }
   }
 
+  const handleRestoreHabit = async (habitId: string) => {
+    if (restoringHabitId || deletingHabitId) {
+      return
+    }
+
+    setRestoringHabitId(habitId)
+
+    try {
+      await handleDeleteHabit(habitId, 'restore')
+    } finally {
+      setRestoringHabitId(null)
+    }
+  }
+
   return (
     <div className="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm sm:p-8">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -198,9 +213,19 @@ export function HabitList({
               {archivedHabits.map((habit) => (
                 <li
                   key={habit.id}
-                  className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600"
+                  className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600"
                 >
-                  {habit.name}
+                  <span className="min-w-0 truncate">{habit.name}</span>
+                  <button
+                    className="inline-flex h-8 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-400"
+                    type="button"
+                    onClick={() => {
+                      void handleRestoreHabit(habit.id)
+                    }}
+                    disabled={Boolean(restoringHabitId || deletingHabitId)}
+                  >
+                    {restoringHabitId === habit.id ? 'Restoring...' : 'Restore'}
+                  </button>
                 </li>
               ))}
             </ul>
