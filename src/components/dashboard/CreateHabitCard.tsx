@@ -5,11 +5,20 @@ import type { FormEvent } from 'react'
 import { requestApi } from '@/lib/client-api'
 import { cn } from '@/lib/utils'
 
-export function CreateHabitCard() {
+type CreateHabitCardProps = {
+  isModalOpen: boolean
+  onOpenModal: () => void
+  onCloseModal: () => void
+}
+
+export function CreateHabitCard({
+  isModalOpen,
+  onOpenModal,
+  onCloseModal,
+}: CreateHabitCardProps) {
   const queryClient = useQueryClient()
   const [habitName, setHabitName] = useState('')
   const [createError, setCreateError] = useState<string | null>(null)
-  const [isModalOpen, setIsModalOpen] = useState(false)
 
   const { mutate: createHabit, isPending } = useMutation({
     mutationFn: async (name: string) => {
@@ -33,7 +42,7 @@ export function CreateHabitCard() {
         queryKey: ['dashboard-habits'],
       })
       setHabitName('')
-      setIsModalOpen(false)
+      onCloseModal()
     },
     onError: (error) => {
       setCreateError(
@@ -60,9 +69,10 @@ export function CreateHabitCard() {
       return
     }
 
-    setIsModalOpen(false)
     setCreateError(null)
     setHabitName('')
+
+    onCloseModal()
   }
 
   return (
@@ -73,7 +83,7 @@ export function CreateHabitCard() {
         aria-label="Create a habit"
         onClick={() => {
           setCreateError(null)
-          setIsModalOpen(true)
+          onOpenModal()
         }}
       >
         +

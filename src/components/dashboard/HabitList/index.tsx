@@ -20,6 +20,7 @@ type HabitListProps = {
   ) => Promise<void>
   onSetHabitReminder: (habitId: string, reminderTime: string) => Promise<void>
   onClearHabitReminder: (habitId: string) => Promise<void>
+  onOpenCreateHabit: () => void
 }
 
 export function HabitList({
@@ -32,6 +33,7 @@ export function HabitList({
   onDeleteHabit,
   onSetHabitReminder,
   onClearHabitReminder,
+  onOpenCreateHabit,
 }: HabitListProps) {
   const [draggingHabitId, setDraggingHabitId] = useState<string | null>(null)
   const [deletingHabitId, setDeletingHabitId] = useState<string | null>(null)
@@ -185,7 +187,15 @@ export function HabitList({
         ) : null}
         {habits.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/80 p-6 text-slate-500">
-            Add your first habit to start tracking daily completions.
+            <p>Add your first habit to start tracking daily completions.</p>
+            <button
+              className="mt-4 inline-flex min-h-[44px] items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+              type="button"
+              onClick={onOpenCreateHabit}
+            >
+              <span aria-hidden="true">+</span>
+              Add habit
+            </button>
           </div>
         ) : (
           orderedHabits.map((habit) => (

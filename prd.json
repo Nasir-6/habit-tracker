@@ -860,7 +860,7 @@
       "Click the empty-state plus action",
       "Verify the same create-habit modal opens"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Habit Management",

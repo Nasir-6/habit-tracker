@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 import type { Habit } from '@/types/dashboard'
 
 import { CreateHabitCard } from '@/components/dashboard/CreateHabitCard'
@@ -37,6 +39,8 @@ export function Dashboard({
   onSetHabitReminder,
   onClearHabitReminder,
 }: DashboardProps) {
+  const [isCreateHabitModalOpen, setIsCreateHabitModalOpen] = useState(false)
+
   return (
     <PageShell maxWidthClass="max-w-6xl" paddingTopClass="pt-16">
       <div className="flex flex-col gap-8">
@@ -44,7 +48,15 @@ export function Dashboard({
         <InAppNudgeBanner />
 
         <div className="grid gap-6">
-          <CreateHabitCard />
+          <CreateHabitCard
+            isModalOpen={isCreateHabitModalOpen}
+            onOpenModal={() => {
+              setIsCreateHabitModalOpen(true)
+            }}
+            onCloseModal={() => {
+              setIsCreateHabitModalOpen(false)
+            }}
+          />
 
           <div className="grid gap-6 lg:grid-cols-[2fr,1fr]">
             <HabitList
@@ -57,6 +69,9 @@ export function Dashboard({
               onToggleHabit={onToggleHabit}
               onSetHabitReminder={onSetHabitReminder}
               onClearHabitReminder={onClearHabitReminder}
+              onOpenCreateHabit={() => {
+                setIsCreateHabitModalOpen(true)
+              }}
             />
             <div className="grid gap-6">
               <HabitCalendarCard habitStreaks={habitStreaks} habits={habits} />
