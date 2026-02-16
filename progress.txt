@@ -509,6 +509,11 @@
 - Files changed: src/components/dashboard/HabitList/HabitListItem.tsx, prd.json, progress.txt.
 - Blockers/notes: feedback loops pass (`npm run typecheck`, `npm run test`, `npm run lint`); `npm run test` exits 0 with existing Vitest hanging-process shutdown warning.
 
+- Task completed: Frontend / Habit Management - Render habit creation UI with a required name field. (PRD Frontend / Habit Management)
+- Decisions: prioritized as final remaining PRD item; verified existing create-habit modal already has required name input (`required`) and disabled save when trimmed name empty, so no product code change.
+- Files changed: prd.json, progress.txt.
+- Blockers/notes: none.
+
 - Task completed: Frontend / Notifications - Auto-attempt push subscription setup on app open when notification permission is already granted. (PRD Frontend / Notifications)
 - Decisions: prioritized as highest remaining integration point (permission state -> push subscription persistence); verified existing `NotificationPermissionCard` already auto-runs subscribe on load when permission is `granted` (no click path), so only PRD/progress sync needed.
 - Files changed: prd.json, progress.txt.

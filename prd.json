@@ -7,7 +7,7 @@
       "Verify a name input is present and marked as required",
       "Verify save action is disabled when name is empty"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Backend / Habit Management",
