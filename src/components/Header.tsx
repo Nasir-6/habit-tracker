@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
-import { Bell, BellOff, ChevronDown } from 'lucide-react'
+import { Bell, BellOff } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
 import { authClient } from '@/lib/auth-client'
@@ -256,7 +256,7 @@ export default function Header() {
   }
 
   return (
-    <header className="px-6 py-5 border-b border-slate-200/70 bg-white/70 backdrop-blur">
+    <header className="border-b border-slate-200/70 bg-white/70 px-4 py-3 backdrop-blur sm:px-6 sm:py-5">
       <div className="max-w-6xl mx-auto flex items-center justify-between">
         <Link to="/" className="flex items-center gap-3">
           <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-900 text-white text-lg font-semibold">
@@ -349,7 +349,11 @@ export default function Header() {
               <button
                 aria-expanded={isIdentityMenuOpen}
                 aria-haspopup="menu"
-                className="inline-flex min-h-10 items-center gap-3 rounded-2xl border border-slate-300 bg-white px-3 py-1.5 text-left text-sm text-slate-700 transition hover:border-slate-400 hover:text-slate-900"
+                className={`inline-flex min-h-10 items-center gap-2 rounded-2xl border px-2.5 py-1.5 text-left text-sm transition sm:gap-3 sm:px-3 ${
+                  isIdentityMenuOpen
+                    ? 'border-slate-400 bg-slate-50 text-slate-900'
+                    : 'border-slate-300 bg-white text-slate-700 hover:border-slate-400 hover:text-slate-900'
+                }`}
                 type="button"
                 onClick={() => {
                   setIsNotificationMenuOpen(false)
@@ -375,7 +379,6 @@ export default function Header() {
                     {userEmail}
                   </span>
                 </span>
-                <ChevronDown className="h-4 w-4 shrink-0" aria-hidden="true" />
               </button>
               {isIdentityMenuOpen ? (
                 <div
@@ -387,6 +390,9 @@ export default function Header() {
                   </p>
                   <p className="mt-1 text-sm font-semibold text-slate-900">
                     {userDisplayName}
+                  </p>
+                  <p className="mt-0.5 truncate text-xs text-slate-500">
+                    {userEmail}
                   </p>
                   <button
                     className="mt-3 inline-flex w-full items-center justify-center rounded-xl border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-400 hover:text-slate-900 disabled:cursor-not-allowed disabled:border-slate-200 disabled:text-slate-400"
