@@ -1,15 +1,34 @@
+import { useMutation } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
-import { Bell, ChevronDown } from 'lucide-react'
+import { Bell, BellOff, ChevronDown } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
 import { authClient } from '@/lib/auth-client'
+import {
+  getCurrentNotificationPermission,
+  hasActivePushSubscription,
+  isPushNotificationsSupported,
+  subscribeToPush,
+} from '@/lib/push-notifications'
 
 export default function Header() {
   const { data: session, isPending } = authClient.useSession()
   const shouldShowNotificationBell = !isPending && Boolean(session?.user)
+  const [isNotificationMenuOpen, setIsNotificationMenuOpen] = useState(false)
   const [isIdentityMenuOpen, setIsIdentityMenuOpen] = useState(false)
+  const [notificationPermission, setNotificationPermission] =
+    useState<NotificationPermission>('default')
+  const [isNotificationSubscribed, setIsNotificationSubscribed] =
+    useState(false)
+  const [notificationNotice, setNotificationNotice] = useState<string | null>(
+    null,
+  )
+  const [notificationError, setNotificationError] = useState<string | null>(
+    null,
+  )
   const [isSigningOut, setIsSigningOut] = useState(false)
   const [signOutError, setSignOutError] = useState<string | null>(null)
+  const notificationMenuRef = useRef<HTMLDivElement | null>(null)
   const identityMenuRef = useRef<HTMLDivElement | null>(null)
 
   const userName = session?.user ? session.user.name.trim() : ''
@@ -34,30 +53,46 @@ export default function Header() {
       return
     }
 
+    setIsNotificationMenuOpen(false)
     setIsIdentityMenuOpen(false)
+    setNotificationPermission('default')
+    setIsNotificationSubscribed(false)
+    setNotificationNotice(null)
+    setNotificationError(null)
     setIsSigningOut(false)
     setSignOutError(null)
   }, [session?.user])
 
   useEffect(() => {
-    if (!isIdentityMenuOpen) {
+    if (!isNotificationMenuOpen && !isIdentityMenuOpen) {
       return
     }
 
     const handlePointerDown = (event: MouseEvent) => {
-      if (!identityMenuRef.current) {
+      const target = event.target
+
+      if (!(target instanceof Node)) {
         return
       }
 
-      const target = event.target
+      const isOutsideNotificationMenu =
+        !notificationMenuRef.current ||
+        !notificationMenuRef.current.contains(target)
+      const isOutsideIdentityMenu =
+        !identityMenuRef.current || !identityMenuRef.current.contains(target)
 
-      if (target instanceof Node && !identityMenuRef.current.contains(target)) {
+      if (isOutsideNotificationMenu) {
+        setIsNotificationMenuOpen(false)
+      }
+
+      if (isOutsideIdentityMenu) {
         setIsIdentityMenuOpen(false)
       }
     }
 
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
+        setIsNotificationMenuOpen(false)
         setIsIdentityMenuOpen(false)
       }
     }
@@ -69,7 +104,65 @@ export default function Header() {
       document.removeEventListener('mousedown', handlePointerDown)
       document.removeEventListener('keydown', handleEscape)
     }
-  }, [isIdentityMenuOpen])
+  }, [isIdentityMenuOpen, isNotificationMenuOpen])
+
+  useEffect(() => {
+    if (!session?.user || !isPushNotificationsSupported()) {
+      return
+    }
+
+    setNotificationPermission(getCurrentNotificationPermission())
+
+    void hasActivePushSubscription()
+      .then((hasSubscription) => {
+        setIsNotificationSubscribed(hasSubscription)
+      })
+      .catch(() => {
+        setIsNotificationSubscribed(false)
+      })
+  }, [session?.user])
+
+  const { mutate: enableNotifications, isPending: isEnablingNotifications } =
+    useMutation({
+      mutationFn: (requestPermission: boolean) =>
+        subscribeToPush({ requestPermission }),
+      onMutate: () => {
+        setNotificationNotice(null)
+        setNotificationError(null)
+      },
+      onSuccess: async (nextPermission) => {
+        setNotificationPermission(nextPermission)
+        const hasSubscription = await hasActivePushSubscription()
+        setIsNotificationSubscribed(hasSubscription)
+        setNotificationNotice(
+          hasSubscription
+            ? 'Notifications are enabled.'
+            : 'Permission granted, but no active subscription was found.',
+        )
+      },
+      onError: (error) => {
+        setNotificationPermission(
+          isPushNotificationsSupported()
+            ? getCurrentNotificationPermission()
+            : 'default',
+        )
+        setIsNotificationSubscribed(false)
+        setNotificationError(
+          error instanceof Error
+            ? error.message
+            : 'Unable to enable notifications',
+        )
+      },
+    })
+
+  const isNotificationSupported =
+    typeof window !== 'undefined' && isPushNotificationsSupported()
+  const isNotificationDenied = notificationPermission === 'denied'
+  const isNotificationActive =
+    notificationPermission === 'granted' && isNotificationSubscribed
+  const notificationButtonLabel = isNotificationActive
+    ? 'Refresh notifications'
+    : 'Enable notifications'
 
   const handleSignOut = async () => {
     if (isSigningOut) {
@@ -115,15 +208,81 @@ export default function Header() {
           </div>
         </Link>
         <div className="flex items-center gap-3 text-sm text-slate-500">
-          <span>Draft workspace</span>
           {shouldShowNotificationBell ? (
-            <button
-              aria-label="Notifications"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700 transition hover:border-slate-400 hover:text-slate-900"
-              type="button"
-            >
-              <Bell className="h-5 w-5" aria-hidden="true" />
-            </button>
+            <div className="relative" ref={notificationMenuRef}>
+              <button
+                aria-expanded={isNotificationMenuOpen}
+                aria-haspopup="dialog"
+                aria-label="Notifications"
+                className={`inline-flex h-10 w-10 items-center justify-center rounded-full border bg-white transition ${
+                  isNotificationActive
+                    ? 'border-sky-200 hover:border-sky-300'
+                    : 'border-slate-300 hover:border-slate-400'
+                }`}
+                type="button"
+                onClick={() => {
+                  setNotificationNotice(null)
+                  setNotificationError(null)
+                  setIsIdentityMenuOpen(false)
+                  setIsNotificationMenuOpen((current) => !current)
+                }}
+              >
+                {isNotificationActive ? (
+                  <Bell
+                    className="h-5 w-5 text-sky-600"
+                    aria-hidden="true"
+                    strokeWidth={2.25}
+                  />
+                ) : (
+                  <BellOff
+                    className="h-5 w-5 text-slate-500"
+                    aria-hidden="true"
+                    strokeWidth={2.25}
+                  />
+                )}
+              </button>
+              {isNotificationMenuOpen ? (
+                <div className="absolute right-0 top-12 w-72 rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-lg shadow-slate-900/10">
+                  <p className="text-xs uppercase tracking-[0.16em] text-slate-500">
+                    Notifications
+                  </p>
+                  <p className="mt-2 text-sm text-slate-700">
+                    {isNotificationActive
+                      ? 'Push alerts are active on this device.'
+                      : isNotificationDenied
+                        ? 'Notifications are blocked in browser settings.'
+                        : isNotificationSupported
+                          ? 'Enable push alerts to receive nudges and reminders.'
+                          : 'This browser does not support push notifications.'}
+                  </p>
+                  <button
+                    className="mt-3 inline-flex w-full items-center justify-center rounded-xl border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-400 hover:text-slate-900 disabled:cursor-not-allowed disabled:border-slate-200 disabled:text-slate-400"
+                    disabled={
+                      !isNotificationSupported ||
+                      isNotificationDenied ||
+                      isEnablingNotifications
+                    }
+                    type="button"
+                    onClick={() => {
+                      enableNotifications(notificationPermission !== 'granted')
+                    }}
+                  >
+                    {isEnablingNotifications
+                      ? 'Updating...'
+                      : notificationButtonLabel}
+                  </button>
+                  {notificationError ? (
+                    <p className="mt-2 text-xs text-rose-600" role="alert">
+                      {notificationError}
+                    </p>
+                  ) : notificationNotice ? (
+                    <p className="mt-2 text-xs text-emerald-600" role="status">
+                      {notificationNotice}
+                    </p>
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
           ) : null}
           {session?.user ? (
             <div className="relative" ref={identityMenuRef}>
@@ -133,6 +292,7 @@ export default function Header() {
                 className="inline-flex min-h-10 items-center gap-3 rounded-2xl border border-slate-300 bg-white px-3 py-1.5 text-left text-sm text-slate-700 transition hover:border-slate-400 hover:text-slate-900"
                 type="button"
                 onClick={() => {
+                  setIsNotificationMenuOpen(false)
                   setIsIdentityMenuOpen((current) => !current)
                 }}
               >

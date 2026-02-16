@@ -7,7 +7,6 @@ import { DashboardHeader } from '@/components/dashboard/DashboardHeader'
 import { HabitCalendarCard } from '@/components/dashboard/HabitCalendarCard'
 import { HabitList } from '@/components/dashboard/HabitList'
 import { InAppNudgeBanner } from '@/components/dashboard/InAppNudgeBanner'
-import { NotificationPermissionCard } from '@/components/dashboard/NotificationPermissionCard'
 import { PageShell } from '@/components/dashboard/PageShell'
 import { PartnerStatusCard } from '@/components/dashboard/PartnerStatusCard'
 
@@ -75,7 +74,6 @@ export function Dashboard({
             />
             <div className="grid gap-6">
               <HabitCalendarCard habitStreaks={habitStreaks} habits={habits} />
-              <NotificationPermissionCard />
               <PartnerStatusCard />
             </div>
           </div>
