@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray, isNull } from 'drizzle-orm'
+import { and, desc, eq, inArray, isNull, lte } from 'drizzle-orm'
 
 import { db } from '@/db/index.ts'
 import { habits } from '@/db/schema'
@@ -13,6 +13,27 @@ export const fetchActiveHabits = async (userId: string) => {
     })
     .from(habits)
     .where(and(eq(habits.userId, userId), isNull(habits.archivedAt)))
+    .orderBy(habits.sortOrder)
+}
+
+export const fetchDueHabitReminders = async (
+  userId: string,
+  reminderTimeUpperBound: string,
+) => {
+  return db
+    .select({
+      id: habits.id,
+      name: habits.name,
+      reminderTime: habits.reminderTime,
+    })
+    .from(habits)
+    .where(
+      and(
+        eq(habits.userId, userId),
+        isNull(habits.archivedAt),
+        lte(habits.reminderTime, reminderTimeUpperBound),
+      ),
+    )
     .orderBy(habits.sortOrder)
 }
 

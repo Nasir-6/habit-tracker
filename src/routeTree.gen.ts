@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiStreaksRouteImport } from './routes/api/streaks'
+import { Route as ApiRemindersRouteImport } from './routes/api/reminders'
 import { Route as ApiPushSubscriptionsRouteImport } from './routes/api/push-subscriptions'
 import { Route as ApiPartnershipsRouteImport } from './routes/api/partnerships'
 import { Route as ApiPartnerInvitesRouteImport } from './routes/api/partner-invites'
@@ -29,6 +30,11 @@ const IndexRoute = IndexRouteImport.update({
 const ApiStreaksRoute = ApiStreaksRouteImport.update({
   id: '/api/streaks',
   path: '/api/streaks',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiRemindersRoute = ApiRemindersRouteImport.update({
+  id: '/api/reminders',
+  path: '/api/reminders',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPushSubscriptionsRoute = ApiPushSubscriptionsRouteImport.update({
@@ -87,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/api/partner-invites': typeof ApiPartnerInvitesRoute
   '/api/partnerships': typeof ApiPartnershipsRoute
   '/api/push-subscriptions': typeof ApiPushSubscriptionsRoute
+  '/api/reminders': typeof ApiRemindersRoute
   '/api/streaks': typeof ApiStreaksRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
@@ -100,6 +107,7 @@ export interface FileRoutesByTo {
   '/api/partner-invites': typeof ApiPartnerInvitesRoute
   '/api/partnerships': typeof ApiPartnershipsRoute
   '/api/push-subscriptions': typeof ApiPushSubscriptionsRoute
+  '/api/reminders': typeof ApiRemindersRoute
   '/api/streaks': typeof ApiStreaksRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
@@ -114,6 +122,7 @@ export interface FileRoutesById {
   '/api/partner-invites': typeof ApiPartnerInvitesRoute
   '/api/partnerships': typeof ApiPartnershipsRoute
   '/api/push-subscriptions': typeof ApiPushSubscriptionsRoute
+  '/api/reminders': typeof ApiRemindersRoute
   '/api/streaks': typeof ApiStreaksRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
@@ -129,6 +138,7 @@ export interface FileRouteTypes {
     | '/api/partner-invites'
     | '/api/partnerships'
     | '/api/push-subscriptions'
+    | '/api/reminders'
     | '/api/streaks'
     | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
@@ -142,6 +152,7 @@ export interface FileRouteTypes {
     | '/api/partner-invites'
     | '/api/partnerships'
     | '/api/push-subscriptions'
+    | '/api/reminders'
     | '/api/streaks'
     | '/api/auth/$'
   id:
@@ -155,6 +166,7 @@ export interface FileRouteTypes {
     | '/api/partner-invites'
     | '/api/partnerships'
     | '/api/push-subscriptions'
+    | '/api/reminders'
     | '/api/streaks'
     | '/api/auth/$'
   fileRoutesById: FileRoutesById
@@ -169,6 +181,7 @@ export interface RootRouteChildren {
   ApiPartnerInvitesRoute: typeof ApiPartnerInvitesRoute
   ApiPartnershipsRoute: typeof ApiPartnershipsRoute
   ApiPushSubscriptionsRoute: typeof ApiPushSubscriptionsRoute
+  ApiRemindersRoute: typeof ApiRemindersRoute
   ApiStreaksRoute: typeof ApiStreaksRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
@@ -187,6 +200,13 @@ declare module '@tanstack/react-router' {
       path: '/api/streaks'
       fullPath: '/api/streaks'
       preLoaderRoute: typeof ApiStreaksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/reminders': {
+      id: '/api/reminders'
+      path: '/api/reminders'
+      fullPath: '/api/reminders'
+      preLoaderRoute: typeof ApiRemindersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/push-subscriptions': {
@@ -265,6 +285,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPartnerInvitesRoute: ApiPartnerInvitesRoute,
   ApiPartnershipsRoute: ApiPartnershipsRoute,
   ApiPushSubscriptionsRoute: ApiPushSubscriptionsRoute,
+  ApiRemindersRoute: ApiRemindersRoute,
   ApiStreaksRoute: ApiStreaksRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }

@@ -957,7 +957,7 @@
       "Verify push notification is sent only for incomplete due habits",
       "Verify completed habits do not receive reminders"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Backend / Notifications",
