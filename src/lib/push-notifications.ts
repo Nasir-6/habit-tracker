@@ -1,5 +1,9 @@
 import { requestApi } from '@/lib/client-api'
 
+const notificationPromptVisitKeyPrefix =
+  'habit-tracker:notifications:last-visit:'
+const staleNotificationPromptWindowMs = 14 * 24 * 60 * 60 * 1000
+
 const base64UrlToUint8Array = (value: string) => {
   const base64 = value.replace(/-/g, '+').replace(/_/g, '/')
   const padded = `${base64}${'='.repeat((4 - (base64.length % 4)) % 4)}`
@@ -33,6 +37,54 @@ export const hasActivePushSubscription = async () => {
   const subscription = await registration.pushManager.getSubscription()
 
   return Boolean(subscription)
+}
+
+export type NotificationPromptReason = 'first_visit' | 'stale_return'
+
+type ConsumeNotificationPromptReasonOptions = {
+  userId: string
+  isSupported: boolean
+  isNotificationActive: boolean
+  permission: NotificationPermission
+}
+
+export const consumeNotificationPromptReason = ({
+  userId,
+  isSupported,
+  isNotificationActive,
+  permission,
+}: ConsumeNotificationPromptReasonOptions): NotificationPromptReason | null => {
+  if (typeof window === 'undefined') {
+    return null
+  }
+
+  const storageKey = `${notificationPromptVisitKeyPrefix}${userId}`
+
+  let previousVisitTimestamp: number | null = null
+
+  try {
+    const rawValue = window.localStorage.getItem(storageKey)
+    const parsedValue = rawValue ? Number(rawValue) : Number.NaN
+
+    previousVisitTimestamp = Number.isFinite(parsedValue) ? parsedValue : null
+    window.localStorage.setItem(storageKey, String(Date.now()))
+  } catch {
+    return null
+  }
+
+  if (!isSupported || isNotificationActive || permission === 'denied') {
+    return null
+  }
+
+  if (previousVisitTimestamp === null) {
+    return 'first_visit'
+  }
+
+  if (Date.now() - previousVisitTimestamp >= staleNotificationPromptWindowMs) {
+    return 'stale_return'
+  }
+
+  return null
 }
 
 type SubscribeToPushOptions = {

@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 
 import { authClient } from '@/lib/auth-client'
 import {
+  consumeNotificationPromptReason,
   getCurrentNotificationPermission,
   hasActivePushSubscription,
   isPushNotificationsSupported,
@@ -28,10 +29,15 @@ export default function Header() {
   )
   const [isSigningOut, setIsSigningOut] = useState(false)
   const [signOutError, setSignOutError] = useState<string | null>(null)
+  const [hasResolvedNotificationState, setHasResolvedNotificationState] =
+    useState(false)
+  const hasEvaluatedPromptRef = useRef(false)
+  const didAutoOpenNotificationMenuRef = useRef(false)
   const notificationMenuRef = useRef<HTMLDivElement | null>(null)
   const identityMenuRef = useRef<HTMLDivElement | null>(null)
 
   const userName = session?.user ? session.user.name.trim() : ''
+  const userId = session?.user.id ?? null
   const userEmail = session?.user ? session.user.email.trim() : ''
   const fallbackName = session?.user
     ? session.user.email.split('@')[0]?.trim()
@@ -49,6 +55,11 @@ export default function Header() {
         : 'U'
 
   useEffect(() => {
+    hasEvaluatedPromptRef.current = false
+    setHasResolvedNotificationState(false)
+  }, [userId])
+
+  useEffect(() => {
     if (session?.user) {
       return
     }
@@ -59,6 +70,9 @@ export default function Header() {
     setIsNotificationSubscribed(false)
     setNotificationNotice(null)
     setNotificationError(null)
+    setHasResolvedNotificationState(false)
+    hasEvaluatedPromptRef.current = false
+    didAutoOpenNotificationMenuRef.current = false
     setIsSigningOut(false)
     setSignOutError(null)
   }, [session?.user])
@@ -108,6 +122,7 @@ export default function Header() {
 
   useEffect(() => {
     if (!session?.user || !isPushNotificationsSupported()) {
+      setHasResolvedNotificationState(!session?.user)
       return
     }
 
@@ -116,9 +131,11 @@ export default function Header() {
     void hasActivePushSubscription()
       .then((hasSubscription) => {
         setIsNotificationSubscribed(hasSubscription)
+        setHasResolvedNotificationState(true)
       })
       .catch(() => {
         setIsNotificationSubscribed(false)
+        setHasResolvedNotificationState(true)
       })
   }, [session?.user])
 
@@ -134,6 +151,10 @@ export default function Header() {
         setNotificationPermission(nextPermission)
         const hasSubscription = await hasActivePushSubscription()
         setIsNotificationSubscribed(hasSubscription)
+        if (hasSubscription && didAutoOpenNotificationMenuRef.current) {
+          setIsNotificationMenuOpen(false)
+          didAutoOpenNotificationMenuRef.current = false
+        }
         setNotificationNotice(
           hasSubscription
             ? 'Notifications are enabled.'
@@ -163,6 +184,49 @@ export default function Header() {
   const notificationButtonLabel = isNotificationActive
     ? 'Refresh notifications'
     : 'Enable notifications'
+
+  useEffect(() => {
+    if (!userId || !hasResolvedNotificationState) {
+      return
+    }
+
+    if (isNotificationActive) {
+      hasEvaluatedPromptRef.current = true
+      if (didAutoOpenNotificationMenuRef.current) {
+        setIsNotificationMenuOpen(false)
+        didAutoOpenNotificationMenuRef.current = false
+      }
+      return
+    }
+
+    if (hasEvaluatedPromptRef.current) {
+      return
+    }
+
+    hasEvaluatedPromptRef.current = true
+    const promptReason = consumeNotificationPromptReason({
+      userId,
+      isSupported: isNotificationSupported,
+      isNotificationActive,
+      permission: notificationPermission,
+    })
+
+    if (!promptReason) {
+      return
+    }
+
+    setNotificationNotice(null)
+    setNotificationError(null)
+    setIsIdentityMenuOpen(false)
+    didAutoOpenNotificationMenuRef.current = true
+    setIsNotificationMenuOpen(true)
+  }, [
+    hasResolvedNotificationState,
+    isNotificationActive,
+    isNotificationSupported,
+    notificationPermission,
+    userId,
+  ])
 
   const handleSignOut = async () => {
     if (isSigningOut) {
@@ -221,6 +285,7 @@ export default function Header() {
                 }`}
                 type="button"
                 onClick={() => {
+                  didAutoOpenNotificationMenuRef.current = false
                   setNotificationNotice(null)
                   setNotificationError(null)
                   setIsIdentityMenuOpen(false)
