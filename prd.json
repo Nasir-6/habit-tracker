@@ -1086,5 +1086,106 @@
       "Verify the bell remains in active blue state after successful setup"
     ],
     "passes": false
+  },
+  {
+    "category": "Frontend / Notifications",
+    "description": "Use an alarm-clock reminder control that opens a modal to set reminder time, and show a live relative countdown once a reminder is set.",
+    "steps_to_verify": [
+      "Open Today screen and locate the reminder control on a habit",
+      "Verify the control is presented as an alarm-clock icon",
+      "Click the alarm-clock icon and verify a reminder modal opens",
+      "Set a valid reminder time and save",
+      "Verify the habit now shows a relative countdown (for example, in 2h 15m or 45m left)",
+      "Update the reminder time and verify the countdown updates accordingly",
+      "Clear the reminder and verify the countdown is removed"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Auth",
+    "description": "Replace the standalone sign-out button with a header user identity control that opens a dropdown menu.",
+    "steps_to_verify": [
+      "Sign in and open the dashboard",
+      "Verify the standalone Sign out button is no longer shown",
+      "Verify a clickable user identity control is visible in the global header",
+      "Click the identity control and verify a dropdown menu opens"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Auth",
+    "description": "Display avatar, user name, and user email together in the global header with name/email positioned to the right of the avatar.",
+    "steps_to_verify": [
+      "Sign in and open any app page",
+      "Verify the header shows an avatar",
+      "Verify the signed-in user's name and email are displayed to the right of the avatar",
+      "Verify the identity block remains readable on mobile and desktop"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Auth",
+    "description": "Render avatar content from user initials (or first-letter fallback) when no profile image exists.",
+    "steps_to_verify": [
+      "Sign in with a user account that has no profile image",
+      "Verify avatar displays initials when a multi-word name is available",
+      "Verify avatar falls back to a first letter when only one name token exists",
+      "Verify a safe fallback character is shown when name is missing"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Auth",
+    "description": "Provide Log out inside the header user dropdown and clear session state on sign out.",
+    "steps_to_verify": [
+      "Open the header user dropdown while signed in",
+      "Click Log out",
+      "Verify session UI is cleared and the signed-out view is shown",
+      "Verify the header identity control is no longer visible after logout"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Habit Management",
+    "description": "Remove the inline Archived habits section from the Today screen and move archived habits into a dedicated modal.",
+    "steps_to_verify": [
+      "Open Today screen with archived habits present",
+      "Verify archived habits are not shown inline in the main Today list",
+      "Verify archived habits are accessible only through the archive modal"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Habit Management",
+    "description": "Add an Archive button at the top-right of the Today section that opens the archived habits modal.",
+    "steps_to_verify": [
+      "Open Today screen",
+      "Verify an Archive button appears at the top-right of the Today section",
+      "Click the Archive button",
+      "Verify the archived habits modal opens"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Habit Management",
+    "description": "Use the Lucide archive icon for the Today Archive button.",
+    "steps_to_verify": [
+      "Open Today screen",
+      "Locate the Archive button at the top-right of the Today section",
+      "Verify the button includes the Lucide archive icon",
+      "Verify icon styling is visually aligned with surrounding header actions"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Habit Management",
+    "description": "Display only archived habits inside the archive modal and keep restore/history actions available from that modal.",
+    "steps_to_verify": [
+      "Archive at least one habit and keep at least one active habit",
+      "Open archive modal from the Archive button",
+      "Verify only archived habits are listed and active habits are excluded",
+      "Trigger restore or view-history actions from the modal and verify behavior matches existing functionality"
+    ],
+    "passes": false
   }
 ]
