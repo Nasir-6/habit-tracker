@@ -513,3 +513,8 @@
 - Decisions: prioritized as highest remaining non-polish auth integration task; avatar fallback now derives two-letter initials for multi-word names, one-letter for single-token names, and safe `U` fallback when name missing to avoid email/user-id leakage.
 - Files changed: src/components/Header.tsx, prd.json, progress.txt.
 - Blockers/notes: feedback loops pass (`npm run typecheck`, `npm run test`, `npm run lint`); `npm run test` exits 0 with existing Vitest hanging-process shutdown warning.
+
+- Task completed: Frontend / Habit Management - Use the Lucide archive icon for the Today Archive button. (PRD Frontend / Habit Management)
+- Decisions: prioritized this next as highest remaining incomplete archive-flow item; used `lucide-react` `Archive` icon in Today Archive CTA to match existing icon system and avoid custom asset/markup.
+- Files changed: src/components/dashboard/HabitList/index.tsx, prd.json, progress.txt.
+- Blockers/notes: feedback loops pass (`npm run typecheck`, `npm run test`, `npm run lint`); `npm run test` exits 0 with existing Vitest hanging-process shutdown warning.

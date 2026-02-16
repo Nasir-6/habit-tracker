@@ -1175,7 +1175,7 @@
       "Verify the button includes the Lucide archive icon",
       "Verify icon styling is visually aligned with surrounding header actions"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Habit Management",
