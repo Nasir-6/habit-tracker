@@ -871,7 +871,7 @@
       "Submit a valid habit name",
       "Verify modal closes and new habit appears in Today list"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Habit Management",
