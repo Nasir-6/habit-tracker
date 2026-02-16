@@ -1187,5 +1187,16 @@
       "Trigger restore or view-history actions from the modal and verify behavior matches existing functionality"
     ],
     "passes": true
+  },
+  {
+    "category": "Frontend / Notifications",
+    "description": "Make the global header notification bell interactive so clicking it opens a notification control surface (popover, modal, or focus target) instead of doing nothing.",
+    "steps_to_verify": [
+      "Sign in and open any app page with the global header",
+      "Click the notification bell in the top-right header area",
+      "Verify a notification control surface opens (for example permission status, enable action, or settings)",
+      "Verify keyboard activation (Enter/Space) on the bell triggers the same behavior"
+    ],
+    "passes": false
   }
 ]
