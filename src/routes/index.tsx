@@ -44,6 +44,7 @@ type DeleteHabitVariables = {
   queryKey: HabitQueryKey
   previous: Habit[]
   habitId: string
+  operation: 'archive' | 'hardDelete'
 }
 
 type ReminderHabitVariables = {
@@ -227,17 +228,19 @@ export function App() {
   })
 
   const deleteHabitMutation = useMutation({
-    mutationFn: async ({ habitId }: DeleteHabitVariables) => {
-      return requestApi<{ archived?: boolean }>(
+    mutationFn: async ({ habitId, operation }: DeleteHabitVariables) => {
+      return requestApi<{ operation?: 'archive' | 'hardDelete' }>(
         '/api/habits',
         {
           method: 'PATCH',
           headers: {
             'content-type': 'application/json',
           },
-          body: JSON.stringify({ archiveId: habitId }),
+          body: JSON.stringify({ action: operation, habitId }),
         },
-        'Unable to delete habit',
+        operation === 'archive'
+          ? 'Unable to archive habit'
+          : 'Unable to delete habit forever',
       )
     },
     onMutate: ({ queryKey, habitId }: DeleteHabitVariables) => {
@@ -329,7 +332,10 @@ export function App() {
     })
   }
 
-  const handleDeleteHabit = async (habitId: string) => {
+  const handleDeleteHabit = async (
+    habitId: string,
+    operation: 'archive' | 'hardDelete',
+  ) => {
     if (!userId) {
       return
     }
@@ -337,7 +343,12 @@ export function App() {
     const queryKey = habitsQueryKey(userId, localDate)
     const previous = queryClient.getQueryData<Habit[]>(queryKey) ?? []
 
-    await deleteHabitMutation.mutateAsync({ queryKey, previous, habitId })
+    await deleteHabitMutation.mutateAsync({
+      queryKey,
+      previous,
+      habitId,
+      operation,
+    })
   }
 
   const handleSetHabitReminder = async (

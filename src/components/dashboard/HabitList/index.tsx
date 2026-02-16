@@ -13,7 +13,10 @@ type HabitListProps = {
   actionError: string | null
   onHabitReorder: (fromId: string, toId: string) => void
   onToggleHabit: (habitId: string) => void
-  onDeleteHabit: (habitId: string) => Promise<void>
+  onDeleteHabit: (
+    habitId: string,
+    operation: 'archive' | 'hardDelete',
+  ) => Promise<void>
   onSetHabitReminder: (habitId: string, reminderTime: string) => Promise<void>
   onClearHabitReminder: (habitId: string) => Promise<void>
 }
@@ -33,7 +36,10 @@ export function HabitList({
   const [savingReminderHabitId, setSavingReminderHabitId] = useState<
     string | null
   >(null)
-  const [confirmDeleteHabitId, setConfirmDeleteHabitId] = useState<
+  const [deleteFlowHabitId, setDeleteFlowHabitId] = useState<string | null>(
+    null,
+  )
+  const [confirmHardDeleteHabitId, setConfirmHardDeleteHabitId] = useState<
     string | null
   >(null)
 
@@ -64,7 +70,11 @@ export function HabitList({
       void habitHistory.handleToggleHistory(habitId)
     },
     onDeleteHabit: (habitId: string) => {
-      setConfirmDeleteHabitId(habitId)
+      if (deletingHabitId) {
+        return
+      }
+
+      setDeleteFlowHabitId(habitId)
     },
     onSetHabitReminder: (habitId: string, reminderTime: string) => {
       void handleSetHabitReminder(habitId, reminderTime)
@@ -77,8 +87,11 @@ export function HabitList({
   const orderedHabits = [...habits].sort(
     (left, right) => Number(left.isCompleted) - Number(right.isCompleted),
   )
-  const confirmDeleteHabit = orderedHabits.find(
-    (habit) => habit.id === confirmDeleteHabitId,
+  const deleteFlowHabit = orderedHabits.find(
+    (habit) => habit.id === deleteFlowHabitId,
+  )
+  const confirmHardDeleteHabit = orderedHabits.find(
+    (habit) => habit.id === confirmHardDeleteHabitId,
   )
 
   const handleHabitDrop = (targetId: string) => {
@@ -92,7 +105,10 @@ export function HabitList({
     onHabitReorder(sourceId, targetId)
   }
 
-  const handleDeleteHabit = async (habitId: string) => {
+  const handleDeleteHabit = async (
+    habitId: string,
+    operation: 'archive' | 'hardDelete',
+  ) => {
     if (deletingHabitId) {
       return
     }
@@ -100,10 +116,11 @@ export function HabitList({
     setDeletingHabitId(habitId)
 
     try {
-      await onDeleteHabit(habitId)
+      await onDeleteHabit(habitId, operation)
     } finally {
       setDeletingHabitId(null)
-      setConfirmDeleteHabitId(null)
+      setDeleteFlowHabitId(null)
+      setConfirmHardDeleteHabitId(null)
     }
   }
 
@@ -173,24 +190,84 @@ export function HabitList({
       {habitHistory.historyHabitId && habitHistory.selectedHabit ? (
         <HabitHistoryDialog habitHistory={habitHistory} />
       ) : null}
+      {deleteFlowHabit ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/30 p-4 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Delete habit"
+          onClick={() => {
+            if (!deletingHabitId) {
+              setDeleteFlowHabitId(null)
+            }
+          }}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-600 shadow-xl"
+            onClick={(event) => {
+              event.stopPropagation()
+            }}
+          >
+            <h3 className="text-base font-semibold text-slate-900">
+              Delete habit
+            </h3>
+            <p className="mt-2 text-sm text-slate-600">
+              {`Choose what to do with "${deleteFlowHabit.name}".`}
+            </p>
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
+              <button
+                className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                type="button"
+                onClick={() => {
+                  setDeleteFlowHabitId(null)
+                }}
+                disabled={Boolean(deletingHabitId)}
+              >
+                Cancel
+              </button>
+              <button
+                className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-400"
+                type="button"
+                onClick={() => {
+                  void handleDeleteHabit(deleteFlowHabit.id, 'archive')
+                }}
+                disabled={Boolean(deletingHabitId)}
+              >
+                Archive
+              </button>
+              <button
+                className="rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-500 disabled:cursor-not-allowed disabled:bg-rose-300"
+                type="button"
+                onClick={() => {
+                  setDeleteFlowHabitId(null)
+                  setConfirmHardDeleteHabitId(deleteFlowHabit.id)
+                }}
+                disabled={Boolean(deletingHabitId)}
+              >
+                Delete forever
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
       <ConfirmModal
-        title="Delete habit"
+        title="Delete forever"
         description={
-          confirmDeleteHabit
-            ? `Delete "${confirmDeleteHabit.name}"? This cannot be undone.`
-            : 'Delete this habit? This cannot be undone.'
+          confirmHardDeleteHabit
+            ? `Permanently delete "${confirmHardDeleteHabit.name}" and all related data? This cannot be undone.`
+            : 'Permanently delete this habit and all related data? This cannot be undone.'
         }
-        confirmLabel="Delete"
-        isOpen={Boolean(confirmDeleteHabitId)}
+        confirmLabel="Delete forever"
+        isOpen={Boolean(confirmHardDeleteHabitId)}
         isConfirming={Boolean(deletingHabitId)}
         onCancel={() => {
           if (!deletingHabitId) {
-            setConfirmDeleteHabitId(null)
+            setConfirmHardDeleteHabitId(null)
           }
         }}
         onConfirm={() => {
-          if (confirmDeleteHabit) {
-            void handleDeleteHabit(confirmDeleteHabit.id)
+          if (confirmHardDeleteHabit) {
+            void handleDeleteHabit(confirmHardDeleteHabit.id, 'hardDelete')
           }
         }}
       />

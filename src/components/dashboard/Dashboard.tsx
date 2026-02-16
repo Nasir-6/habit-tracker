@@ -16,7 +16,10 @@ type DashboardProps = {
   habitActionError: string | null
   onHabitReorder: (fromId: string, toId: string) => void
   onToggleHabit: (habitId: string) => void
-  onDeleteHabit: (habitId: string) => Promise<void>
+  onDeleteHabit: (
+    habitId: string,
+    operation: 'archive' | 'hardDelete',
+  ) => Promise<void>
   onSetHabitReminder: (habitId: string, reminderTime: string) => Promise<void>
   onClearHabitReminder: (habitId: string) => Promise<void>
 }

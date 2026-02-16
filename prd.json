@@ -882,7 +882,7 @@
       "Choose Delete forever and verify a second irreversible confirmation appears",
       "Verify action only proceeds after second confirmation"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Backend / Habit Management",
