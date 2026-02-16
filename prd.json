@@ -849,7 +849,7 @@
       "Verify a floating plus action button is visible",
       "Click the floating plus button and verify a create-habit modal opens"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Habit Management",

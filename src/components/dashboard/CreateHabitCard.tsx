@@ -9,6 +9,7 @@ export function CreateHabitCard() {
   const queryClient = useQueryClient()
   const [habitName, setHabitName] = useState('')
   const [createError, setCreateError] = useState<string | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   const { mutate: createHabit, isPending } = useMutation({
     mutationFn: async (name: string) => {
@@ -32,6 +33,7 @@ export function CreateHabitCard() {
         queryKey: ['dashboard-habits'],
       })
       setHabitName('')
+      setIsModalOpen(false)
     },
     onError: (error) => {
       setCreateError(
@@ -53,45 +55,97 @@ export function CreateHabitCard() {
     createHabit(trimmedHabitName)
   }
 
+  const closeModal = () => {
+    if (isPending) {
+      return
+    }
+
+    setIsModalOpen(false)
+    setCreateError(null)
+    setHabitName('')
+  }
+
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-sm sm:p-8">
-      <h2 className="text-lg font-semibold text-slate-900">Create a habit</h2>
-      <form className="mt-6 flex flex-col gap-4" onSubmit={handleCreateHabit}>
-        <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
-          <span className="sr-only">Habit name</span>
-          <input
-            className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 shadow-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
-            placeholder="Drink 8 cups of water"
-            required
-            type="text"
-            value={habitName}
-            onChange={(event) => {
-              setCreateError(null)
-              setHabitName(event.target.value)
+    <>
+      <button
+        className="fixed bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-slate-900 text-3xl leading-none text-white shadow-xl shadow-slate-900/30 transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2"
+        type="button"
+        aria-label="Create a habit"
+        onClick={() => {
+          setCreateError(null)
+          setIsModalOpen(true)
+        }}
+      >
+        +
+      </button>
+
+      {isModalOpen ? (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/40 p-4 backdrop-blur-sm sm:items-center"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Create a habit"
+          onClick={closeModal}
+        >
+          <div
+            className="w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl sm:p-8"
+            onClick={(event) => {
+              event.stopPropagation()
             }}
-          />
-        </label>
-        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-          <button
-            className={cn(
-              'min-h-[44px] w-full rounded-full px-6 py-3 text-sm font-semibold shadow-lg transition sm:w-auto',
-              isSaveDisabled
-                ? 'cursor-not-allowed bg-slate-200 text-slate-500 shadow-none'
-                : 'bg-slate-900 text-white shadow-slate-900/15 hover:bg-slate-800',
-            )}
-            disabled={isSaveDisabled}
-            type="submit"
-            aria-disabled={isSaveDisabled}
           >
-            {isPending ? 'Saving…' : 'Save habit'}
-          </button>
+            <h2 className="text-lg font-semibold text-slate-900">
+              Create a habit
+            </h2>
+            <form
+              className="mt-6 flex flex-col gap-4"
+              onSubmit={handleCreateHabit}
+            >
+              <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
+                <span className="sr-only">Habit name</span>
+                <input
+                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 shadow-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+                  placeholder="Drink 8 cups of water"
+                  required
+                  autoFocus
+                  type="text"
+                  value={habitName}
+                  onChange={(event) => {
+                    setCreateError(null)
+                    setHabitName(event.target.value)
+                  }}
+                />
+              </label>
+              <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                <button
+                  className="min-h-[44px] rounded-full border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                  type="button"
+                  onClick={closeModal}
+                >
+                  Cancel
+                </button>
+                <button
+                  className={cn(
+                    'min-h-[44px] rounded-full px-6 py-3 text-sm font-semibold shadow-lg transition',
+                    isSaveDisabled
+                      ? 'cursor-not-allowed bg-slate-200 text-slate-500 shadow-none'
+                      : 'bg-slate-900 text-white shadow-slate-900/15 hover:bg-slate-800',
+                  )}
+                  disabled={isSaveDisabled}
+                  type="submit"
+                  aria-disabled={isSaveDisabled}
+                >
+                  {isPending ? 'Saving...' : 'Save habit'}
+                </button>
+              </div>
+              {createError ? (
+                <p className="text-sm text-rose-500" role="status">
+                  {createError}
+                </p>
+              ) : null}
+            </form>
+          </div>
         </div>
-        {createError ? (
-          <p className="text-sm text-rose-500" role="status">
-            {createError}
-          </p>
-        ) : null}
-      </form>
-    </div>
+      ) : null}
+    </>
   )
 }
