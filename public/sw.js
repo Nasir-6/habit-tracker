@@ -19,18 +19,28 @@ self.addEventListener('push', (event) => {
     return
   }
 
+  const payloadType =
+    typeof payload?.type === 'string' ? payload.type : 'unknown'
   const title =
     typeof payload?.title === 'string' && payload.title.trim().length > 0
       ? payload.title.trim()
-      : 'Habit nudge'
+      : payloadType === 'habit_reminder'
+        ? 'Habit reminder'
+        : 'Habit nudge'
   const body =
     typeof payload?.body === 'string' && payload.body.trim().length > 0
       ? payload.body.trim()
-      : 'Your partner sent you a nudge.'
+      : payloadType === 'habit_reminder'
+        ? 'Time to check in on your habit.'
+        : 'Your partner sent you a nudge.'
   const url =
     typeof payload?.url === 'string' && payload.url.startsWith('/')
       ? payload.url
       : '/'
+  const reminderTag =
+    typeof payload?.habitId === 'string' && payload.habitId.trim().length > 0
+      ? `habit-reminder:${payload.habitId}`
+      : 'habit-reminder'
   const bannerPayload = {
     type: 'partner_nudge_banner',
     title,
@@ -45,21 +55,33 @@ self.addEventListener('push', (event) => {
     self.clients
       .matchAll({ type: 'window', includeUncontrolled: true })
       .then((clients) => {
-        const hasVisibleClient = clients.some(
-          (client) => client.visibilityState === 'visible',
-        )
+        if (payloadType === 'partner_nudge') {
+          const hasVisibleFocusedClient = clients.some(
+            (client) => client.visibilityState === 'visible' && client.focused,
+          )
 
-        if (hasVisibleClient) {
-          clients.forEach((client) => {
-            client.postMessage(bannerPayload)
-          })
-          return undefined
+          if (hasVisibleFocusedClient) {
+            clients.forEach((client) => {
+              client.postMessage(bannerPayload)
+            })
+            return undefined
+          }
         }
 
         return self.registration.showNotification(title, {
           body,
-          tag: bannerPayload.nudgeId,
-          data: { url },
+          tag:
+            payloadType === 'habit_reminder'
+              ? reminderTag
+              : bannerPayload.nudgeId,
+          data: {
+            type: payloadType,
+            url,
+            habitId:
+              typeof payload?.habitId === 'string'
+                ? payload.habitId
+                : undefined,
+          },
           renotify: false,
         })
       }),
@@ -82,6 +104,10 @@ self.addEventListener('notificationclick', (event) => {
       .then((clients) => {
         for (const client of clients) {
           if ('focus' in client) {
+            if ('navigate' in client) {
+              return client.navigate(url).then(() => client.focus())
+            }
+
             return client.focus()
           }
         }

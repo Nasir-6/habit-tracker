@@ -999,7 +999,7 @@
       "Verify notification title/body includes habit-specific reminder context",
       "Click notification and verify app opens or focuses to the main screen"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Daily Check-in",

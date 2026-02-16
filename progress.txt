@@ -408,3 +408,8 @@
 - Decisions: prioritized as partner-state integration risk; detect `hasPartner` transition true->false after successful partner-status refetch and show explicit ended-partnership guidance; suppress this notice for self-removal path by honoring existing remove-partner confirmation notice.
 - Files changed: src/hooks/usePartnerStatus.ts, src/components/dashboard/PartnerStatusCard/index.tsx, prd.json, progress.txt.
 - Blockers/notes: none.
+
+- Task completed: PWA / Notifications - Show habit-specific smart reminder push content and open the app when the notification is clicked. (PRD PWA / Notifications)
+- Decisions: prioritized as highest remaining cross-module integration point (reminder dispatcher payload -> service worker UX); branched SW behavior by push `type` so nudge foreground suppression stays nudge-only while reminder pushes consistently show system notifications with habit-specific fallback copy; on notification click navigate existing app tab to payload url before focus to guarantee open/focus behavior.
+- Files changed: src/lib/api/reminders.ts, public/sw.js, prd.json, progress.txt.
+- Blockers/notes: `npm run test` exits 0 (no tests) but still logs Vitest hanging-process shutdown warning.

@@ -141,8 +141,10 @@ const sendReminderNotifications = async (
     const payload = JSON.stringify({
       type: 'habit_reminder',
       habitId: reminder.id,
+      habitName: reminder.name,
       title: 'Habit reminder',
       body: `Time for ${reminder.name}`,
+      url: '/',
     })
 
     await Promise.all(
