@@ -3,7 +3,6 @@ import { useState } from 'react'
 import type { Habit } from '@/types/dashboard'
 
 import { CreateHabitCard } from '@/components/dashboard/CreateHabitCard'
-import { DashboardHeader } from '@/components/dashboard/DashboardHeader'
 import { HabitCalendarCard } from '@/components/dashboard/HabitCalendarCard'
 import { HabitList } from '@/components/dashboard/HabitList'
 import { InAppNudgeBanner } from '@/components/dashboard/InAppNudgeBanner'
@@ -11,7 +10,6 @@ import { PageShell } from '@/components/dashboard/PageShell'
 import { PartnerStatusCard } from '@/components/dashboard/PartnerStatusCard'
 
 type DashboardProps = {
-  userDisplayName: string
   habits: Habit[]
   archivedHabits: Habit[]
   habitStreaks: Partial<Record<string, { current: number; best: number }>>
@@ -27,7 +25,6 @@ type DashboardProps = {
 }
 
 export function Dashboard({
-  userDisplayName,
   habits,
   archivedHabits,
   habitStreaks,
@@ -43,7 +40,6 @@ export function Dashboard({
   return (
     <PageShell maxWidthClass="max-w-6xl" paddingTopClass="pt-16">
       <div className="flex flex-col gap-8">
-        <DashboardHeader userDisplayName={userDisplayName} />
         <InAppNudgeBanner />
 
         <div className="grid gap-6">

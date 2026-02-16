@@ -439,14 +439,8 @@ export function App() {
     return <AuthScreen />
   }
 
-  const userDisplayName =
-    session.user.name.trim() ||
-    session.user.email.split('@')[0].trim() ||
-    'there'
-
   return (
     <Dashboard
-      userDisplayName={userDisplayName}
       habits={activeHabits}
       archivedHabits={archivedHabits}
       habitStreaks={habitStreaks}
