@@ -923,7 +923,7 @@
       "Open Archived section and trigger View history",
       "Verify historical completion data is visible and read-only"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Notifications",

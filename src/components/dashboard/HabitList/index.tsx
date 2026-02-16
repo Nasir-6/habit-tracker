@@ -35,6 +35,7 @@ export function HabitList({
   onClearHabitReminder,
   onOpenCreateHabit,
 }: HabitListProps) {
+  const allHabits = [...habits, ...archivedHabits]
   const [draggingHabitId, setDraggingHabitId] = useState<string | null>(null)
   const [deletingHabitId, setDeletingHabitId] = useState<string | null>(null)
   const [savingReminderHabitId, setSavingReminderHabitId] = useState<
@@ -48,7 +49,7 @@ export function HabitList({
     string | null
   >(null)
 
-  const habitHistory = useHabitHistory({ habits })
+  const habitHistory = useHabitHistory({ habits: allHabits })
   const listItemState = {
     draggingHabitId,
     deletingHabitId,
@@ -226,16 +227,31 @@ export function HabitList({
                   className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600"
                 >
                   <span className="min-w-0 truncate">{habit.name}</span>
-                  <button
-                    className="inline-flex h-8 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-400"
-                    type="button"
-                    onClick={() => {
-                      void handleRestoreHabit(habit.id)
-                    }}
-                    disabled={Boolean(restoringHabitId || deletingHabitId)}
-                  >
-                    {restoringHabitId === habit.id ? 'Restoring...' : 'Restore'}
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      className="inline-flex h-8 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                      type="button"
+                      onClick={() => {
+                        void habitHistory.handleToggleHistory(habit.id)
+                      }}
+                    >
+                      {habitHistory.historyHabitId === habit.id
+                        ? 'Hide history'
+                        : 'View history'}
+                    </button>
+                    <button
+                      className="inline-flex h-8 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-400"
+                      type="button"
+                      onClick={() => {
+                        void handleRestoreHabit(habit.id)
+                      }}
+                      disabled={Boolean(restoringHabitId || deletingHabitId)}
+                    >
+                      {restoringHabitId === habit.id
+                        ? 'Restoring...'
+                        : 'Restore'}
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>
