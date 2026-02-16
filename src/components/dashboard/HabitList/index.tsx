@@ -245,7 +245,7 @@ export function HabitList({
           }}
         >
           <Archive className="h-4 w-4" aria-hidden="true" />
-          Archive
+          Archived
         </button>
       </div>
       <div className="mt-6 grid gap-4">
@@ -310,7 +310,7 @@ export function HabitList({
             <div className="flex items-start justify-between gap-3">
               <div>
                 <h3 className="text-base font-semibold text-slate-900">
-                  Archive
+                  Archived
                 </h3>
                 <p className="mt-1 text-sm text-slate-500">
                   Review archived habits.
@@ -413,7 +413,7 @@ export function HabitList({
                 }}
                 disabled={Boolean(deletingHabitId)}
               >
-                Archive
+                Archived
               </button>
               <button
                 className="rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-500 disabled:cursor-not-allowed disabled:bg-rose-300"
