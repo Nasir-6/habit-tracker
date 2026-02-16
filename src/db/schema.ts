@@ -113,6 +113,26 @@ export const pushSubscriptions = pgTable(
   }),
 )
 
+export const habitReminderDispatches = pgTable(
+  'habit_reminder_dispatches',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: text('user_id').notNull(),
+    habitId: uuid('habit_id')
+      .notNull()
+      .references(() => habits.id, { onDelete: 'cascade' }),
+    localDate: date('local_date', { mode: 'string' }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => ({
+    uniqueHabitLocalDate: uniqueIndex(
+      'habit_reminder_dispatches_habit_local_date_unique',
+    ).on(table.habitId, table.localDate),
+  }),
+)
+
 export const users = pgTable('user', {
   id: text('id').primaryKey(),
   email: text('email').notNull(),

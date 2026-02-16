@@ -1,6 +1,7 @@
 import webPush from 'web-push'
 
 import { ok, parseJson } from '@/lib/api'
+import { claimHabitReminderDispatches } from '@/db/habit-reminder-dispatches'
 import { fetchCompletionHabitIdsByDate } from '@/db/completions'
 import { fetchDueHabitReminders } from '@/db/habits'
 import {
@@ -202,7 +203,13 @@ export const handleReminderDispatchPost = async (
       name: habit.name,
     }))
 
-  const push = await sendReminderNotifications(userId, dueIncomplete)
+  const dispatchableReminders = await claimHabitReminderDispatches(
+    userId,
+    localDate,
+    dueIncomplete,
+  )
+
+  const push = await sendReminderNotifications(userId, dispatchableReminders)
 
   return ok({
     dispatchedAt: now.toISOString(),
@@ -210,7 +217,9 @@ export const handleReminderDispatchPost = async (
     localTime,
     dueHabitsCount: dueHabits.length,
     skippedCompletedCount: dueHabits.length - dueIncomplete.length,
-    remindedHabitsCount: dueIncomplete.length,
+    skippedAlreadyRemindedCount:
+      dueIncomplete.length - dispatchableReminders.length,
+    remindedHabitsCount: dispatchableReminders.length,
     push,
   })
 }

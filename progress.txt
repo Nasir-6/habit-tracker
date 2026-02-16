@@ -29,6 +29,11 @@
 - Files changed: src/routes/api/calendar.ts, src/routeTree.gen.ts, prd.json, progress.txt.
 - Blockers/notes: none.
 
+- Task completed: Backend / Notifications - Prevent duplicate smart reminder sends for the same habit and local day. (PRD Backend / Notifications)
+- Decisions: prioritized as core reminder-dispatch correctness abstraction; added `habit_reminder_dispatches` claim table with unique `(habit_id, local_date)` and conflict-do-nothing insert so reruns only notify newly claimed reminders; response now reports `skippedAlreadyRemindedCount` for visibility.
+- Files changed: src/db/schema.ts, src/db/habit-reminder-dispatches.ts, src/lib/api/reminders.ts, drizzle/0009_create_habit_reminder_dispatches.sql, drizzle/meta/_journal.json, prd.json, progress.txt.
+- Blockers/notes: none.
+
 - Task completed: Backend / Notifications - Dispatch Web Push smart reminders for habits when due and still incomplete for the user's local day. (PRD Backend / Notifications)
 - Decisions: prioritized as highest-risk core integration (reminder schedule + completion state + push delivery); added authenticated dispatch endpoint `POST /api/reminders` with optional `tzOffsetMinutes` + `nowIso` for deterministic local-day due checks; due set uses active habits with `reminderTime <= local HH:MM` and skips habits already completed on computed local date.
 - Files changed: src/db/habits.ts, src/lib/api/reminders.ts, src/routes/api/reminders.ts, src/routeTree.gen.ts, prd.json, progress.txt.

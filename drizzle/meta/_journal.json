@@ -64,6 +64,13 @@
       "when": 1770872800000,
       "tag": "0008_add_habit_reminder_time",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1770959200000,
+      "tag": "0009_create_habit_reminder_dispatches",
+      "breakpoints": true
     }
   ]
 }

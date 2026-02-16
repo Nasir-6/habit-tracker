@@ -967,7 +967,7 @@
       "Verify only one reminder is sent for that habit on that local day",
       "Verify duplicate dispatch attempts are safely ignored"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Backend / Habit Management",
