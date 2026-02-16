@@ -1110,7 +1110,7 @@
       "Verify a clickable user identity control is visible in the global header",
       "Click the identity control and verify a dropdown menu opens"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Auth",

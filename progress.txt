@@ -478,3 +478,8 @@
 - Decisions: prioritized as highest pending integration point between existing permission UI and backend subscription persistence; split subscribe flow into auto mode (no prompt, use current permission) vs manual mode (request permission) so granted users re-register on load without extra click.
 - Files changed: src/components/dashboard/NotificationPermissionCard.tsx, prd.json, progress.txt.
 - Blockers/notes: feedback loops pass (`npm run typecheck`, `npm run test`, `npm run lint`); Vitest still prints hanging-process shutdown warning with 0 tests.
+
+- Task completed: Frontend / Auth - Replace the standalone sign-out button with a header user identity control that opens a dropdown menu. (PRD Frontend / Auth)
+- Decisions: prioritized as highest remaining auth UI abstraction/integration task; moved identity affordance to global header and removed dashboard-level sign-out CTA to avoid duplicated account controls.
+- Files changed: src/components/Header.tsx, src/components/dashboard/DashboardHeader.tsx, prd.json, progress.txt.
+- Blockers/notes: dropdown currently identity-only; avatar/name-email layout + logout action remain for next auth PRD items.

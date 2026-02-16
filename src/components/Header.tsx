@@ -1,11 +1,50 @@
 import { Link } from '@tanstack/react-router'
-import { Bell } from 'lucide-react'
+import { Bell, ChevronDown } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 
 import { authClient } from '@/lib/auth-client'
 
 export default function Header() {
   const { data: session, isPending } = authClient.useSession()
   const shouldShowNotificationBell = !isPending && Boolean(session?.user)
+  const [isIdentityMenuOpen, setIsIdentityMenuOpen] = useState(false)
+  const identityMenuRef = useRef<HTMLDivElement | null>(null)
+
+  const userName = session?.user.name.trim()
+  const fallbackName = session?.user.email.split('@')[0]?.trim()
+  const userDisplayName = userName || fallbackName || 'Account'
+
+  useEffect(() => {
+    if (!isIdentityMenuOpen) {
+      return
+    }
+
+    const handlePointerDown = (event: MouseEvent) => {
+      if (!identityMenuRef.current) {
+        return
+      }
+
+      const target = event.target
+
+      if (target instanceof Node && !identityMenuRef.current.contains(target)) {
+        setIsIdentityMenuOpen(false)
+      }
+    }
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsIdentityMenuOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handlePointerDown)
+    document.addEventListener('keydown', handleEscape)
+
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown)
+      document.removeEventListener('keydown', handleEscape)
+    }
+  }, [isIdentityMenuOpen])
 
   return (
     <header className="px-6 py-5 border-b border-slate-200/70 bg-white/70 backdrop-blur">
@@ -33,6 +72,35 @@ export default function Header() {
             >
               <Bell className="h-5 w-5" aria-hidden="true" />
             </button>
+          ) : null}
+          {session?.user ? (
+            <div className="relative" ref={identityMenuRef}>
+              <button
+                aria-expanded={isIdentityMenuOpen}
+                aria-haspopup="menu"
+                className="inline-flex h-10 items-center gap-2 rounded-full border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:text-slate-900"
+                type="button"
+                onClick={() => {
+                  setIsIdentityMenuOpen((current) => !current)
+                }}
+              >
+                {userDisplayName}
+                <ChevronDown className="h-4 w-4" aria-hidden="true" />
+              </button>
+              {isIdentityMenuOpen ? (
+                <div
+                  className="absolute right-0 top-12 w-56 rounded-2xl border border-slate-200 bg-white p-3 text-left shadow-lg shadow-slate-900/10"
+                  role="menu"
+                >
+                  <p className="text-xs uppercase tracking-[0.16em] text-slate-500">
+                    Signed in
+                  </p>
+                  <p className="mt-1 text-sm font-semibold text-slate-900">
+                    {userDisplayName}
+                  </p>
+                </div>
+              ) : null}
+            </div>
           ) : null}
         </div>
       </div>
