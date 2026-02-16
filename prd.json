@@ -1043,5 +1043,48 @@
       "Verify confetti plays again when 100% is re-reached"
     ],
     "passes": true
+  },
+  {
+    "category": "Frontend / Notifications",
+    "description": "Show a notification bell in the global header for signed-in users only.",
+    "steps_to_verify": [
+      "Sign in and verify a notification bell appears in the global header",
+      "Sign out and verify the notification bell is not shown",
+      "Navigate across app routes while signed in and verify the bell remains visible in the global header"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Notifications",
+    "description": "Show a blue notification bell when browser permission is granted and push subscription is successfully configured.",
+    "steps_to_verify": [
+      "Sign in on a supported browser",
+      "Enable notifications from the bell flow",
+      "Verify push subscription registration succeeds",
+      "Verify the bell displays an active blue visual state"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Notifications",
+    "description": "Show a crossed-out gray notification bell when notifications are denied or inactive.",
+    "steps_to_verify": [
+      "Set notification permission to denied in browser settings",
+      "Reload the app while signed in",
+      "Verify the bell is shown as crossed-out and gray",
+      "Verify the denied/inactive visual state remains until permission is changed in browser settings"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Notifications",
+    "description": "Auto-attempt push subscription setup on app open when notification permission is already granted.",
+    "steps_to_verify": [
+      "Grant notification permission for the app",
+      "Open or reload the app while signed in",
+      "Verify push subscription setup runs automatically without requiring an extra click",
+      "Verify the bell remains in active blue state after successful setup"
+    ],
+    "passes": false
   }
 ]
