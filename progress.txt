@@ -473,3 +473,8 @@
 - Decisions: prioritized ahead of confetti as core progress-state correctness; render progress card even at 0 habits and force neutral bar color (`bg-slate-300`) to avoid low-progress error red in empty state.
 - Files changed: src/components/dashboard/HabitList/DailyProgressBar.tsx, prd.json, progress.txt.
 - Blockers/notes: none.
+
+- Task completed: Frontend / Notifications - Auto-attempt push subscription setup on app open when notification permission is already granted. (PRD Frontend / Notifications)
+- Decisions: prioritized as highest pending integration point between existing permission UI and backend subscription persistence; split subscribe flow into auto mode (no prompt, use current permission) vs manual mode (request permission) so granted users re-register on load without extra click.
+- Files changed: src/components/dashboard/NotificationPermissionCard.tsx, prd.json, progress.txt.
+- Blockers/notes: feedback loops pass (`npm run typecheck`, `npm run test`, `npm run lint`); Vitest still prints hanging-process shutdown warning with 0 tests.

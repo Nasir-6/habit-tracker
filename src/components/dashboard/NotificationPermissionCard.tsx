@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { requestApi } from '@/lib/client-api'
 import { cn } from '@/lib/utils'
@@ -12,7 +12,13 @@ const base64UrlToUint8Array = (value: string) => {
   return Uint8Array.from(raw, (char) => char.charCodeAt(0))
 }
 
-const subscribeToPush = async () => {
+type SubscribeToPushOptions = {
+  requestPermission: boolean
+}
+
+const subscribeToPush = async ({
+  requestPermission,
+}: SubscribeToPushOptions) => {
   if (!('Notification' in window)) {
     throw new Error('This browser does not support notifications')
   }
@@ -21,7 +27,9 @@ const subscribeToPush = async () => {
     throw new Error('Service workers are not available in this browser')
   }
 
-  const permission = await Notification.requestPermission()
+  const permission = requestPermission
+    ? await Notification.requestPermission()
+    : Notification.permission
 
   if (permission === 'denied') {
     throw new Error(
@@ -75,6 +83,7 @@ export function NotificationPermissionCard() {
     useState<NotificationPermission>('default')
   const [notice, setNotice] = useState<string | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const hasTriedAutoSubscribeRef = useRef(false)
 
   useEffect(() => {
     if (!('Notification' in window)) {
@@ -85,7 +94,8 @@ export function NotificationPermissionCard() {
   }, [])
 
   const { mutate: enableNotifications, isPending } = useMutation({
-    mutationFn: subscribeToPush,
+    mutationFn: (requestPermission: boolean) =>
+      subscribeToPush({ requestPermission }),
     onMutate: () => {
       setNotice(null)
       setErrorMessage(null)
@@ -114,6 +124,19 @@ export function NotificationPermissionCard() {
   const buttonLabel =
     permission === 'granted' ? 'Refresh notifications' : 'Enable notifications'
 
+  useEffect(() => {
+    if (hasTriedAutoSubscribeRef.current) {
+      return
+    }
+
+    if (!isSupported || permission !== 'granted') {
+      return
+    }
+
+    hasTriedAutoSubscribeRef.current = true
+    enableNotifications(false)
+  }, [enableNotifications, isSupported, permission])
+
   return (
     <div className="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm sm:p-8">
       <div className="flex items-center justify-between gap-3">
@@ -140,7 +163,7 @@ export function NotificationPermissionCard() {
           disabled={!isSupported || isPending || isBlocked}
           type="button"
           onClick={() => {
-            enableNotifications()
+            enableNotifications(true)
           }}
         >
           {isPending ? 'Enabling…' : buttonLabel}

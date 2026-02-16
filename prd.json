@@ -1063,7 +1063,7 @@
       "Verify push subscription registration succeeds",
       "Verify the bell displays an active blue visual state"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Notifications",
