@@ -302,7 +302,7 @@ export default function Header() {
                 )}
               </button>
               {isNotificationMenuOpen ? (
-                <div className="absolute right-0 top-12 w-72 rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-lg shadow-slate-900/10">
+                <div className="absolute left-1/2 top-12 w-72 max-w-[calc(100vw-2rem)] -translate-x-1/2 rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-lg shadow-slate-900/10 sm:left-auto sm:right-0 sm:max-w-none sm:translate-x-0">
                   <p className="text-xs uppercase tracking-[0.16em] text-slate-500">
                     Notifications
                   </p>
