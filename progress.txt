@@ -29,6 +29,11 @@
 - Files changed: src/routes/api/calendar.ts, src/routeTree.gen.ts, prd.json, progress.txt.
 - Blockers/notes: none.
 
+- Task completed: Backend / Habit Management - Strictly purge all smart reminder data when a habit is archived or hard deleted. (PRD Backend / Habit Management)
+- Decisions: prioritize reminder-data integrity as core backend abstraction before frontend polish; on archive, always null reminder config and delete prior reminder dispatch claims so archived habits cannot retain reminder state/log history; rely on existing FK cascade for hard-delete purge path.
+- Files changed: src/lib/api/habits.ts, src/db/habit-reminder-dispatches.ts, prd.json, progress.txt.
+- Blockers/notes: none.
+
 - Task completed: Backend / Notifications - Prevent duplicate smart reminder sends for the same habit and local day. (PRD Backend / Notifications)
 - Decisions: prioritized as core reminder-dispatch correctness abstraction; added `habit_reminder_dispatches` claim table with unique `(habit_id, local_date)` and conflict-do-nothing insert so reruns only notify newly claimed reminders; response now reports `skippedAlreadyRemindedCount` for visibility.
 - Files changed: src/db/schema.ts, src/db/habit-reminder-dispatches.ts, src/lib/api/reminders.ts, drizzle/0009_create_habit_reminder_dispatches.sql, drizzle/meta/_journal.json, prd.json, progress.txt.

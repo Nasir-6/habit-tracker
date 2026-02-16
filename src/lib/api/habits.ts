@@ -11,6 +11,7 @@ import {
   updateHabitReminderTime,
   updateHabitSortOrder,
 } from '@/db/habits'
+import { deleteHabitReminderDispatches } from '@/db/habit-reminder-dispatches'
 
 type HabitCreatePayload = {
   name?: unknown
@@ -204,6 +205,9 @@ export const handleHabitsPatch = async (request: Request, userId: string) => {
       if (!habit.archivedAt) {
         await archiveHabit(userId, mutationRequest.habitId)
       }
+
+      await clearHabitReminderTime(userId, mutationRequest.habitId)
+      await deleteHabitReminderDispatches(userId, mutationRequest.habitId)
 
       return ok({ operation: 'archive', archived: true })
     }

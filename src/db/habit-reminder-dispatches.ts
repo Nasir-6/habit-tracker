@@ -1,3 +1,5 @@
+import { and, eq } from 'drizzle-orm'
+
 import { db } from '@/db/index.ts'
 import { habitReminderDispatches } from '@/db/schema'
 
@@ -35,4 +37,18 @@ export const claimHabitReminderDispatches = async (
   const claimedHabitIds = new Set(claimedRows.map((row) => row.habitId))
 
   return reminders.filter((reminder) => claimedHabitIds.has(reminder.id))
+}
+
+export const deleteHabitReminderDispatches = async (
+  userId: string,
+  habitId: string,
+) => {
+  return db
+    .delete(habitReminderDispatches)
+    .where(
+      and(
+        eq(habitReminderDispatches.userId, userId),
+        eq(habitReminderDispatches.habitId, habitId),
+      ),
+    )
 }

@@ -978,7 +978,7 @@
       "Repeat with hard delete and verify all reminder data is removed",
       "Run reminder dispatcher and verify no reminders are sent for purged habits"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Backend / Notifications",
