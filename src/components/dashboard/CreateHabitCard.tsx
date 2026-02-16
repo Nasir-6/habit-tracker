@@ -7,13 +7,11 @@ import { cn } from '@/lib/utils'
 
 type CreateHabitCardProps = {
   isModalOpen: boolean
-  onOpenModal: () => void
   onCloseModal: () => void
 }
 
 export function CreateHabitCard({
   isModalOpen,
-  onOpenModal,
   onCloseModal,
 }: CreateHabitCardProps) {
   const queryClient = useQueryClient()
@@ -77,18 +75,6 @@ export function CreateHabitCard({
 
   return (
     <>
-      <button
-        className="fixed bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-slate-900 text-3xl leading-none text-white shadow-xl shadow-slate-900/30 transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2"
-        type="button"
-        aria-label="Create a habit"
-        onClick={() => {
-          setCreateError(null)
-          onOpenModal()
-        }}
-      >
-        +
-      </button>
-
       {isModalOpen ? (
         <div
           className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/40 p-4 backdrop-blur-sm sm:items-center"

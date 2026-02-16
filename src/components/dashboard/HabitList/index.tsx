@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Archive } from 'lucide-react'
+import { Archive, Plus } from 'lucide-react'
 import { CompletionConfetti } from './CompletionConfetti'
 import { DailyProgressBar } from './DailyProgressBar'
 import { HabitHistoryDialog } from './HabitHistoryDialog'
@@ -237,16 +237,26 @@ export function HabitList({
       ) : null}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-lg font-semibold text-slate-900">Today</h2>
-        <button
-          className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-          type="button"
-          onClick={() => {
-            setIsArchiveModalOpen(true)
-          }}
-        >
-          <Archive className="h-4 w-4" aria-hidden="true" />
-          Archived
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            type="button"
+            onClick={() => {
+              setIsArchiveModalOpen(true)
+            }}
+          >
+            <Archive className="h-4 w-4" aria-hidden="true" />
+            Archived
+          </button>
+          <button
+            className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-slate-900 px-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+            type="button"
+            onClick={onOpenCreateHabit}
+          >
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            Add habit
+          </button>
+        </div>
       </div>
       <div className="mt-6 grid gap-4">
         <DailyProgressBar

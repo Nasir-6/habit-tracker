@@ -45,9 +45,6 @@ export function Dashboard({
         <div className="grid gap-6">
           <CreateHabitCard
             isModalOpen={isCreateHabitModalOpen}
-            onOpenModal={() => {
-              setIsCreateHabitModalOpen(true)
-            }}
             onCloseModal={() => {
               setIsCreateHabitModalOpen(false)
             }}
