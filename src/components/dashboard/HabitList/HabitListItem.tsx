@@ -128,7 +128,7 @@ export function HabitListItem({
     <div className="grid gap-3">
       <div
         className={cn(
-          'relative flex flex-col gap-4 rounded-2xl border bg-white/90 px-4 py-4 shadow-sm transition sm:flex-row sm:items-center sm:justify-between sm:px-5',
+          'relative grid gap-4 rounded-2xl border bg-white/90 px-4 py-4 shadow-sm transition sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-5 sm:px-5',
           draggingHabitId === habit.id
             ? 'border-slate-400 bg-slate-50 shadow-md'
             : 'border-slate-200',
@@ -145,77 +145,69 @@ export function HabitListItem({
           handlers.onDrop(habit.id)
         }}
       >
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex min-w-0 items-start gap-3">
-            <button
-              ref={(element) => {
-                onCompletionButtonRef(habit.id, element)
-              }}
+        <div className="flex min-w-0 items-start gap-3">
+          <button
+            ref={(element) => {
+              onCompletionButtonRef(habit.id, element)
+            }}
+            className={cn(
+              'mt-0.5 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border text-sm font-semibold transition',
+              habit.isCompleted
+                ? 'border-emerald-200 bg-emerald-100 text-emerald-700 hover:bg-emerald-50'
+                : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50',
+            )}
+            type="button"
+            onClick={() => {
+              handlers.onToggleHabit(habit.id)
+            }}
+            aria-label={
+              habit.isCompleted ? 'Mark as pending' : 'Mark as completed'
+            }
+          >
+            {habit.isCompleted ? (
+              <Check aria-hidden="true" className="h-5 w-5" />
+            ) : (
+              <Circle
+                aria-hidden="true"
+                className="h-5 w-5"
+                strokeWidth={1.5}
+              />
+            )}
+          </button>
+          <div className="min-w-0 space-y-2">
+            <p
               className={cn(
-                'inline-flex h-11 w-11 items-center justify-center rounded-full border text-sm font-semibold transition',
+                'truncate text-lg font-semibold leading-none',
                 habit.isCompleted
-                  ? 'border-emerald-200 bg-emerald-100 text-emerald-700 hover:bg-emerald-50'
-                  : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50',
+                  ? 'text-slate-500 line-through decoration-slate-400'
+                  : 'text-slate-900',
               )}
-              type="button"
-              onClick={() => {
-                handlers.onToggleHabit(habit.id)
-              }}
-              aria-label={
-                habit.isCompleted ? 'Mark as pending' : 'Mark as completed'
-              }
             >
-              {habit.isCompleted ? (
-                <Check aria-hidden="true" className="h-5 w-5" />
-              ) : (
-                <Circle
-                  aria-hidden="true"
-                  className="h-5 w-5"
-                  strokeWidth={1.5}
-                />
-              )}
-            </button>
-            <div className="min-w-0 space-y-1">
-              <p
-                className={cn(
-                  'truncate text-sm font-semibold',
-                  habit.isCompleted
-                    ? 'text-slate-500 line-through decoration-slate-400'
-                    : 'text-slate-900',
-                )}
+              {habit.name}
+            </p>
+            <p className="text-sm text-slate-500">
+              Current {formatStreak(habitStreak?.current ?? 0)} · Best{' '}
+              {formatStreak(habitStreak?.best ?? 0)}
+            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                className="inline-flex h-8 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 text-xs font-medium text-slate-600 transition hover:border-slate-300 hover:text-slate-800"
+                type="button"
+                aria-label={`${habit.reminderTime ? 'Edit' : 'Set'} reminder for ${habit.name}`}
+                onClick={() => {
+                  setReminderInput(habit.reminderTime ?? '')
+                  setIsReminderModalOpen(true)
+                }}
               >
-                {habit.name}
-              </p>
-              <p className="text-xs text-slate-400">
-                Current {formatStreak(habitStreak?.current ?? 0)} · Best{' '}
-                {formatStreak(habitStreak?.best ?? 0)}
-              </p>
-              <div className="flex flex-wrap items-center gap-2 pt-1">
-                <button
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:border-slate-300 hover:text-slate-800"
-                  type="button"
-                  aria-label={`Set reminder for ${habit.name}`}
-                  onClick={() => {
-                    setReminderInput(habit.reminderTime ?? '')
-                    setIsReminderModalOpen(true)
-                  }}
-                >
-                  <AlarmClock aria-hidden="true" className="h-4 w-4" />
-                </button>
-                {reminderCountdown ? (
-                  <p className="text-xs font-medium text-slate-500">
-                    {reminderCountdown} left
-                  </p>
-                ) : (
-                  <p className="text-xs text-slate-400">No reminder set</p>
-                )}
-              </div>
+                <AlarmClock aria-hidden="true" className="h-3.5 w-3.5" />
+                {reminderCountdown ?? 'Set reminder'}
+              </button>
             </div>
           </div>
         </div>
-        <div className="flex w-full items-center gap-2 sm:w-auto sm:items-center sm:gap-3">
+        <div className="flex items-center justify-end gap-2 sm:justify-start">
           <button
-            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-sm font-semibold text-slate-600 transition hover:border-slate-300 hover:text-slate-700 sm:h-auto sm:w-auto sm:px-4 sm:py-2.5"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-sm font-semibold text-slate-600 transition hover:border-slate-300 hover:text-slate-700"
             type="button"
             onClick={() => {
               handlers.onToggleHistory(habit.id)
@@ -230,7 +222,7 @@ export function HabitListItem({
           </button>
           <button
             className={cn(
-              'ml-auto inline-flex h-11 w-11 items-center justify-center rounded-full border text-sm font-semibold transition',
+              'inline-flex h-11 w-11 items-center justify-center rounded-full border text-sm font-semibold transition',
               deletingHabitId === habit.id
                 ? 'border-rose-200 bg-rose-50 text-rose-300'
                 : 'border-rose-200 bg-white text-rose-700 hover:bg-rose-50',
