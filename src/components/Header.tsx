@@ -12,12 +12,22 @@ export default function Header() {
   const [signOutError, setSignOutError] = useState<string | null>(null)
   const identityMenuRef = useRef<HTMLDivElement | null>(null)
 
-  const userName = session?.user.name.trim()
-  const userEmail = session?.user.email.trim()
-  const fallbackName = session?.user.email.split('@')[0]?.trim()
+  const userName = session?.user ? session.user.name.trim() : ''
+  const userEmail = session?.user ? session.user.email.trim() : ''
+  const fallbackName = session?.user
+    ? session.user.email.split('@')[0]?.trim()
+    : undefined
   const userDisplayName = userName || fallbackName || 'Account'
+  const userNameTokens = userName
+    .split(/\s+/)
+    .map((token) => token.trim())
+    .filter(Boolean)
   const userAvatarFallback =
-    userDisplayName.charAt(0).toUpperCase() || userEmail?.charAt(0) || 'A'
+    userNameTokens.length >= 2
+      ? `${userNameTokens[0]?.charAt(0) ?? ''}${userNameTokens[1]?.charAt(0) ?? ''}`.toUpperCase()
+      : userNameTokens.length === 1
+        ? userNameTokens[0]?.charAt(0).toUpperCase() || 'U'
+        : 'U'
 
   useEffect(() => {
     if (session?.user) {

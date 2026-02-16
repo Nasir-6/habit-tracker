@@ -1132,7 +1132,7 @@
       "Verify avatar falls back to a first letter when only one name token exists",
       "Verify a safe fallback character is shown when name is missing"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Auth",

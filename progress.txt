@@ -508,3 +508,8 @@
 - Decisions: prioritized as highest pending reminder UI integration item; replaced inline time/save controls with alarm-clock trigger + modal to keep list compact; derive live relative countdown from saved reminder time and refresh every 30s for visible freshness.
 - Files changed: src/components/dashboard/HabitList/HabitListItem.tsx, prd.json, progress.txt.
 - Blockers/notes: feedback loops pass (`npm run typecheck`, `npm run test`, `npm run lint`); `npm run test` exits 0 with existing Vitest hanging-process shutdown warning.
+
+- Task completed: Frontend / Auth - Render avatar content from user initials (or first-letter fallback) when no profile image exists. (PRD Frontend / Auth)
+- Decisions: prioritized as highest remaining non-polish auth integration task; avatar fallback now derives two-letter initials for multi-word names, one-letter for single-token names, and safe `U` fallback when name missing to avoid email/user-id leakage.
+- Files changed: src/components/Header.tsx, prd.json, progress.txt.
+- Blockers/notes: feedback loops pass (`npm run typecheck`, `npm run test`, `npm run lint`); `npm run test` exits 0 with existing Vitest hanging-process shutdown warning.
