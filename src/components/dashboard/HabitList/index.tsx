@@ -97,11 +97,6 @@ export function HabitList({
     <div className="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm sm:p-8">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-lg font-semibold text-slate-900">Today</h2>
-        {habits.length === 0 ? (
-          <span className="text-xs uppercase tracking-[0.2em] text-slate-400">
-            Empty
-          </span>
-        ) : null}
       </div>
       <div className="mt-6 grid gap-4">
         {actionError ? (
@@ -126,7 +121,7 @@ export function HabitList({
         )}
         {habits.length > 1 ? (
           <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/80 p-6 text-slate-500">
-            Drag to reorder once you have more than one habit.
+            Drag habits to reorder.
           </div>
         ) : null}
       </div>

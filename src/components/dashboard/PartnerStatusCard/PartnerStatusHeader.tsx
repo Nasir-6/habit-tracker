@@ -18,9 +18,6 @@ export function PartnerStatusHeader({
           {hasPartner ? 'Active' : 'Invite'}
         </span>
       </div>
-      <p className="mt-2 text-sm text-slate-500">
-        Check in with a partner to stay aligned on today’s habits.
-      </p>
     </>
   )
 }
