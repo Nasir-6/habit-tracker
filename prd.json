@@ -839,5 +839,209 @@
       "Verify user B still receives system notification and can open app from notification click"
     ],
     "passes": true
+  },
+  {
+    "category": "Frontend / Habit Management",
+    "description": "Replace the inline create-habit card with a floating plus action button that opens a create-habit modal.",
+    "steps_to_verify": [
+      "Open the Today screen",
+      "Verify the full-width create-habit card is no longer shown",
+      "Verify a floating plus action button is visible",
+      "Click the floating plus button and verify a create-habit modal opens"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Habit Management",
+    "description": "Show the same plus action in the empty Today state and open the same create-habit modal from it.",
+    "steps_to_verify": [
+      "Ensure there are no active habits",
+      "Verify the empty state shows a plus action",
+      "Click the empty-state plus action",
+      "Verify the same create-habit modal opens"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Habit Management",
+    "description": "Create-habit modal requires a non-empty name and adds the new habit to the Today list on success.",
+    "steps_to_verify": [
+      "Open create-habit modal",
+      "Verify save action is disabled when name is empty",
+      "Submit a valid habit name",
+      "Verify modal closes and new habit appears in Today list"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Habit Management",
+    "description": "Provide a two-step delete flow that lets users choose Archive (keep history) or Delete forever (permanent removal).",
+    "steps_to_verify": [
+      "Open habit actions and trigger delete",
+      "Verify first modal shows Archive and Delete forever options",
+      "Choose Delete forever and verify a second irreversible confirmation appears",
+      "Verify action only proceeds after second confirmation"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Backend / Habit Management",
+    "description": "Support both archive and hard delete operations for habits with clear, separate semantics.",
+    "steps_to_verify": [
+      "Archive a habit and verify habit row remains with archived state",
+      "Hard delete a habit and verify habit row is physically removed",
+      "Verify API responses distinguish archive vs hard delete outcomes"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Habit Management",
+    "description": "Display an Archived habits list so users can review archived habits separately from active habits.",
+    "steps_to_verify": [
+      "Archive one or more habits",
+      "Open Today screen and verify archived habits appear in an Archived section",
+      "Verify archived habits are not shown in active Today list"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Habit Management",
+    "description": "Allow users to restore an archived habit back to the active list.",
+    "steps_to_verify": [
+      "Archive a habit",
+      "Use Restore action from Archived list",
+      "Verify habit returns to active Today list",
+      "Verify habit is removed from Archived section"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / History",
+    "description": "Allow viewing habit history from the Archived habits list.",
+    "steps_to_verify": [
+      "Archive a habit with historical completions",
+      "Open Archived section and trigger View history",
+      "Verify historical completion data is visible and read-only"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Notifications",
+    "description": "Allow users to configure per-habit smart reminders (enable/disable and time) and remove a reminder from a habit.",
+    "steps_to_verify": [
+      "Open a habit reminder control",
+      "Enable reminder and set a valid time",
+      "Verify reminder state is shown for the habit",
+      "Disable or remove the reminder",
+      "Verify reminder state is cleared for that habit"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Backend / Habit Management",
+    "description": "Persist per-habit smart reminder settings and support explicit reminder removal.",
+    "steps_to_verify": [
+      "Save reminder settings for a habit",
+      "Fetch habits and verify reminder fields are returned correctly",
+      "Remove reminder settings for that habit",
+      "Fetch habits again and verify reminder fields are cleared"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Backend / Notifications",
+    "description": "Dispatch Web Push smart reminders for habits when due and still incomplete for the user's local day.",
+    "steps_to_verify": [
+      "Configure per-habit reminder time and ensure push subscription exists",
+      "Run reminder dispatch at due time",
+      "Verify push notification is sent only for incomplete due habits",
+      "Verify completed habits do not receive reminders"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Backend / Notifications",
+    "description": "Prevent duplicate smart reminder sends for the same habit and local day.",
+    "steps_to_verify": [
+      "Configure reminder for a habit and run dispatcher multiple times in the due window",
+      "Verify only one reminder is sent for that habit on that local day",
+      "Verify duplicate dispatch attempts are safely ignored"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Backend / Habit Management",
+    "description": "Strictly purge all smart reminder data when a habit is archived or hard deleted.",
+    "steps_to_verify": [
+      "Configure reminder data for a habit",
+      "Archive the habit and verify all reminder configuration/state/log data is removed",
+      "Repeat with hard delete and verify all reminder data is removed",
+      "Run reminder dispatcher and verify no reminders are sent for purged habits"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Backend / Notifications",
+    "description": "Ensure reminder dispatch excludes archived habits and only targets active habits.",
+    "steps_to_verify": [
+      "Archive a habit that previously had reminders",
+      "Run reminder dispatch cycle",
+      "Verify archived habit is not selected for dispatch",
+      "Verify active due habits are still selected normally"
+    ],
+    "passes": false
+  },
+  {
+    "category": "PWA / Notifications",
+    "description": "Show habit-specific smart reminder push content and open the app when the notification is clicked.",
+    "steps_to_verify": [
+      "Trigger a smart reminder push",
+      "Verify notification title/body includes habit-specific reminder context",
+      "Click notification and verify app opens or focuses to the main screen"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Daily Check-in",
+    "description": "Display a daily completion progress bar showing completed habits out of total active habits.",
+    "steps_to_verify": [
+      "Open Today screen with active habits",
+      "Verify progress text shows completed count and percentage (for example, 3 of 7, 43%)",
+      "Complete and uncomplete habits",
+      "Verify bar width and percentage update immediately"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Daily Check-in",
+    "description": "Color the daily progress bar by completion percentage using red for low, orange for medium, and green above halfway.",
+    "steps_to_verify": [
+      "Set completion below low threshold and verify bar is red",
+      "Set completion in medium range and verify bar is orange",
+      "Set completion above 50% and verify bar is green"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Daily Check-in",
+    "description": "Handle zero-habit state for daily progress with neutral styling and no error color.",
+    "steps_to_verify": [
+      "Open Today screen with no active habits",
+      "Verify progress area uses neutral styling",
+      "Verify no red/orange/green progress state is shown"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Daily Check-in",
+    "description": "Trigger celebratory confetti each time daily completion reaches 100% from below.",
+    "steps_to_verify": [
+      "Open Today screen below 100% completion",
+      "Complete remaining habits to reach 100%",
+      "Verify confetti plays when crossing to 100%",
+      "Mark one habit incomplete and complete it again",
+      "Verify confetti plays again when 100% is re-reached"
+    ],
+    "passes": false
   }
 ]
