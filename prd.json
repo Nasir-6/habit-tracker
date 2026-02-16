@@ -7,7 +7,7 @@
       "Verify a name input is present and marked as required",
       "Verify save action is disabled when name is empty"
     ],
-    "passes": true
+    "passes": false
   },
   {
     "category": "Backend / Habit Management",
@@ -1074,7 +1074,7 @@
       "Verify the bell is shown as crossed-out and gray",
       "Verify the denied/inactive visual state remains until permission is changed in browser settings"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Notifications",
