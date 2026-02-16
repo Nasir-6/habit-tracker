@@ -1085,7 +1085,7 @@
       "Verify push subscription setup runs automatically without requiring an extra click",
       "Verify the bell remains in active blue state after successful setup"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Notifications",
