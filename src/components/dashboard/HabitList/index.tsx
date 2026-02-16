@@ -50,6 +50,7 @@ export function HabitList({
   const [confirmHardDeleteHabitId, setConfirmHardDeleteHabitId] = useState<
     string | null
   >(null)
+  const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false)
   const completionButtonByHabitIdRef = useRef<
     Record<string, HTMLButtonElement | null>
   >({})
@@ -235,6 +236,15 @@ export function HabitList({
       ) : null}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-lg font-semibold text-slate-900">Today</h2>
+        <button
+          className="inline-flex h-9 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+          type="button"
+          onClick={() => {
+            setIsArchiveModalOpen(true)
+          }}
+        >
+          Archive
+        </button>
       </div>
       <div className="mt-6 grid gap-4">
         <DailyProgressBar
@@ -321,6 +331,85 @@ export function HabitList({
       </div>
       {habitHistory.historyHabitId && habitHistory.selectedHabit ? (
         <HabitHistoryDialog habitHistory={habitHistory} />
+      ) : null}
+      {isArchiveModalOpen ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/30 p-4 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Archived habits"
+          onClick={() => {
+            setIsArchiveModalOpen(false)
+          }}
+        >
+          <div
+            className="w-full max-w-xl rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-600 shadow-xl"
+            onClick={(event) => {
+              event.stopPropagation()
+            }}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h3 className="text-base font-semibold text-slate-900">
+                  Archive
+                </h3>
+                <p className="mt-1 text-sm text-slate-500">
+                  Review archived habits.
+                </p>
+              </div>
+              <button
+                className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                type="button"
+                onClick={() => {
+                  setIsArchiveModalOpen(false)
+                }}
+              >
+                Close
+              </button>
+            </div>
+            {archivedHabits.length === 0 ? (
+              <p className="mt-4 rounded-xl border border-dashed border-slate-200 bg-slate-50/80 p-4 text-sm text-slate-500">
+                No archived habits yet.
+              </p>
+            ) : (
+              <ul className="mt-4 grid max-h-80 gap-2 overflow-y-auto pr-1">
+                {archivedHabits.map((habit) => (
+                  <li
+                    key={habit.id}
+                    className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600"
+                  >
+                    <span className="min-w-0 truncate">{habit.name}</span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        className="inline-flex h-8 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                        type="button"
+                        onClick={() => {
+                          void habitHistory.handleToggleHistory(habit.id)
+                        }}
+                      >
+                        {habitHistory.historyHabitId === habit.id
+                          ? 'Hide history'
+                          : 'View history'}
+                      </button>
+                      <button
+                        className="inline-flex h-8 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-400"
+                        type="button"
+                        onClick={() => {
+                          void handleRestoreHabit(habit.id)
+                        }}
+                        disabled={Boolean(restoringHabitId || deletingHabitId)}
+                      >
+                        {restoringHabitId === habit.id
+                          ? 'Restoring...'
+                          : 'Restore'}
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
       ) : null}
       {deleteFlowHabit ? (
         <div

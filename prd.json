@@ -1164,7 +1164,7 @@
       "Click the Archive button",
       "Verify the archived habits modal opens"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Habit Management",

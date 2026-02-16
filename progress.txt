@@ -488,3 +488,8 @@
 - Decisions: prioritized as highest auth integration point (session security + header UX); log out runs from header dropdown with pending/error UI and closes menu/reset state when session clears.
 - Files changed: src/components/Header.tsx, prd.json, progress.txt.
 - Blockers/notes: none.
+
+- Task completed: Frontend / Habit Management - Add an Archive button at the top-right of the Today section that opens the archived habits modal. (PRD Frontend / Habit Management)
+- Decisions: prioritized as highest remaining archive-flow integration point before icon/polish tasks; added top-right Today Archive CTA in HabitList and wired to dedicated modal state so archived review is reachable without scrolling to inline section.
+- Files changed: src/components/dashboard/HabitList/index.tsx, prd.json, progress.txt.
+- Blockers/notes: none.
