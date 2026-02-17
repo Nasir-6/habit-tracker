@@ -21,11 +21,13 @@ type DailyOverviewEntry = {
 type UseHabitCalendarArgs = {
   habits: Habit[]
   habitStreaks: Partial<Record<string, HabitStreak>>
+  viewMode: 'overview' | 'habit'
 }
 
 export const useHabitCalendar = ({
   habits,
   habitStreaks,
+  viewMode,
 }: UseHabitCalendarArgs) => {
   const [monthAnchor, setMonthAnchor] = useState(() => new Date())
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(
@@ -101,7 +103,7 @@ export const useHabitCalendar = ({
         'Unable to load calendar data',
       )
     },
-    enabled: Boolean(selectedHabit),
+    enabled: viewMode === 'habit' && Boolean(selectedHabit),
   })
 
   const overviewQuery = useQuery({
@@ -118,7 +120,7 @@ export const useHabitCalendar = ({
         'Unable to load calendar overview',
       )
     },
-    enabled: habits.length > 0,
+    enabled: viewMode === 'overview' && habits.length > 0,
   })
 
   const overviewByDate = useMemo(() => {

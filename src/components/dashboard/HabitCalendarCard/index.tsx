@@ -35,7 +35,7 @@ export function HabitCalendarCard({
     shiftMonth,
     todayKey,
     overviewByDate,
-  } = useHabitCalendar({ habits, habitStreaks })
+  } = useHabitCalendar({ habits, habitStreaks, viewMode })
 
   return (
     <div className="rounded-3xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/80 p-6 shadow-[0_1px_2px_rgba(15,23,42,0.06)] lg:p-7">

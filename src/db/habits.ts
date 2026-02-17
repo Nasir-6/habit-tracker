@@ -21,7 +21,6 @@ export const fetchActiveHabitsForCalendar = async (userId: string) => {
     .select({
       id: habits.id,
       createdAt: habits.createdAt,
-      sortOrder: habits.sortOrder,
     })
     .from(habits)
     .where(and(eq(habits.userId, userId), isNull(habits.archivedAt)))
