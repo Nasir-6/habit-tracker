@@ -189,23 +189,28 @@ export function HabitListItem({
               Current {formatStreak(habitStreak?.current ?? 0)} · Best{' '}
               {formatStreak(habitStreak?.best ?? 0)}
             </p>
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                className="inline-flex h-8 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 text-xs font-medium text-slate-600 transition hover:border-slate-300 hover:text-slate-800"
-                type="button"
-                aria-label={`${habit.reminderTime ? 'Edit' : 'Set'} reminder for ${habit.name}`}
-                onClick={() => {
-                  setReminderInput(habit.reminderTime ?? '')
-                  setIsReminderModalOpen(true)
-                }}
-              >
-                <AlarmClock aria-hidden="true" className="h-3.5 w-3.5" />
-                {reminderCountdown ?? 'Set reminder'}
-              </button>
-            </div>
           </div>
         </div>
         <div className="flex items-center justify-end gap-2 sm:justify-start">
+          <button
+            className={cn(
+              'inline-flex h-11 items-center gap-2 rounded-full border bg-white px-3 text-sm font-semibold transition',
+              habit.reminderTime
+                ? 'border-slate-300 text-slate-700 hover:border-slate-400 hover:text-slate-800'
+                : 'border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700',
+            )}
+            type="button"
+            aria-label={`${habit.reminderTime ? 'Edit' : 'Set'} reminder for ${habit.name}`}
+            onClick={() => {
+              setReminderInput(habit.reminderTime ?? '')
+              setIsReminderModalOpen(true)
+            }}
+          >
+            <AlarmClock aria-hidden="true" className="h-4 w-4" />
+            <span className="text-xs font-medium">
+              {reminderCountdown ? reminderCountdown : 'Set reminder'}
+            </span>
+          </button>
           <button
             className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-sm font-semibold text-slate-600 transition hover:border-slate-300 hover:text-slate-700"
             type="button"
