@@ -12,6 +12,12 @@ import { requestApi } from '@/lib/client-api'
 
 type HabitStreak = { current: number; best: number }
 
+type DailyOverviewEntry = {
+  completedHabits: number
+  date: string
+  totalHabits: number
+}
+
 type UseHabitCalendarArgs = {
   habits: Habit[]
   habitStreaks: Partial<Record<string, HabitStreak>>
@@ -74,7 +80,12 @@ export const useHabitCalendar = ({
     )
   }
 
-  const calendarQuery = useQuery({
+  const habitIdsKey = useMemo(
+    () => habits.map((habit) => habit.id).join(','),
+    [habits],
+  )
+
+  const habitCalendarQuery = useQuery({
     queryKey: [
       'habit-calendar',
       selectedHabit?.id ?? null,
@@ -93,21 +104,47 @@ export const useHabitCalendar = ({
     enabled: Boolean(selectedHabit),
   })
 
-  const completedDates = useMemo(() => {
-    const dates = Array.isArray(calendarQuery.data?.dates)
-      ? calendarQuery.data.dates
+  const overviewQuery = useQuery({
+    queryKey: [
+      'habit-calendar-overview',
+      monthKey,
+      tzOffsetMinutes,
+      habitIdsKey,
+    ],
+    queryFn: async () => {
+      return requestApi<{ days?: DailyOverviewEntry[] }>(
+        `/api/calendar?view=overview&month=${monthKey}&tzOffsetMinutes=${tzOffsetMinutes}`,
+        undefined,
+        'Unable to load calendar overview',
+      )
+    },
+    enabled: habits.length > 0,
+  })
+
+  const overviewByDate = useMemo(() => {
+    const days = Array.isArray(overviewQuery.data?.days)
+      ? overviewQuery.data.days
       : []
+
+    return new Map(days.map((day) => [day.date, day]))
+  }, [overviewQuery.data?.days])
+  const completedDates = useMemo(() => {
+    const dates = Array.isArray(habitCalendarQuery.data?.dates)
+      ? habitCalendarQuery.data.dates
+      : []
+
     return new Set(dates)
-  }, [calendarQuery.data?.dates])
-  const calendarError = calendarQuery.error?.message ?? null
-  const isCalendarLoading = calendarQuery.isLoading
+  }, [habitCalendarQuery.data?.dates])
 
   return {
     calendar,
-    calendarError,
     completedDates,
-    isCalendarLoading,
+    habitCalendarError: habitCalendarQuery.error?.message ?? null,
+    isHabitCalendarLoading: habitCalendarQuery.isLoading,
+    isOverviewLoading: overviewQuery.isLoading,
     monthLabel,
+    overviewByDate,
+    overviewCalendarError: overviewQuery.error?.message ?? null,
     selectedHabit,
     selectedHabitId,
     selectedStreak,

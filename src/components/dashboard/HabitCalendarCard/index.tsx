@@ -1,4 +1,7 @@
-import { HabitCalendarGrid } from './HabitCalendarGrid'
+import { useState } from 'react'
+
+import { HabitCalendarCompletionOverview } from './HabitCalendarCompletionOverview'
+import { HabitCalendarHabitDetailGrid } from './HabitCalendarHabitDetailGrid'
 import { HabitCalendarHeader } from './HabitCalendarHeader'
 import { HabitCalendarStatus } from './HabitCalendarStatus'
 import { HabitCalendarStreaks } from './HabitCalendarStreaks'
@@ -16,51 +19,80 @@ export function HabitCalendarCard({
   habits,
   habitStreaks,
 }: HabitCalendarCardProps) {
+  const [viewMode, setViewMode] = useState<'overview' | 'habit'>('overview')
   const {
     calendar,
-    calendarError,
     completedDates,
-    isCalendarLoading,
+    habitCalendarError,
+    isHabitCalendarLoading,
+    isOverviewLoading,
     monthLabel,
+    overviewCalendarError,
     selectedHabit,
     selectedHabitId,
     selectedStreak,
     setSelectedHabitId,
     shiftMonth,
     todayKey,
+    overviewByDate,
   } = useHabitCalendar({ habits, habitStreaks })
 
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white/70 p-8 shadow-sm">
+    <div className="rounded-3xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/80 p-6 shadow-[0_1px_2px_rgba(15,23,42,0.06)] lg:p-7">
       <HabitCalendarHeader
         habits={habits}
         monthLabel={monthLabel}
         onHabitChange={setSelectedHabitId}
         onMonthChange={shiftMonth}
+        onViewModeChange={setViewMode}
         selectedHabitId={selectedHabitId}
+        viewMode={viewMode}
       />
 
       {habits.length === 0 || !selectedHabit ? (
-        <p className="mt-6 text-sm text-slate-500">
+        <p className="mt-5 text-sm text-slate-500">
           Create a habit to unlock the monthly calendar view.
         </p>
       ) : (
-        <div className="mt-6 grid gap-3">
-          <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
-            {selectedHabit.name}
-          </p>
-          <HabitCalendarStreaks
-            best={selectedStreak.best}
-            current={selectedStreak.current}
-          />
-          <HabitCalendarGrid
-            calendar={calendar}
-            completedDates={completedDates}
-            todayKey={todayKey}
-          />
+        <div className="mt-5 grid gap-4">
+          {viewMode === 'overview' ? (
+            <>
+              <p className="inline-flex w-fit items-center rounded-md border border-slate-200 bg-white px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-slate-600">
+                All active habits
+              </p>
+              <HabitCalendarCompletionOverview
+                calendar={calendar}
+                overviewByDate={overviewByDate}
+                todayKey={todayKey}
+              />
+            </>
+          ) : (
+            <>
+              <p className="inline-flex w-fit items-center rounded-md border border-slate-200 bg-white px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-slate-600">
+                {selectedHabit.name}
+              </p>
+              <HabitCalendarStreaks
+                best={selectedStreak.best}
+                current={selectedStreak.current}
+              />
+              <HabitCalendarHabitDetailGrid
+                calendar={calendar}
+                completedDates={completedDates}
+                todayKey={todayKey}
+              />
+            </>
+          )}
           <HabitCalendarStatus
-            calendarError={calendarError}
-            isCalendarLoading={isCalendarLoading}
+            calendarError={
+              viewMode === 'overview'
+                ? overviewCalendarError
+                : habitCalendarError
+            }
+            isCalendarLoading={
+              viewMode === 'overview'
+                ? isOverviewLoading
+                : isHabitCalendarLoading
+            }
           />
         </div>
       )}

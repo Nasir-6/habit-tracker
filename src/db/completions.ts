@@ -1,4 +1,4 @@
-import { and, desc, eq, gte, lte } from 'drizzle-orm'
+import { and, desc, eq, gte, inArray, lte } from 'drizzle-orm'
 
 import { db } from '@/db/index.ts'
 import { habitCompletions } from '@/db/schema'
@@ -144,6 +144,33 @@ export const fetchCompletionsForHabitInRange = async (
       and(
         eq(habitCompletions.userId, userId),
         eq(habitCompletions.habitId, habitId),
+        gte(habitCompletions.completedOn, startBound),
+        lte(habitCompletions.completedOn, endBound),
+      ),
+    )
+    .orderBy(habitCompletions.completedOn)
+}
+
+export const fetchCompletionsForHabitsInRange = async (
+  userId: string,
+  habitIds: string[],
+  startBound: string,
+  endBound: string,
+) => {
+  if (habitIds.length === 0) {
+    return []
+  }
+
+  return db
+    .select({
+      habitId: habitCompletions.habitId,
+      completedOn: habitCompletions.completedOn,
+    })
+    .from(habitCompletions)
+    .where(
+      and(
+        eq(habitCompletions.userId, userId),
+        inArray(habitCompletions.habitId, habitIds),
         gte(habitCompletions.completedOn, startBound),
         lte(habitCompletions.completedOn, endBound),
       ),

@@ -16,6 +16,18 @@ export const fetchActiveHabits = async (userId: string) => {
     .orderBy(habits.sortOrder)
 }
 
+export const fetchActiveHabitsForCalendar = async (userId: string) => {
+  return db
+    .select({
+      id: habits.id,
+      createdAt: habits.createdAt,
+      sortOrder: habits.sortOrder,
+    })
+    .from(habits)
+    .where(and(eq(habits.userId, userId), isNull(habits.archivedAt)))
+    .orderBy(habits.sortOrder)
+}
+
 export const fetchHabits = async (userId: string) => {
   return db
     .select({

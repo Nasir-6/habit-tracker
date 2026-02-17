@@ -304,23 +304,43 @@
   },
   {
     "category": "Frontend / Calendar View",
-    "description": "Render a monthly calendar for a single habit.",
+    "description": "Render a monthly calendar card using a minimal productivity style with improved visual hierarchy and contrast.",
     "steps_to_verify": [
       "Open habit progress view",
-      "Verify 7-column monthly grid",
-      "Verify current month is default"
+      "Verify card uses the updated styling for header, controls, and spacing",
+      "Verify month label and controls are easy to scan"
     ],
     "passes": true
   },
   {
     "category": "Frontend / Calendar View",
-    "description": "Visually distinguish completed, missed, today, and future days.",
+    "description": "Show an overview calendar grid where each day displays total habits completed out of total active habits for that day.",
     "steps_to_verify": [
-      "Open calendar",
-      "Verify completed days are highlighted",
-      "Verify missed days are muted",
-      "Verify today is outlined",
-      "Verify future days are disabled"
+      "Open calendar overview",
+      "Verify each day cell shows completed/total counts",
+      "Verify days before today show stored totals",
+      "Verify future days are visually muted"
+    ],
+    "passes": true
+  },
+  {
+    "category": "Frontend / Calendar View",
+    "description": "Render a green progress ring per day in overview mode representing daily completion percentage.",
+    "steps_to_verify": [
+      "Open calendar overview",
+      "Verify each day shows a circular ring",
+      "Verify ring fill reflects completion percentage (completed/total)",
+      "Verify days with no eligible habits show an empty ring"
+    ],
+    "passes": true
+  },
+  {
+    "category": "Frontend / Calendar View",
+    "description": "Allow switching between Overview mode and Single Habit detail mode in the calendar card.",
+    "steps_to_verify": [
+      "Open calendar card",
+      "Switch to Habit detail mode and verify habit selector is available",
+      "Switch back to Overview mode and verify total-completion ring grid is shown"
     ],
     "passes": true
   },
@@ -335,10 +355,21 @@
   },
   {
     "category": "Frontend / Calendar View",
-    "description": "Display current and best streak above the calendar.",
+    "description": "Display current and best streak for the selected habit in Habit detail mode.",
     "steps_to_verify": [
-      "Open calendar view",
-      "Verify streak values are visible and correct"
+      "Open Habit detail mode",
+      "Select a habit",
+      "Verify current and best streak values are visible and correct"
+    ],
+    "passes": true
+  },
+  {
+    "category": "Frontend / Calendar View",
+    "description": "In Habit detail mode, visually distinguish completed, missed, today, and future days for the selected habit.",
+    "steps_to_verify": [
+      "Open Habit detail mode",
+      "Verify selected habit month grid uses distinct states for completed, missed, today, and future",
+      "Verify day state styling updates when month changes"
     ],
     "passes": true
   },
@@ -367,6 +398,16 @@
       "Complete habit near day boundary",
       "Request calendar data",
       "Verify correct local day mapping"
+    ],
+    "passes": true
+  },
+  {
+    "category": "Backend / Calendar View",
+    "description": "Return month overview totals per day with completed habit count and total eligible active habits for that day.",
+    "steps_to_verify": [
+      "Request calendar overview data for a month",
+      "Verify each returned day includes date, completedHabits, and totalHabits",
+      "Verify totals account for habit creation date and exclude future days"
     ],
     "passes": true
   },
