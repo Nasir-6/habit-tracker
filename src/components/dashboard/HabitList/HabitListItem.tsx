@@ -282,10 +282,15 @@ export function HabitListItem({
                 disabled={isSavingReminder}
               />
             </label>
-            <div className="mt-6 flex flex-wrap justify-end gap-2">
+            <div
+              className={cn(
+                'mt-6 grid gap-2',
+                habit.reminderTime ? 'grid-cols-3' : 'grid-cols-2',
+              )}
+            >
               {habit.reminderTime ? (
                 <button
-                  className="rounded-xl border border-rose-200 bg-white px-4 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:text-rose-300"
+                  className="w-full whitespace-nowrap rounded-xl border border-rose-200 bg-white px-3 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:text-rose-300"
                   type="button"
                   onClick={() => {
                     handlers.onClearHabitReminder(habit.id)
@@ -297,7 +302,7 @@ export function HabitListItem({
                 </button>
               ) : null}
               <button
-                className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-400"
+                className="w-full whitespace-nowrap rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-400"
                 type="button"
                 onClick={() => {
                   setIsReminderModalOpen(false)
@@ -308,7 +313,7 @@ export function HabitListItem({
               </button>
               <button
                 className={cn(
-                  'rounded-xl px-4 py-2 text-sm font-semibold text-white transition disabled:cursor-not-allowed',
+                  'w-full whitespace-nowrap rounded-xl px-3 py-2 text-sm font-semibold text-white transition disabled:cursor-not-allowed',
                   canSaveReminder
                     ? 'bg-slate-900 hover:bg-slate-800'
                     : 'bg-slate-300',
@@ -322,7 +327,8 @@ export function HabitListItem({
                 }}
                 disabled={!canSaveReminder}
               >
-                Save reminder
+                <span className="sm:hidden">Save</span>
+                <span className="hidden sm:inline">Save reminder</span>
               </button>
             </div>
           </div>
