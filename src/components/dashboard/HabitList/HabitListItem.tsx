@@ -177,7 +177,7 @@ export function HabitListItem({
           <div className="min-w-0 space-y-2">
             <p
               className={cn(
-                'truncate text-lg font-semibold leading-none',
+                'truncate text-lg font-semibold leading-tight',
                 habit.isCompleted
                   ? 'text-slate-500 line-through decoration-slate-400'
                   : 'text-slate-900',
