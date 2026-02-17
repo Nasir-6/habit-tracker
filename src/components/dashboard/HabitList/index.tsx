@@ -235,11 +235,11 @@ export function HabitList({
           sourceElement={confettiSourceElement}
         />
       ) : null}
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex items-center justify-between gap-3">
         <h2 className="text-lg font-semibold text-slate-900">Today</h2>
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
           <button
-            className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 sm:px-3"
             type="button"
             onClick={() => {
               setIsArchiveModalOpen(true)
@@ -249,7 +249,7 @@ export function HabitList({
             Archived
           </button>
           <button
-            className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-slate-900 px-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+            className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-slate-900 px-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 sm:px-3"
             type="button"
             onClick={onOpenCreateHabit}
           >
