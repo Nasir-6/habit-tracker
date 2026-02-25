@@ -30,6 +30,7 @@ type HabitListItemProps = {
   habitStreak: { current: number; best: number } | undefined
   itemState: HabitListItemUiState
   handlers: HabitListItemHandlers
+  isManagementLocked: boolean
   onCompletionButtonRef: (
     habitId: string,
     element: HTMLButtonElement | null,
@@ -90,6 +91,7 @@ export function HabitListItem({
   habitStreak,
   itemState,
   handlers,
+  isManagementLocked,
   onCompletionButtonRef,
 }: HabitListItemProps) {
   const [reminderInput, setReminderInput] = useState(habit.reminderTime ?? '')
@@ -115,6 +117,12 @@ export function HabitListItem({
   }, [habit.reminderTime])
 
   useEffect(() => {
+    if (isManagementLocked && isReminderModalOpen) {
+      setIsReminderModalOpen(false)
+    }
+  }, [isManagementLocked, isReminderModalOpen])
+
+  useEffect(() => {
     const intervalId = window.setInterval(() => {
       setNow(new Date())
     }, 30_000)
@@ -133,8 +141,12 @@ export function HabitListItem({
             ? 'border-slate-400 bg-slate-50 shadow-md'
             : 'border-slate-200',
         )}
-        draggable
+        draggable={!isManagementLocked}
         onDragStart={(event) => {
+          if (isManagementLocked) {
+            return
+          }
+
           handlers.onDragStart(event, habit.id)
         }}
         onDragEnd={handlers.onDragEnd}
@@ -142,6 +154,10 @@ export function HabitListItem({
           event.preventDefault()
         }}
         onDrop={() => {
+          if (isManagementLocked) {
+            return
+          }
+
           handlers.onDrop(habit.id)
         }}
       >
@@ -198,13 +214,20 @@ export function HabitListItem({
               habit.reminderTime
                 ? 'border-slate-300 text-slate-700 hover:border-slate-400 hover:text-slate-800'
                 : 'border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700',
+              isManagementLocked &&
+                'cursor-not-allowed border-slate-200 text-slate-300 hover:border-slate-200 hover:text-slate-300',
             )}
             type="button"
             aria-label={`${habit.reminderTime ? 'Edit' : 'Set'} reminder for ${habit.name}`}
             onClick={() => {
+              if (isManagementLocked) {
+                return
+              }
+
               setReminderInput(habit.reminderTime ?? '')
               setIsReminderModalOpen(true)
             }}
+            disabled={isManagementLocked}
           >
             <AlarmClock aria-hidden="true" className="h-4 w-4" />
             <span className="text-xs font-medium">
@@ -212,14 +235,23 @@ export function HabitListItem({
             </span>
           </button>
           <button
-            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-sm font-semibold text-slate-600 transition hover:border-slate-300 hover:text-slate-700"
+            className={cn(
+              'inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-sm font-semibold text-slate-600 transition hover:border-slate-300 hover:text-slate-700',
+              isManagementLocked &&
+                'cursor-not-allowed border-slate-200 text-slate-300 hover:border-slate-200 hover:text-slate-300',
+            )}
             type="button"
             onClick={() => {
+              if (isManagementLocked) {
+                return
+              }
+
               handlers.onToggleHistory(habit.id)
             }}
             aria-label={
               historyHabitId === habit.id ? 'Hide history' : 'Show history'
             }
+            disabled={isManagementLocked}
           >
             <span aria-hidden="true">
               <History aria-hidden="true" className="h-5 w-5" />
@@ -231,10 +263,16 @@ export function HabitListItem({
               deletingHabitId === habit.id
                 ? 'border-rose-200 bg-rose-50 text-rose-300'
                 : 'border-rose-200 bg-white text-rose-700 hover:bg-rose-50',
+              isManagementLocked &&
+                'cursor-not-allowed border-slate-200 bg-white text-slate-300 hover:bg-white',
             )}
-            disabled={deletingHabitId === habit.id}
+            disabled={deletingHabitId === habit.id || isManagementLocked}
             type="button"
             onClick={() => {
+              if (isManagementLocked) {
+                return
+              }
+
               handlers.onDeleteHabit(habit.id)
             }}
             aria-label={deletingHabitId === habit.id ? 'Deleting' : 'Delete'}

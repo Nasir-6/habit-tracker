@@ -514,6 +514,11 @@
 - Files changed: src/components/dashboard/HabitList/HabitListItem.tsx, prd.json, progress.txt.
 - Blockers/notes: feedback loops pass (`npm run typecheck`, `npm run test`, `npm run lint`); `npm run test` exits 0 with existing Vitest hanging-process shutdown warning.
 
+- Task completed: Frontend / Habit Management - Restrict past-date mode to completion-only actions by disabling non-completion habit management controls. (PRD Frontend / Habit Management)
+- Decisions: treat past-date mode as `localDate < today` and disable create/archive/reorder/history/reminder/delete/restore actions while keeping completion toggle active; lock reminder modal if user switches into past-date mode mid-edit.
+- Files changed: src/components/dashboard/HabitList/index.tsx, src/components/dashboard/HabitList/HabitListItem.tsx, prd.json, progress.txt.
+- Blockers/notes: none.
+
 - Task completed: Frontend / Daily Check-in - Allow toggling habit completion for the selected past date and persist that date-specific completion state. (PRD Frontend / Daily Check-in)
 - Decisions: prioritized as highest remaining past-date integration point; confirmed toggle mutation posts `localDate` from shared selected-day context and habit fetches are keyed by `localDate`, so past-date toggles persist and refetch correctly without extra UI wiring.
 - Files changed: prd.json, progress.txt.

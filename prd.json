@@ -1293,7 +1293,7 @@
       "Verify completion toggle remains available",
       "Switch back to Today and verify full habit management actions return"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Daily Check-in",

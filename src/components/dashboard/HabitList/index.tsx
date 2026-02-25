@@ -157,6 +157,7 @@ export function HabitList({
   }
 
   const isOnToday = localDate >= todayLocalDate
+  const isManagementLocked = localDate < todayLocalDate
 
   const handleHabitDrop = (targetId: string) => {
     if (!draggingHabitId) {
@@ -326,19 +327,27 @@ export function HabitList({
         </div>
         <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
           <button
-            className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 sm:px-3"
+            className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-300 disabled:hover:bg-white sm:px-3"
             type="button"
             onClick={() => {
-              setIsArchiveModalOpen(true)
+              if (!isManagementLocked) {
+                setIsArchiveModalOpen(true)
+              }
             }}
+            disabled={isManagementLocked}
           >
             <Archive className="h-4 w-4" aria-hidden="true" />
             Archived
           </button>
           <button
-            className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-slate-900 px-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 sm:px-3"
+            className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-slate-900 px-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300 sm:px-3"
             type="button"
-            onClick={onOpenCreateHabit}
+            onClick={() => {
+              if (!isManagementLocked) {
+                onOpenCreateHabit()
+              }
+            }}
+            disabled={isManagementLocked}
           >
             <Plus className="h-4 w-4" aria-hidden="true" />
             Add habit
@@ -359,9 +368,14 @@ export function HabitList({
           <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/80 p-6 text-slate-500">
             <p>Add your first habit to start tracking daily completions.</p>
             <button
-              className="mt-4 inline-flex min-h-[44px] items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+              className="mt-4 inline-flex min-h-[44px] items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:text-slate-300 disabled:hover:bg-white"
               type="button"
-              onClick={onOpenCreateHabit}
+              onClick={() => {
+                if (!isManagementLocked) {
+                  onOpenCreateHabit()
+                }
+              }}
+              disabled={isManagementLocked}
             >
               <span aria-hidden="true">+</span>
               Add habit
@@ -375,11 +389,12 @@ export function HabitList({
               habitStreak={habitStreaks[habit.id]}
               itemState={listItemState}
               handlers={listItemHandlers}
+              isManagementLocked={isManagementLocked}
               onCompletionButtonRef={handleCompletionButtonRef}
             />
           ))
         )}
-        {habits.length > 1 ? (
+        {habits.length > 1 && !isManagementLocked ? (
           <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/80 p-6 text-slate-500">
             Drag habits to reorder.
           </div>
@@ -437,11 +452,14 @@ export function HabitList({
                     <span className="min-w-0 truncate">{habit.name}</span>
                     <div className="flex items-center gap-2">
                       <button
-                        className="inline-flex h-8 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                        className="inline-flex h-8 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-300 disabled:hover:bg-white"
                         type="button"
                         onClick={() => {
-                          void habitHistory.handleToggleHistory(habit.id)
+                          if (!isManagementLocked) {
+                            void habitHistory.handleToggleHistory(habit.id)
+                          }
                         }}
+                        disabled={isManagementLocked}
                       >
                         {habitHistory.historyHabitId === habit.id
                           ? 'Hide history'
@@ -451,9 +469,15 @@ export function HabitList({
                         className="inline-flex h-8 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-400"
                         type="button"
                         onClick={() => {
-                          void handleRestoreHabit(habit.id)
+                          if (!isManagementLocked) {
+                            void handleRestoreHabit(habit.id)
+                          }
                         }}
-                        disabled={Boolean(restoringHabitId || deletingHabitId)}
+                        disabled={Boolean(
+                          restoringHabitId ||
+                          deletingHabitId ||
+                          isManagementLocked,
+                        )}
                       >
                         {restoringHabitId === habit.id
                           ? 'Restoring...'
