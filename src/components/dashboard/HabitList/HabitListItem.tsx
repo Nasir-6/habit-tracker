@@ -28,6 +28,7 @@ type HabitListItemHandlers = {
 type HabitListItemProps = {
   habit: Habit
   habitStreak: { current: number; best: number } | undefined
+  streakContextLabel: string | null
   itemState: HabitListItemUiState
   handlers: HabitListItemHandlers
   isManagementLocked: boolean
@@ -89,6 +90,7 @@ const formatReminderCountdown = (reminderTime: string, now: Date) => {
 export function HabitListItem({
   habit,
   habitStreak,
+  streakContextLabel,
   itemState,
   handlers,
   isManagementLocked,
@@ -204,6 +206,7 @@ export function HabitListItem({
             <p className="text-sm text-slate-500">
               Current {formatStreak(habitStreak?.current ?? 0)} · Best{' '}
               {formatStreak(habitStreak?.best ?? 0)}
+              {streakContextLabel ? ` · as of ${streakContextLabel}` : ''}
             </p>
           </div>
         </div>

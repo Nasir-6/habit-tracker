@@ -31,6 +31,66 @@ type HabitListProps = {
   onOpenCreateHabit: () => void
 }
 
+const parseLocalDateParts = (value: string) => {
+  const [yearText, monthText, dayText] = value.split('-')
+  const year = Number.parseInt(yearText, 10)
+  const month = Number.parseInt(monthText, 10)
+  const day = Number.parseInt(dayText, 10)
+
+  if (
+    Number.isNaN(year) ||
+    Number.isNaN(month) ||
+    Number.isNaN(day) ||
+    month < 1 ||
+    month > 12 ||
+    day < 1 ||
+    day > 31
+  ) {
+    return null
+  }
+
+  return { year, month, day }
+}
+
+const shiftLocalDate = (value: string, offsetDays: number) => {
+  const parts = parseLocalDateParts(value)
+
+  if (!parts) {
+    return null
+  }
+
+  const nextDate = new Date(parts.year, parts.month - 1, parts.day + offsetDays)
+  const nextYear = nextDate.getFullYear()
+  const nextMonth = String(nextDate.getMonth() + 1).padStart(2, '0')
+  const nextDay = String(nextDate.getDate()).padStart(2, '0')
+
+  return `${nextYear}-${nextMonth}-${nextDay}`
+}
+
+const formatLocalDateLabel = (value: string, todayLocalDate: string) => {
+  if (value === todayLocalDate) {
+    return 'Today'
+  }
+
+  const yesterday = shiftLocalDate(todayLocalDate, -1)
+
+  if (yesterday && value === yesterday) {
+    return 'Yesterday'
+  }
+
+  const parts = parseLocalDateParts(value)
+
+  if (!parts) {
+    return value
+  }
+
+  return new Intl.DateTimeFormat(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(new Date(parts.year, parts.month - 1, parts.day))
+}
+
 export function HabitList({
   habits,
   archivedHabits,
@@ -127,6 +187,10 @@ export function HabitList({
   const confirmHardDeleteHabit = orderedHabits.find(
     (habit) => habit.id === confirmHardDeleteHabitId,
   )
+  const streakContextLabel =
+    localDate === todayLocalDate
+      ? null
+      : formatLocalDateLabel(localDate, todayLocalDate)
 
   const shiftSelectedLocalDate = (offsetDays: number) => {
     const [year, month, day] = localDate.split('-').map(Number)
@@ -387,6 +451,7 @@ export function HabitList({
               key={habit.id}
               habit={habit}
               habitStreak={habitStreaks[habit.id]}
+              streakContextLabel={streakContextLabel}
               itemState={listItemState}
               handlers={listItemHandlers}
               isManagementLocked={isManagementLocked}

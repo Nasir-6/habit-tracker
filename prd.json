@@ -1326,6 +1326,6 @@
       "Switch to a past date and verify streak values update for that date context",
       "Return to Today and verify streak values match current-day context again"
     ],
-    "passes": false
+    "passes": true
   }
 ]
