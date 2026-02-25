@@ -147,9 +147,16 @@ export function HabitList({
     const nextYear = nextDate.getFullYear()
     const nextMonth = String(nextDate.getMonth() + 1).padStart(2, '0')
     const nextDay = String(nextDate.getDate()).padStart(2, '0')
+    const nextLocalDate = `${nextYear}-${nextMonth}-${nextDay}`
 
-    setLocalDate(`${nextYear}-${nextMonth}-${nextDay}`)
+    if (nextLocalDate > todayLocalDate) {
+      return
+    }
+
+    setLocalDate(nextLocalDate)
   }
+
+  const isOnToday = localDate >= todayLocalDate
 
   const handleHabitDrop = (targetId: string) => {
     if (!draggingHabitId) {
@@ -284,17 +291,23 @@ export function HabitList({
               className="h-8 rounded-md border border-slate-200 px-2 text-xs font-semibold text-slate-700"
               type="date"
               value={localDate}
+              max={todayLocalDate}
               onChange={(event) => {
-                setLocalDate(event.target.value)
+                const nextLocalDate = event.target.value
+
+                if (nextLocalDate <= todayLocalDate) {
+                  setLocalDate(nextLocalDate)
+                }
               }}
             />
             <button
-              className="inline-flex h-8 w-8 items-center justify-center rounded-md text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-md text-sm font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:text-slate-300 disabled:hover:bg-transparent"
               type="button"
               onClick={() => {
                 shiftSelectedLocalDate(1)
               }}
               aria-label="Next day"
+              disabled={isOnToday}
             >
               +
             </button>

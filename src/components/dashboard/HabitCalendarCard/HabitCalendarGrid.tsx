@@ -65,6 +65,14 @@ export function HabitCalendarGrid(props: HabitCalendarGridProps) {
           todayKey,
         })
 
+  const [todayYear, todayMonth, todayDay] = todayKey.split('-').map(Number)
+  const todayDate =
+    Number.isNaN(todayYear) ||
+    Number.isNaN(todayMonth) ||
+    Number.isNaN(todayDay)
+      ? new Date()
+      : new Date(todayYear, todayMonth - 1, todayDay)
+
   return (
     <div
       className={`w-full ${calendarBlockMaxWidthClass} space-y-3 rounded-xl border border-slate-200 bg-white p-3 text-center shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-4`}
@@ -78,10 +86,11 @@ export function HabitCalendarGrid(props: HabitCalendarGridProps) {
         mode="single"
         month={month}
         onSelect={(selectedDay) => {
-          if (selectedDay) {
+          if (selectedDay && selectedDay <= todayDate) {
             onDateSelect(selectedDay)
           }
         }}
+        disabled={{ after: todayDate }}
         onMonthChange={onMonthChange}
         hideNavigation={true}
         showOutsideDays={false}

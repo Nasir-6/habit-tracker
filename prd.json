@@ -1282,7 +1282,7 @@
       "Attempt to select a future date from the calendar",
       "Verify future date selection is blocked and no completion edits are possible for future days"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Habit Management",

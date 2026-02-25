@@ -548,3 +548,8 @@
 - Decisions: prioritized as highest pending integration point between calendar module and selected-day check-in context; wired calendar `onSelect` to shared local-date context so day taps update the main habit list date without route churn or duplicate state.
 - Files changed: src/components/dashboard/HabitCalendarCard/HabitCalendarGrid.tsx, src/components/dashboard/HabitCalendarCard/index.tsx, prd.json, progress.txt.
 - Blockers/notes: `npm run typecheck`, `npm run test`, `npm run lint` pass; Vitest still prints hanging-process shutdown warning while exiting 0.
+
+- Task completed: Frontend / Daily Check-in - Prevent selecting future dates in day navigation and calendar interactions. (PRD Frontend / Daily Check-in)
+- Decisions: prioritized as highest pending guardrail before past-date completion edits; block future dates across all selectors (next-day button disabled on Today, date input `max=todayLocalDate`, calendar days after today disabled and ignored in onSelect) so no future localDate state can be set.
+- Files changed: src/components/dashboard/HabitList/index.tsx, src/components/dashboard/HabitCalendarCard/HabitCalendarGrid.tsx, prd.json, progress.txt.
+- Blockers/notes: feedback loops pass (`npm run typecheck`, `npm run test`, `npm run lint`); `npm run test` exits 0 with existing Vitest hanging-process shutdown warning.
