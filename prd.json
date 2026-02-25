@@ -1249,7 +1249,7 @@
       "Verify the list context updates to the chosen date",
       "Switch back to Today and verify the list context returns to current day"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Daily Check-in",

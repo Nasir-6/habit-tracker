@@ -538,3 +538,8 @@
 - Decisions: prioritized this next as highest remaining incomplete archive-flow item; used `lucide-react` `Archive` icon in Today Archive CTA to match existing icon system and avoid custom asset/markup.
 - Files changed: src/components/dashboard/HabitList/index.tsx, prd.json, progress.txt.
 - Blockers/notes: feedback loops pass (`npm run typecheck`, `npm run test`, `npm run lint`); `npm run test` exits 0 with existing Vitest hanging-process shutdown warning.
+
+- Task completed: Frontend / Daily Check-in - Allow selecting a target day so the habit list can be viewed for past dates instead of only Today. (PRD Frontend / Daily Check-in)
+- Decisions: prioritized as highest-risk integration dependency for remaining past-day work (toggle/history/calendar sync); expanded local-date context into selected-day + today-day so existing data fetches automatically re-scope by selected day; added day controls (prev/next/date picker + Today reset) in habit list header to switch context without route changes.
+- Files changed: src/context/local-date.tsx, src/components/dashboard/HabitList/index.tsx, prd.json, progress.txt.
+- Blockers/notes: `npm run test` still exits 0 with existing Vitest hanging-process shutdown warning; future-date prevention intentionally left for separate PRD item.

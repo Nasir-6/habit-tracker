@@ -21,10 +21,21 @@ const getMsUntilNextMidnight = (now: Date) => {
   return nextMidnight.getTime() - now.getTime()
 }
 
-const LocalDateContext = createContext<string | null>(null)
+type LocalDateContextValue = {
+  selectedLocalDate: string
+  setSelectedLocalDate: (localDate: string) => void
+  todayLocalDate: string
+}
+
+const LocalDateContext = createContext<LocalDateContextValue | null>(null)
 
 export function LocalDateProvider({ children }: { children: React.ReactNode }) {
-  const [localDate, setLocalDate] = useState(() => formatLocalDate(new Date()))
+  const [todayLocalDate, setTodayLocalDate] = useState(() =>
+    formatLocalDate(new Date()),
+  )
+  const [selectedLocalDate, setSelectedLocalDate] = useState(() =>
+    formatLocalDate(new Date()),
+  )
 
   useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout> | null = null
@@ -34,7 +45,17 @@ export function LocalDateProvider({ children }: { children: React.ReactNode }) {
       const msUntilNextMidnight = getMsUntilNextMidnight(now)
 
       timeoutId = setTimeout(() => {
-        setLocalDate(formatLocalDate(new Date()))
+        const nextLocalDate = formatLocalDate(new Date())
+
+        setTodayLocalDate((previousTodayLocalDate) => {
+          setSelectedLocalDate((currentSelectedLocalDate) =>
+            currentSelectedLocalDate === previousTodayLocalDate
+              ? nextLocalDate
+              : currentSelectedLocalDate,
+          )
+
+          return nextLocalDate
+        })
         scheduleUpdate()
       }, msUntilNextMidnight)
     }
@@ -48,7 +69,10 @@ export function LocalDateProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
-  const value = useMemo(() => localDate, [localDate])
+  const value = useMemo(
+    () => ({ selectedLocalDate, setSelectedLocalDate, todayLocalDate }),
+    [selectedLocalDate, todayLocalDate],
+  )
 
   return (
     <LocalDateContext.Provider value={value}>
@@ -58,11 +82,31 @@ export function LocalDateProvider({ children }: { children: React.ReactNode }) {
 }
 
 export function useLocalDate() {
-  const localDate = useContext(LocalDateContext)
+  const localDateContext = useContext(LocalDateContext)
 
-  if (!localDate) {
+  if (!localDateContext) {
     throw new Error('useLocalDate must be used within LocalDateProvider')
   }
 
-  return localDate
+  return localDateContext.selectedLocalDate
+}
+
+export function useSetLocalDate() {
+  const localDateContext = useContext(LocalDateContext)
+
+  if (!localDateContext) {
+    throw new Error('useSetLocalDate must be used within LocalDateProvider')
+  }
+
+  return localDateContext.setSelectedLocalDate
+}
+
+export function useTodayLocalDate() {
+  const localDateContext = useContext(LocalDateContext)
+
+  if (!localDateContext) {
+    throw new Error('useTodayLocalDate must be used within LocalDateProvider')
+  }
+
+  return localDateContext.todayLocalDate
 }

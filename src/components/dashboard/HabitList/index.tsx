@@ -8,6 +8,11 @@ import type { DragEvent } from 'react'
 
 import type { Habit } from '@/types/dashboard'
 import { ConfirmModal } from '@/components/dashboard/ConfirmModal'
+import {
+  useLocalDate,
+  useSetLocalDate,
+  useTodayLocalDate,
+} from '@/context/local-date'
 import { useHabitHistory } from '@/hooks/useHabitHistory'
 
 type HabitListProps = {
@@ -38,6 +43,9 @@ export function HabitList({
   onClearHabitReminder,
   onOpenCreateHabit,
 }: HabitListProps) {
+  const localDate = useLocalDate()
+  const setLocalDate = useSetLocalDate()
+  const todayLocalDate = useTodayLocalDate()
   const allHabits = [...habits, ...archivedHabits]
   const [draggingHabitId, setDraggingHabitId] = useState<string | null>(null)
   const [deletingHabitId, setDeletingHabitId] = useState<string | null>(null)
@@ -119,6 +127,29 @@ export function HabitList({
   const confirmHardDeleteHabit = orderedHabits.find(
     (habit) => habit.id === confirmHardDeleteHabitId,
   )
+
+  const shiftSelectedLocalDate = (offsetDays: number) => {
+    const [year, month, day] = localDate.split('-').map(Number)
+
+    if (
+      Number.isNaN(year) ||
+      Number.isNaN(month) ||
+      Number.isNaN(day) ||
+      month < 1 ||
+      month > 12 ||
+      day < 1 ||
+      day > 31
+    ) {
+      return
+    }
+
+    const nextDate = new Date(year, month - 1, day + offsetDays)
+    const nextYear = nextDate.getFullYear()
+    const nextMonth = String(nextDate.getMonth() + 1).padStart(2, '0')
+    const nextDay = String(nextDate.getDate()).padStart(2, '0')
+
+    setLocalDate(`${nextYear}-${nextMonth}-${nextDay}`)
+  }
 
   const handleHabitDrop = (targetId: string) => {
     if (!draggingHabitId) {
@@ -235,8 +266,51 @@ export function HabitList({
           sourceElement={confettiSourceElement}
         />
       ) : null}
-      <div className="flex items-center justify-between gap-3">
-        <h2 className="text-lg font-semibold text-slate-900">Today</h2>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <h2 className="text-lg font-semibold text-slate-900">Habits</h2>
+          <div className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white p-1">
+            <button
+              className="inline-flex h-8 w-8 items-center justify-center rounded-md text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+              type="button"
+              onClick={() => {
+                shiftSelectedLocalDate(-1)
+              }}
+              aria-label="Previous day"
+            >
+              -
+            </button>
+            <input
+              className="h-8 rounded-md border border-slate-200 px-2 text-xs font-semibold text-slate-700"
+              type="date"
+              value={localDate}
+              onChange={(event) => {
+                setLocalDate(event.target.value)
+              }}
+            />
+            <button
+              className="inline-flex h-8 w-8 items-center justify-center rounded-md text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+              type="button"
+              onClick={() => {
+                shiftSelectedLocalDate(1)
+              }}
+              aria-label="Next day"
+            >
+              +
+            </button>
+          </div>
+          {localDate !== todayLocalDate ? (
+            <button
+              className="inline-flex h-8 items-center justify-center rounded-lg border border-slate-200 bg-white px-2.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+              type="button"
+              onClick={() => {
+                setLocalDate(todayLocalDate)
+              }}
+            >
+              Today
+            </button>
+          ) : null}
+        </div>
         <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
           <button
             className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 sm:px-3"
