@@ -1271,7 +1271,7 @@
       "Verify the main habit list switches to that exact date",
       "Toggle a completion and verify the selected calendar date remains in sync"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Daily Check-in",

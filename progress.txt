@@ -543,3 +543,8 @@
 - Decisions: prioritized as highest-risk integration dependency for remaining past-day work (toggle/history/calendar sync); expanded local-date context into selected-day + today-day so existing data fetches automatically re-scope by selected day; added day controls (prev/next/date picker + Today reset) in habit list header to switch context without route changes.
 - Files changed: src/context/local-date.tsx, src/components/dashboard/HabitList/index.tsx, prd.json, progress.txt.
 - Blockers/notes: `npm run test` still exits 0 with existing Vitest hanging-process shutdown warning; future-date prevention intentionally left for separate PRD item.
+
+- Task completed: Frontend / Calendar View - Allow clicking a calendar day to sync the main habit list to that selected date for editing completions. (PRD Frontend / Calendar View)
+- Decisions: prioritized as highest pending integration point between calendar module and selected-day check-in context; wired calendar `onSelect` to shared local-date context so day taps update the main habit list date without route churn or duplicate state.
+- Files changed: src/components/dashboard/HabitCalendarCard/HabitCalendarGrid.tsx, src/components/dashboard/HabitCalendarCard/index.tsx, prd.json, progress.txt.
+- Blockers/notes: `npm run typecheck`, `npm run test`, `npm run lint` pass; Vitest still prints hanging-process shutdown warning while exiting 0.

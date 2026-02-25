@@ -4,10 +4,12 @@ import { ChevronDownIcon } from 'lucide-react'
 import { HabitCalendarGrid } from './HabitCalendarGrid'
 import { HabitCalendarStatus } from './HabitCalendarStatus'
 import { HabitCalendarStreaks } from './HabitCalendarStreaks'
+import { formatLocalDate } from './habitCalendarUtils'
 import { calendarBlockMaxWidthClass } from './constants'
 
 import type { Habit } from '@/types/dashboard'
 
+import { useSetLocalDate } from '@/context/local-date'
 import { useHabitCalendar } from '@/hooks/useHabitCalendar'
 
 type HabitCalendarCardProps = {
@@ -20,6 +22,7 @@ export function HabitCalendarCard({
   habitStreaks,
 }: HabitCalendarCardProps) {
   const [viewMode, setViewMode] = useState<'overview' | 'habit'>('overview')
+  const setLocalDate = useSetLocalDate()
   const {
     completedDates,
     habitCalendarError,
@@ -46,6 +49,9 @@ export function HabitCalendarCard({
     month,
     onMonthChange: setMonth,
     onMonthStep: shiftMonth,
+    onDateSelect: (selectedDay: Date) => {
+      setLocalDate(formatLocalDate(selectedDay))
+    },
     todayKey,
   }
 

@@ -21,6 +21,7 @@ type SharedProps = {
   month: Date
   onMonthChange: (nextMonth: Date) => void
   onMonthStep: (offset: number) => void
+  onDateSelect: (selectedDay: Date) => void
   todayKey: string
 }
 
@@ -43,8 +44,15 @@ const getCellSizeClass = (viewMode: HabitCalendarViewMode) => {
 }
 
 export function HabitCalendarGrid(props: HabitCalendarGridProps) {
-  const { monthLabel, month, onMonthChange, onMonthStep, todayKey, viewMode } =
-    props
+  const {
+    monthLabel,
+    month,
+    onMonthChange,
+    onMonthStep,
+    onDateSelect,
+    todayKey,
+    viewMode,
+  } = props
 
   const dayButtonComponent =
     viewMode === 'overview'
@@ -69,7 +77,11 @@ export function HabitCalendarGrid(props: HabitCalendarGridProps) {
       <Calendar
         mode="single"
         month={month}
-        onSelect={() => {}}
+        onSelect={(selectedDay) => {
+          if (selectedDay) {
+            onDateSelect(selectedDay)
+          }
+        }}
         onMonthChange={onMonthChange}
         hideNavigation={true}
         showOutsideDays={false}
