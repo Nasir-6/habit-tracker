@@ -509,6 +509,11 @@
 - Files changed: src/components/dashboard/HabitList/HabitListItem.tsx, prd.json, progress.txt.
 - Blockers/notes: feedback loops pass (`npm run typecheck`, `npm run test`, `npm run lint`); `npm run test` exits 0 with existing Vitest hanging-process shutdown warning.
 
+- Task completed: Frontend / Daily Check-in - Allow toggling habit completion for the selected past date and persist that date-specific completion state. (PRD Frontend / Daily Check-in)
+- Decisions: prioritized as highest remaining past-date integration point; confirmed toggle mutation posts `localDate` from shared selected-day context and habit fetches are keyed by `localDate`, so past-date toggles persist and refetch correctly without extra UI wiring.
+- Files changed: prd.json, progress.txt.
+- Blockers/notes: run feedback loops required before commit; expect existing Vitest hanging-process warning while exit code stays 0.
+
 - Task completed: Backend / Daily Check-in - Ensure completion create/remove operations continue to support valid non-future localDate values for day-specific edits. (PRD Backend / Daily Check-in)
 - Decisions: prioritized as core completion-write guardrail before multi-date UI work; enforce non-future localDate in POST/DELETE completion paths while keeping past-date edits valid; accept optional `tzOffsetMinutes` (default 0) so boundary checks can respect client local day.
 - Files changed: src/lib/api/completions.ts, prd.json, progress.txt.

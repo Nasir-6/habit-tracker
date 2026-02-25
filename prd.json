@@ -1260,7 +1260,7 @@
       "Navigate to another date and return to the edited date",
       "Verify completion states persist for that specific date"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Calendar View",
