@@ -1239,5 +1239,93 @@
       "Verify keyboard activation (Enter/Space) on the bell triggers the same behavior"
     ],
     "passes": false
+  },
+  {
+    "category": "Frontend / Daily Check-in",
+    "description": "Allow selecting a target day so the habit list can be viewed for past dates instead of only Today.",
+    "steps_to_verify": [
+      "Open the Today screen",
+      "Change the selected day to a past date using day navigation controls",
+      "Verify the list context updates to the chosen date",
+      "Switch back to Today and verify the list context returns to current day"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Daily Check-in",
+    "description": "Allow toggling habit completion for the selected past date and persist that date-specific completion state.",
+    "steps_to_verify": [
+      "Select a past date from the day controls or calendar",
+      "Toggle one or more habits complete/incomplete",
+      "Navigate to another date and return to the edited date",
+      "Verify completion states persist for that specific date"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Calendar View",
+    "description": "Allow clicking a calendar day to sync the main habit list to that selected date for editing completions.",
+    "steps_to_verify": [
+      "Open the calendar card",
+      "Click a past day in the month grid",
+      "Verify the main habit list switches to that exact date",
+      "Toggle a completion and verify the selected calendar date remains in sync"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Daily Check-in",
+    "description": "Prevent selecting future dates in day navigation and calendar interactions.",
+    "steps_to_verify": [
+      "Open the day navigation controls",
+      "Attempt to move beyond Today using next-day navigation",
+      "Attempt to select a future date from the calendar",
+      "Verify future date selection is blocked and no completion edits are possible for future days"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Habit Management",
+    "description": "Restrict past-date mode to completion-only actions by disabling non-completion habit management controls.",
+    "steps_to_verify": [
+      "Select a past date",
+      "Verify create habit, reorder, archive/delete, reminder, and history management actions are hidden or disabled",
+      "Verify completion toggle remains available",
+      "Switch back to Today and verify full habit management actions return"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Daily Check-in",
+    "description": "Show clear date context in the habit list header (Today/Yesterday/formatted date) while browsing past days.",
+    "steps_to_verify": [
+      "Open Today screen and verify header shows Today context",
+      "Move to yesterday and verify header shows Yesterday context",
+      "Move to an older date and verify a formatted date label is shown",
+      "Verify the date context updates immediately when selected day changes"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Backend / Daily Check-in",
+    "description": "Ensure completion create/remove operations continue to support valid non-future localDate values for day-specific edits.",
+    "steps_to_verify": [
+      "Submit completion create request for a past localDate",
+      "Verify completion is stored for that exact date",
+      "Submit completion delete request for that same past localDate",
+      "Verify completion is removed only for that exact date"
+    ],
+    "passes": false
+  },
+  {
+    "category": "Frontend / Streaks",
+    "description": "Display streak values as-of the currently selected date when viewing and editing past-day habit state.",
+    "steps_to_verify": [
+      "Select a habit with known multi-day completion history",
+      "Capture streak values on Today",
+      "Switch to a past date and verify streak values update for that date context",
+      "Return to Today and verify streak values match current-day context again"
+    ],
+    "passes": false
   }
 ]
