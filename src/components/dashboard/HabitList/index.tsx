@@ -187,6 +187,7 @@ export function HabitList({
   const confirmHardDeleteHabit = orderedHabits.find(
     (habit) => habit.id === confirmHardDeleteHabitId,
   )
+  const dateContextLabel = formatLocalDateLabel(localDate, todayLocalDate)
   const streakContextLabel =
     localDate === todayLocalDate
       ? null
@@ -341,6 +342,9 @@ export function HabitList({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <h2 className="text-lg font-semibold text-slate-900">Habits</h2>
+          <span className="rounded-full border border-slate-200 bg-white px-2.5 py-0.5 text-xs font-semibold text-slate-600">
+            {dateContextLabel}
+          </span>
           <div className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white p-1">
             <button
               className="inline-flex h-8 w-8 items-center justify-center rounded-md text-sm font-semibold text-slate-700 transition hover:bg-slate-100"

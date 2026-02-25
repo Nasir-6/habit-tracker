@@ -573,3 +573,8 @@
 - Decisions: prioritized as highest pending guardrail before past-date completion edits; block future dates across all selectors (next-day button disabled on Today, date input `max=todayLocalDate`, calendar days after today disabled and ignored in onSelect) so no future localDate state can be set.
 - Files changed: src/components/dashboard/HabitList/index.tsx, src/components/dashboard/HabitCalendarCard/HabitCalendarGrid.tsx, prd.json, progress.txt.
 - Blockers/notes: feedback loops pass (`npm run typecheck`, `npm run test`, `npm run lint`); `npm run test` exits 0 with existing Vitest hanging-process shutdown warning.
+
+- Task completed: Frontend / Daily Check-in - Show clear date context in the habit list header (Today/Yesterday/formatted date) while browsing past days. (PRD Frontend / Daily Check-in)
+- Decisions: render a persistent date-context badge beside the Habits header using existing local-date formatting so Today/Yesterday/past dates are always visible without extra layout changes.
+- Files changed: src/components/dashboard/HabitList/index.tsx, prd.json, progress.txt.
+- Blockers/notes: feedback loops pass (`npm run typecheck`, `npm run test`, `npm run lint`); `npm run test` exits 0 with existing Vitest hanging-process shutdown warning.

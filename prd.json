@@ -1304,7 +1304,7 @@
       "Move to an older date and verify a formatted date label is shown",
       "Verify the date context updates immediately when selected day changes"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Backend / Daily Check-in",
