@@ -1,13 +1,25 @@
+import type { DragEvent } from 'react'
 import { useEffect, useRef, useState } from 'react'
-import { Archive, Plus } from 'lucide-react'
+import {
+  Archive,
+  Calendar as CalendarIcon,
+  ChevronLeft,
+  ChevronRight,
+  Plus,
+} from 'lucide-react'
 import { CompletionConfetti } from './CompletionConfetti'
 import { DailyProgressBar } from './DailyProgressBar'
 import { HabitHistoryDialog } from './HabitHistoryDialog'
 import { HabitListItem } from './HabitListItem'
-import type { DragEvent } from 'react'
 
 import type { Habit } from '@/types/dashboard'
 import { ConfirmModal } from '@/components/dashboard/ConfirmModal'
+import { Calendar } from '@/components/ui/calendar'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import {
   useLocalDate,
   useSetLocalDate,
@@ -85,10 +97,28 @@ const formatLocalDateLabel = (value: string, todayLocalDate: string) => {
   }
 
   return new Intl.DateTimeFormat(undefined, {
+    weekday: 'short',
     month: 'short',
     day: 'numeric',
     year: 'numeric',
   }).format(new Date(parts.year, parts.month - 1, parts.day))
+}
+
+const resolveLocalDate = (value: string) => {
+  const parts = parseLocalDateParts(value)
+
+  if (!parts) {
+    return null
+  }
+
+  return new Date(parts.year, parts.month - 1, parts.day)
+}
+
+const formatLocalDateValue = (value: Date) => {
+  const year = value.getFullYear()
+  const month = String(value.getMonth() + 1).padStart(2, '0')
+  const day = String(value.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
 }
 
 export function HabitList({
@@ -120,6 +150,7 @@ export function HabitList({
     string | null
   >(null)
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false)
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false)
   const completionButtonByHabitIdRef = useRef<
     Record<string, HTMLButtonElement | null>
   >({})
@@ -188,6 +219,8 @@ export function HabitList({
     (habit) => habit.id === confirmHardDeleteHabitId,
   )
   const dateContextLabel = formatLocalDateLabel(localDate, todayLocalDate)
+  const selectedDate = resolveLocalDate(localDate)
+  const todayDate = resolveLocalDate(todayLocalDate) ?? new Date()
   const streakContextLabel =
     localDate === todayLocalDate
       ? null
@@ -342,9 +375,6 @@ export function HabitList({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <h2 className="text-lg font-semibold text-slate-900">Habits</h2>
-          <span className="rounded-full border border-slate-200 bg-white px-2.5 py-0.5 text-xs font-semibold text-slate-600">
-            {dateContextLabel}
-          </span>
           <div className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white p-1">
             <button
               className="inline-flex h-8 w-8 items-center justify-center rounded-md text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
@@ -354,21 +384,46 @@ export function HabitList({
               }}
               aria-label="Previous day"
             >
-              -
+              <ChevronLeft className="h-4 w-4" aria-hidden="true" />
             </button>
-            <input
-              className="h-8 rounded-md border border-slate-200 px-2 text-xs font-semibold text-slate-700"
-              type="date"
-              value={localDate}
-              max={todayLocalDate}
-              onChange={(event) => {
-                const nextLocalDate = event.target.value
+            <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
+              <PopoverTrigger asChild>
+                <button
+                  className="inline-flex h-8 w-[150px] items-center justify-between gap-2 rounded-md border border-slate-200 bg-white px-2 text-xs font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+                  type="button"
+                  aria-label="Pick a date"
+                >
+                  <span className="truncate">{dateContextLabel}</span>
+                  <CalendarIcon
+                    className="h-4 w-4 text-slate-500"
+                    aria-hidden="true"
+                  />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent align="start" className="w-auto p-0">
+                <Calendar
+                  mode="single"
+                  selected={selectedDate ?? undefined}
+                  defaultMonth={selectedDate ?? todayDate}
+                  disabled={{ after: todayDate }}
+                  initialFocus
+                  className="rounded-xl border border-slate-200 bg-white"
+                  onSelect={(selectedDay) => {
+                    if (!selectedDay) {
+                      return
+                    }
 
-                if (nextLocalDate <= todayLocalDate) {
-                  setLocalDate(nextLocalDate)
-                }
-              }}
-            />
+                    const nextLocalDate = formatLocalDateValue(selectedDay)
+
+                    if (nextLocalDate <= todayLocalDate) {
+                      setLocalDate(nextLocalDate)
+                    }
+
+                    setIsDatePickerOpen(false)
+                  }}
+                />
+              </PopoverContent>
+            </Popover>
             <button
               className="inline-flex h-8 w-8 items-center justify-center rounded-md text-sm font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:text-slate-300 disabled:hover:bg-transparent"
               type="button"
@@ -378,7 +433,7 @@ export function HabitList({
               aria-label="Next day"
               disabled={isOnToday}
             >
-              +
+              <ChevronRight className="h-4 w-4" aria-hidden="true" />
             </button>
           </div>
           {localDate !== todayLocalDate ? (
