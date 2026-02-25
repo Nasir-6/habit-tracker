@@ -1,5 +1,9 @@
 import { badRequest, created, ok, parseJson } from '@/lib/api'
-import { isValidLocalDateString, parseLocalDateParts } from '@/lib/date'
+import {
+  formatUtcDateWithOffset,
+  isValidLocalDateString,
+  parseLocalDateParts,
+} from '@/lib/date'
 import {
   deleteCompletion,
   fetchCompletion,
@@ -16,12 +20,19 @@ type CompletionCreatePayload = {
 
 type CompletionListPayload = {
   completions?: unknown
+  tzOffsetMinutes?: unknown
+}
+
+type CompletionMutationPayload = CompletionCreatePayload & {
+  tzOffsetMinutes?: unknown
 }
 
 type CompletionPayload = {
   habitId: string
   localDate: string
 }
+
+const MAX_TZ_OFFSET_MINUTES = 14 * 60
 
 const parseCompletion = (payload: unknown): CompletionPayload | null => {
   if (!payload || typeof payload !== 'object') {
@@ -43,6 +54,34 @@ const parseCompletion = (payload: unknown): CompletionPayload | null => {
 
 const getCompletionPayload = (payload: unknown) => {
   return parseCompletion(payload)
+}
+
+const getTzOffsetMinutes = (payload: unknown) => {
+  if (!payload || typeof payload !== 'object') {
+    return 0
+  }
+
+  const { tzOffsetMinutes } = payload as CompletionMutationPayload
+
+  if (typeof tzOffsetMinutes === 'undefined') {
+    return 0
+  }
+
+  if (
+    typeof tzOffsetMinutes !== 'number' ||
+    !Number.isInteger(tzOffsetMinutes) ||
+    Math.abs(tzOffsetMinutes) > MAX_TZ_OFFSET_MINUTES
+  ) {
+    return null
+  }
+
+  return tzOffsetMinutes
+}
+
+const isFutureLocalDate = (localDate: string, tzOffsetMinutes: number) => {
+  const todayLocalDate = formatUtcDateWithOffset(new Date(), tzOffsetMinutes)
+
+  return localDate > todayLocalDate
 }
 
 const getCompletionList = (payload: unknown) => {
@@ -102,10 +141,23 @@ export const handleCompletionsPost = async (
   userId: string,
 ) => {
   const payload = await parseJson(request)
+  const tzOffsetMinutes = getTzOffsetMinutes(payload)
+
+  if (tzOffsetMinutes === null) {
+    return badRequest('Invalid timezone offset')
+  }
 
   const completionList = getCompletionList(payload)
 
   if (completionList) {
+    if (
+      completionList.some((completion) =>
+        isFutureLocalDate(completion.localDate, tzOffsetMinutes),
+      )
+    ) {
+      return badRequest('Local date cannot be in the future')
+    }
+
     const habitIds = Array.from(
       new Set(completionList.map((completion) => completion.habitId)),
     )
@@ -133,6 +185,10 @@ export const handleCompletionsPost = async (
 
   const { habitId, localDate } = completionPayload
 
+  if (isFutureLocalDate(localDate, tzOffsetMinutes)) {
+    return badRequest('Local date cannot be in the future')
+  }
+
   const habit = await fetchHabitById(userId, habitId)
 
   if (!habit) {
@@ -159,6 +215,11 @@ export const handleCompletionsDelete = async (
   userId: string,
 ) => {
   const payload = await parseJson(request)
+  const tzOffsetMinutes = getTzOffsetMinutes(payload)
+
+  if (tzOffsetMinutes === null) {
+    return badRequest('Invalid timezone offset')
+  }
 
   const completionPayload = getCompletionPayload(payload)
 
@@ -167,6 +228,10 @@ export const handleCompletionsDelete = async (
   }
 
   const { habitId, localDate } = completionPayload
+
+  if (isFutureLocalDate(localDate, tzOffsetMinutes)) {
+    return badRequest('Local date cannot be in the future')
+  }
 
   const habit = await fetchHabitById(userId, habitId)
 

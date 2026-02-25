@@ -1315,7 +1315,7 @@
       "Submit completion delete request for that same past localDate",
       "Verify completion is removed only for that exact date"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Streaks",

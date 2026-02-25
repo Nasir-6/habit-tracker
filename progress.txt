@@ -509,6 +509,11 @@
 - Files changed: src/components/dashboard/HabitList/HabitListItem.tsx, prd.json, progress.txt.
 - Blockers/notes: feedback loops pass (`npm run typecheck`, `npm run test`, `npm run lint`); `npm run test` exits 0 with existing Vitest hanging-process shutdown warning.
 
+- Task completed: Backend / Daily Check-in - Ensure completion create/remove operations continue to support valid non-future localDate values for day-specific edits. (PRD Backend / Daily Check-in)
+- Decisions: prioritized as core completion-write guardrail before multi-date UI work; enforce non-future localDate in POST/DELETE completion paths while keeping past-date edits valid; accept optional `tzOffsetMinutes` (default 0) so boundary checks can respect client local day.
+- Files changed: src/lib/api/completions.ts, prd.json, progress.txt.
+- Blockers/notes: none.
+
 - Task completed: Frontend / Habit Management - Render habit creation UI with a required name field. (PRD Frontend / Habit Management)
 - Decisions: prioritized as final remaining PRD item; verified existing create-habit modal already has required name input (`required`) and disabled save when trimmed name empty, so no product code change.
 - Files changed: prd.json, progress.txt.
