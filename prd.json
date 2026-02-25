@@ -1238,7 +1238,7 @@
       "Verify a notification control surface opens (for example permission status, enable action, or settings)",
       "Verify keyboard activation (Enter/Space) on the bell triggers the same behavior"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "Frontend / Daily Check-in",
